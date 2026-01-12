@@ -1,4 +1,4 @@
-import { BufferAttribute, BufferGeometry, Mesh, MeshPhysicalMaterial } from "three";
+import { BufferAttribute, BufferGeometry, Mesh, MeshPhysicalMaterial, MeshStandardMaterial } from "three";
 import { CHUNK_SIZE, type Chunk } from "./Chunk";
 import type { TerrainBuilder, Triangle } from "./TerrainBuilder";
 import type { Vector3 } from "../Core/Vector3";
@@ -32,11 +32,16 @@ export class ChunkMeshBuilder {
         const geometry = new BufferGeometry();
         
         let geometryList: number[] = [];
+        let colorList: number[] = [];
 
         for (const tri of triList) {
             geometryList.push(tri.a[0], tri.a[1], tri.a[2]);
             geometryList.push(tri.b[0], tri.b[1], tri.b[2]);
             geometryList.push(tri.c[0], tri.c[1], tri.c[2]);
+            colorList.push(tri.color[0] / 255, tri.color[1] / 255, tri.color[2] / 255);
+            colorList.push(tri.color[0] / 255, tri.color[1] / 255, tri.color[2] / 255);
+            colorList.push(tri.color[0] / 255, tri.color[1] / 255, tri.color[2] / 255);
+
         }
 
         console.log("Vertex list has: ", triList.length, " items");
@@ -46,14 +51,16 @@ export class ChunkMeshBuilder {
         }
 
         const vertices = new Float32Array(geometryList);
+        const colors = new Float32Array(colorList);
         geometry.setAttribute("position", new BufferAttribute(vertices, 3));
+        geometry.setAttribute("color", new BufferAttribute(colors, 3));
         geometry.computeVertexNormals();
 
 
 
         // Mesh
 
-        const mesh = new Mesh(geometry, new MeshPhysicalMaterial({color: 0xffffff}));
+        const mesh = new Mesh(geometry, new MeshStandardMaterial({color: 0xffffff, vertexColors: true}));
         mesh.position.set(
             position.x * (CHUNK_SIZE),
             position.y * (CHUNK_SIZE),

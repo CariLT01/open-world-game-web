@@ -1,6 +1,7 @@
 import { Vector3, type Vec3Fast } from "../Core/Vector3";
+import { Materials, type MaterialData } from "../Materials";
 import { CHUNK_SIZE, type Chunk } from "./Chunk";
-import type { ChunkData } from "./ChunkData";
+import type { ChunkData, MaterialIndex } from "./ChunkData";
 import { edgeTable, triTable } from "./Data/TriangulationTable";
 
 const ISOLEVEL: number = 0.5;
@@ -24,6 +25,7 @@ export type Triangle = {
     a: Vec3Fast;
     b: Vec3Fast;
     c: Vec3Fast;
+    color: Vec3Fast
 };
 
 export class TerrainBuilder {
@@ -54,7 +56,7 @@ export class TerrainBuilder {
         return p;
     }
 
-    private generateCell(cell: Cell) {
+    private generateCell(cell: Cell, mat: MaterialIndex) {
         let cubeindex = 0;
         if (cell.values[0] < ISOLEVEL) cubeindex |= 1;
         if (cell.values[1] < ISOLEVEL) cubeindex |= 2;
@@ -176,6 +178,12 @@ export class TerrainBuilder {
         const triIndices = triTable[cubeindex];
         if (!triIndices) return [];
 
+        let color = Materials.get(mat);
+        if (!color) {
+            console.error("Material not found: ", mat);
+            return [];
+        };
+
         for (let i = 0; triIndices[i] !== -1; i += 3) {
             const one = triIndices[i];
             const two = triIndices[i + 1];
@@ -186,10 +194,12 @@ export class TerrainBuilder {
             }
 
             // Create a new Triangle and push it immediately
+
             triList.push({
                 a: vertList[three] as Vec3Fast,
                 b: vertList[two] as Vec3Fast,
                 c: vertList[one] as Vec3Fast,
+                color: color.color
             });
 
             ntriang += 1;
@@ -252,6 +262,60 @@ export class TerrainBuilder {
         }
 
         return targetChunk.getDensityAtFast([localX, localY, localZ]);
+    }
+
+    private _getBlockWith(
+        currentChunk: Chunk,
+        pos: Vec3Fast,
+        neighborPosX: Chunk,
+        neighborPosZ: Chunk,
+        neighborPosY: Chunk,
+        neighborCornerXZ: Chunk,
+        neighborCornerXY: Chunk,
+        neighborCornerZY: Chunk,
+        neighborCornerXYZ: Chunk
+    ) {
+        let targetChunk = currentChunk;
+        let localX = pos[0];
+        let localY = pos[1];
+        let localZ = pos[2];
+        if (
+            pos[0] == CHUNK_SIZE &&
+            pos[1] == CHUNK_SIZE &&
+            pos[2] == CHUNK_SIZE
+        ) {
+            targetChunk = neighborCornerXYZ;
+            localX = 0;
+            localY = 0;
+            localZ = 0;
+        } else if (pos[0] == CHUNK_SIZE && pos[2] == CHUNK_SIZE) {
+            targetChunk = neighborCornerXZ;
+            localX = 0;
+            localZ = 0;
+        } else if (pos[0] == CHUNK_SIZE && pos[1] == CHUNK_SIZE) {
+            targetChunk = neighborCornerXY;
+            localX = 0;
+            localY = 0;
+        } else if (pos[2] == CHUNK_SIZE && pos[1] == CHUNK_SIZE) {
+            targetChunk = neighborCornerZY;
+            localZ = 0;
+            localY = 0;
+        } else if (pos[0] == CHUNK_SIZE) {
+            targetChunk = neighborPosX;
+            localX = 0;
+        } else if (pos[1] == CHUNK_SIZE) {
+            targetChunk = neighborPosY;
+            localY = 0;
+        } else if (pos[2] == CHUNK_SIZE) {
+            targetChunk = neighborPosZ;
+            localZ = 0;
+        }
+
+        if (!targetChunk) {
+            throw new Error("Target chunk is null")
+        }
+
+        return targetChunk.getMaterialAtFast([localX, localY, localZ]);
     }
 
     generateTerrainChunk(
@@ -466,7 +530,14 @@ export class TerrainBuilder {
                         values: densityList,
                     };
 
-                    const cellVertList = this.generateCell(cell);
+                    const paletteIndex = currentChunk.getMaterialAtFast([rx, ry, rz]);
+                    const material = currentChunk.getMaterialWithPaletteIndex(paletteIndex);
+                    
+                    if (!material) {
+                        throw new Error(`Material not found: ${paletteIndex}`);
+                    }
+
+                    const cellVertList = this.generateCell(cell, material.material);
 
                     cellVertList.forEach((value) => {
                         triList.push(value);

@@ -15,15 +15,19 @@ export class Vector3 {
     }
 
     set(x: number, y: number, z: number) {
-        this.x, this.y, this.z = x, y, z;
+        this.x = x!;
+        this.y = y!;
+        this.z = z!;
     }
     copy(other: Vector3) {
-        this.x, this.y, this.z = other.x, other.y, other.z;
+        this.x = other.x;
+        this.y = other.x;
+        this.z = other.z;
     }
     add(other: Vector3) {
         return new Vector3(
             this.x + other.x,
-            this.y + other.y, 
+            this.y + other.y,
             this.z + other.z
         )
     }
@@ -92,6 +96,13 @@ export class Vector3 {
 
     toKey() {
         return `${this.x},${this.y},${this.z}`;
+    }
+
+    fromKey(s: string) {
+        const [x, y, z] = s.split(',').map(Number);
+        this.x = x!;
+        this.y = y!;
+        this.z = z!;
     }
 
 

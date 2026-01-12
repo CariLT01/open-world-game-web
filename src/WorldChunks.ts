@@ -21,7 +21,8 @@ export class WorldChunks {
     private chunksColliders: Map<string, Collider> = new Map();
 
     private cachedClosestChunks: Vector3[] = [];
-    private pendingChunks: Set<Vector3> = new Set();
+    private pendingChunks: Set<string> = new Set();
+    private loadedChunks: Set<string> = new Set();
 
     private scene: Scene;
     private physicsWorld: World;
@@ -66,8 +67,8 @@ export class WorldChunks {
             const realPos = chunkPos.add(currentPosition);
 
             if (
-                !this.chunks.has(realPos.toKey()) &&
-                !this.pendingChunks.has(realPos)
+                !this.loadedChunks.has(realPos.toKey()) &&
+                !this.pendingChunks.has(realPos.toKey())
             ) {
                 return realPos;
             }
@@ -117,9 +118,10 @@ export class WorldChunks {
 
                 toRemove.add(c);
                 this.scene.remove(this.chunksMeshes.get(c)!);
-                
+
                 const rigidBody = this.chunksColliders.get(c)!;
                 this.physicsWorld.removeCollider(rigidBody, true);
+                this.loadedChunks.delete(c);
             }
         }
 
@@ -149,7 +151,7 @@ export class WorldChunks {
         this.terrainGenerator.generateTerrainOf(chunk, toGenerate);
 
         if (!this.isReadyToGenerate(toGenerate)) {
-            this.pendingChunks.add(toGenerate);
+            this.pendingChunks.add(toGenerate.toKey());
             console.log("Added to pending chunks ", this.pendingChunks.size);
         } else {
 
@@ -167,6 +169,7 @@ export class WorldChunks {
                 (neighbors[6] as Chunk)
             );
 
+            this.loadedChunks.add(toGenerate.toKey());
             if (mesh.mesh && mesh.colliderDesc) {
                 this.chunksMeshes.set(toGenerate.toKey(), mesh.mesh);
 
@@ -193,6 +196,7 @@ export class WorldChunks {
                 }
 
                 this.chunksColliders.set(toGenerate.toKey(), this.physicsWorld.createCollider(mesh.colliderDesc, rigidBody));
+                
             }
 
 
@@ -201,7 +205,10 @@ export class WorldChunks {
 
         const toRemoveFromPending: Set<Vector3> = new Set();
 
-        for (const chunkPos of this.pendingChunks) {
+        for (const chunkPosI of this.pendingChunks) {
+
+            const chunkPos = new Vector3(0, 0, 0)
+            chunkPos.fromKey(chunkPosI);
 
             const chunk = this.chunks.get(chunkPos.toKey());
 
@@ -223,6 +230,7 @@ export class WorldChunks {
             );
 
             toRemoveFromPending.add(chunkPos);
+            this.loadedChunks.add(toGenerate.toKey());
             if (mesh.mesh && mesh.colliderDesc) {
                 this.chunksMeshes.set(chunkPos.toKey(), mesh.mesh);
 
@@ -248,13 +256,14 @@ export class WorldChunks {
                 }
 
                 this.chunksColliders.set(chunkPos.toKey(), this.physicsWorld.createCollider(mesh.colliderDesc, rigidBody));
+                
 
                 if (this.isFirstChunk) {
 
-                    const v = chunkPos.mulScalar(CHUNK_SIZE).add(new Vector3(0, CHUNK_SIZE / 2, 0));
+                    const v = chunkPos.mulScalar(CHUNK_SIZE).add(new Vector3(CHUNK_SIZE / 2, CHUNK_SIZE, CHUNK_SIZE / 2));
 
                     player.setPosition(v.x, v.y, v.z);
-                    this.isFirstChunk =false;
+                    this.isFirstChunk = false;
                 }
             };
 
@@ -262,7 +271,7 @@ export class WorldChunks {
         }
 
         for (const toRemove of toRemoveFromPending) {
-            this.pendingChunks.delete(toRemove);
+            this.pendingChunks.delete(toRemove.toKey());
         }
     }
 }

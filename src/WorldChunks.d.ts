@@ -13,6 +13,7 @@ export declare class WorldChunks {
     private chunksColliders;
     private cachedClosestChunks;
     private pendingChunks;
+    private loadedChunks;
     private scene;
     private physicsWorld;
     private isFirstChunk;

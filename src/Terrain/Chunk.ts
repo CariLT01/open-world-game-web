@@ -1,5 +1,5 @@
 import { Vector3, type Vec3Fast } from "../Core/Vector3";
-import { ChunkData, type BlockData } from "./ChunkData";
+import { ChunkData, type BlockData, type PaletteIndex } from "./ChunkData";
 
 export const CHUNK_SIZE = 32;
 
@@ -40,5 +40,12 @@ export class Chunk {
     }
     getMaterialAtFast(p: Vec3Fast) {
         return this.chunkData.getBlockAt(new Vector3(p[0], p[1], p[2]))
+    }
+    getMaterialWithPaletteIndex(i: PaletteIndex) {
+        return this.chunkData.getMaterialWithPaletteIndex(i);
+    }
+
+    flushChanges() {
+        this.chunkData.flushPaletteChanges();
     }
 }

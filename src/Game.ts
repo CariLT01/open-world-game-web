@@ -104,6 +104,8 @@ export class Game {
         this.renderer.domElement.addEventListener("click", () => {
             this.renderer.domElement.requestPointerLock();
         })
+
+        
     }
 
     private updateSkyPosition() {

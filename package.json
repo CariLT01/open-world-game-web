@@ -14,6 +14,7 @@
     "fastnoise-lite": "^1.1.1",
     "simplex-noise": "^4.0.3",
     "three": "^0.181.0",
+    "three-csm": "^4.2.1",
     "ts-loader": "^9.5.4",
     "typescript": "^5.9.3",
     "webpack": "^5.102.1",
