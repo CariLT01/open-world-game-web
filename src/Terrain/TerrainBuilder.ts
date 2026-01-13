@@ -531,10 +531,11 @@ export class TerrainBuilder {
                     };
 
                     const paletteIndex = currentChunk.getMaterialAtFast([rx, ry, rz]);
-                    const material = currentChunk.getMaterialWithPaletteIndex(paletteIndex);
+                    let material = currentChunk.getMaterialWithPaletteIndex(paletteIndex);
                     
                     if (!material) {
-                        throw new Error(`Material not found: ${paletteIndex}`);
+                        console.error(`Material not found: ${paletteIndex}`);
+                        return [];
                     }
 
                     const cellVertList = this.generateCell(cell, material.material);

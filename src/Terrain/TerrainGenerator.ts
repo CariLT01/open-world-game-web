@@ -253,14 +253,49 @@ export class TerrainGenerator {
             [1.0, 0.77],
         ]);
 
+        const continentalNessSpline = new Map([
+            [0, 0.0],
+            [0.3, 0.2],
+            [0.5, 0.7],
+            [0.6, 0.9],
+            [0.8, 0.95],
+            [1.0, 1.0]
+        ]);
+
+        const erosionSpline = new Map([
+            [0, 1.0],
+            [0.3, 0.77],
+            [0.5, 0.4],
+            [0.6, 0.3],
+            [0.7, 0.2],
+            [0.75, 0.3],
+            [0.8, 0.75],
+            [1.0, 0.77]
+        ]) 
+
         // const grid = this._generateNoiseGrid(chunkPosition, new Vector3(1 / 50, 1 / 50, 1 / 50), 2);
 
         const lowResGrid = this._generateNoiseGrid2D(
             chunkPosition,
-            new Vector3(1 / 350, 1 / 350, 1 / 350),
+            new Vector3(1 / 700, 1 / 700, 1 / 700),
             8,
             4
         );
+
+        const lowResContinentalness = this._generateNoiseGrid2D(
+            chunkPosition,
+            new Vector3(1 / 2000, 1 / 2000, 1 / 2000),
+            16,
+            3
+        );
+
+        const ersionLowRes = this._generateNoiseGrid2D(
+            chunkPosition,
+            new Vector3(1 / 1500, 1 / 1500, 1 / 1500),
+            16,
+            3
+        )
+        
 
         for (let x = 0; x < CHUNK_SIZE; x++) {
             for (let z = 0; z < CHUNK_SIZE; z++) {
@@ -274,14 +309,23 @@ export class TerrainGenerator {
                     baseHeightRaw
                 );
                 const fineDetailRaw =
-                    (this._fractalNoise2D(worldX / 150, worldZ / 150, 3) + 1) /
+                    (this._fractalNoise2D(worldX / 300, worldZ / 300, 3) + 1) /
                     2;
                 const fineDetail = this._evaluateCurve(
                     peaksAndValleysSpline,
                     fineDetailRaw
                 );
+                const continentalnessRaw = 
+                (this._bilinearInterpolation(lowResContinentalness, x, z, 16) + 1) / 2;
+                
+                const continentalness = this._evaluateCurve(continentalNessSpline, continentalnessRaw);
+
+
+                const erionRaw = (this._bilinearInterpolation(ersionLowRes, x, z, 16) + 1) / 2;
+                const erosion = this._evaluateCurve(erosionSpline, erionRaw);
+
                 const terrainHeight =
-                    (baseHeight * 0.6 + fineDetail * 0.4) * 150;
+                    ((baseHeight * 0.6 + fineDetail * 0.4) * (continentalness * 0.6 + erosion * 0.4)) * 150;
 
                 for (let y = 0; y < CHUNK_SIZE; y++) {
                     const worldY = chunkPosition.y * CHUNK_SIZE + y;
