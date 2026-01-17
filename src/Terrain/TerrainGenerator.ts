@@ -2,11 +2,49 @@ import { SimplexNoise } from "three/examples/jsm/Addons.js";
 import { Vector3 } from "../Core/Vector3";
 import { Chunk, CHUNK_SIZE } from "./Chunk";
 import type { MaterialIndex } from "./ChunkData";
+import { WorleyNoise } from "./WorleyNoise";
+
+const clamp = (num: number, min: number, max: number): number => {
+    return Math.min(Math.max(num, min), max);
+};
+
+const noise = new WorleyNoise(1341);
 
 export class TerrainGenerator {
     private simplex: SimplexNoise = new SimplexNoise();
 
-    constructor() {}
+    constructor() { }
+
+
+    private _spaghettiDensity(x: number, y: number, z: number, cn1grid: Float32Array, cn2grid: Float32Array) {
+
+        const sampleA = this._trilinearInterpolation(cn1grid, x, y, z, 4);
+        const sampleB = this._trilinearInterpolation(cn2grid, x, y, z, 4);
+
+        const ridgeA = Math.abs(sampleA);
+        const ridgeB = Math.abs(sampleB);
+
+
+
+
+        const spaghetti = Math.max(ridgeA, ridgeB);
+
+        const thickness = 0.03;
+        let densityRaw = spaghetti - thickness;
+        const transitionRange = 0.015;
+
+        if (densityRaw <= 0) {
+            // We are INSIDE the cave. 
+            // Marching cubes usually wants negative for air.
+            return 0.0;
+        } else {
+            // we are OUTSIDE the cave. 
+            // Interpolate from 0.0 to 1.0 over the transitionRange.
+            let interpolated = densityRaw / transitionRange;
+            return clamp(interpolated + Math.random() * 0.1, 0.0, 1.0);
+        }
+
+    }
 
     private _fractalNoise3D(
         x: number,
@@ -67,20 +105,22 @@ export class TerrainGenerator {
         stepSize: number = 4,
         octaves = 5,
         persistence = 0.5,
-        lacunarity = 2.0
+        lacunarity = 2.0,
+        offset: Vector3 = new Vector3(0, 0, 0)
     ) {
-        const grid: { [key: string]: number } = {};
+        const size = CHUNK_SIZE + 1;
+        const grid = new Float32Array(size * size * size);
 
         for (let x = 0; x <= CHUNK_SIZE; x += stepSize) {
             for (let y = 0; y <= CHUNK_SIZE; y += stepSize) {
                 for (let z = 0; z <= CHUNK_SIZE; z += stepSize) {
                     const v = new Vector3(
-                        x + chunkPosition.x * CHUNK_SIZE,
-                        y + chunkPosition.y * CHUNK_SIZE,
-                        z + chunkPosition.z * CHUNK_SIZE
+                        x + chunkPosition.x * CHUNK_SIZE + offset.x,
+                        y + chunkPosition.y * CHUNK_SIZE + offset.y,
+                        z + chunkPosition.z * CHUNK_SIZE + offset.z
                     ).mul(scalar);
 
-                    grid[`${x},${y},${z}`] = this._fractalNoise3D(
+                    grid[this._xyzToIndex(x, y, z)] = this._fractalNoise3D(
                         v.x,
                         v.y,
                         v.z,
@@ -103,7 +143,9 @@ export class TerrainGenerator {
         persistence = 0.5,
         lacunarity = 2.0
     ) {
-        const grid: { [key: string]: number } = {};
+        const size = CHUNK_SIZE + 1;
+
+        const grid = new Float32Array(size * size);
 
         for (let x = 0; x <= CHUNK_SIZE; x += stepSize) {
             for (let z = 0; z <= CHUNK_SIZE; z += stepSize) {
@@ -113,7 +155,7 @@ export class TerrainGenerator {
                     z + chunkPosition.z * CHUNK_SIZE
                 ).mul(scalar);
 
-                grid[`${x},${z}`] = this._fractalNoise2D(
+                grid[this._xzToIndex(x, z)] = this._fractalNoise2D(
                     v.x,
                     v.z,
                     octaves,
@@ -129,9 +171,16 @@ export class TerrainGenerator {
     private _lerp(a: number, b: number, t: number) {
         return a + (b - a) * t;
     }
+    private _xyzToIndex(x: number, y: number, z: number) {
+        return x * (CHUNK_SIZE + 1) * (CHUNK_SIZE + 1) + y * (CHUNK_SIZE + 1) + z;
+    }
+
+    private _xzToIndex(x: number, z: number) {
+        return x * (CHUNK_SIZE + 1) + z;
+    }
 
     private _trilinearInterpolation(
-        grid: { [key: string]: number },
+        grid: Float32Array,
         x: number,
         y: number,
         z: number,
@@ -148,15 +197,15 @@ export class TerrainGenerator {
         const yd = (y - y0) / step;
         const zd = (z - z0) / step;
 
-        // Fetch the 8 corners
-        const c000 = grid[`${x0},${y0},${z0}`]!;
-        const c100 = grid[`${x1},${y0},${z0}`]!;
-        const c010 = grid[`${x0},${y1},${z0}`]!;
-        const c110 = grid[`${x1},${y1},${z0}`]!;
-        const c001 = grid[`${x0},${y0},${z1}`]!;
-        const c101 = grid[`${x1},${y0},${z1}`]!;
-        const c011 = grid[`${x0},${y1},${z1}`]!;
-        const c111 = grid[`${x1},${y1},${z1}`]!;
+        // 3. Fetch the 8 corners using the flat index
+        const c000 = grid[this._xyzToIndex(x0, y0, z0)]!;
+        const c100 = grid[this._xyzToIndex(x1, y0, z0)]!;
+        const c010 = grid[this._xyzToIndex(x0, y1, z0)]!;
+        const c110 = grid[this._xyzToIndex(x1, y1, z0)]!;
+        const c001 = grid[this._xyzToIndex(x0, y0, z1)]!;
+        const c101 = grid[this._xyzToIndex(x1, y0, z1)]!;
+        const c011 = grid[this._xyzToIndex(x0, y1, z1)]!;
+        const c111 = grid[this._xyzToIndex(x1, y1, z1)]!;
 
         // Interpolate along x
         const c00 = this._lerp(c000, c100, xd);
@@ -173,7 +222,7 @@ export class TerrainGenerator {
     }
 
     private _bilinearInterpolation(
-        grid: { [key: string]: number },
+        grid: Float32Array,
         x: number,
         y: number,
         step: number
@@ -189,10 +238,10 @@ export class TerrainGenerator {
         const ty = (y - y0) / step;
 
         // Fetch the 4 corners
-        const c00 = grid[`${x0},${y0}`]!;
-        const c10 = grid[`${x1},${y0}`]!;
-        const c01 = grid[`${x0},${y1}`]!;
-        const c11 = grid[`${x1},${y1}`]!;
+        const c00 = grid[this._xzToIndex(x0, y0)]!;
+        const c10 = grid[this._xzToIndex(x1, y0)]!;
+        const c01 = grid[this._xzToIndex(x0, y1)]!;
+        const c11 = grid[this._xzToIndex(x1, y1)]!;
 
         // Interpolate along x
         const c0 = c00 + (c10 - c00) * tx;
@@ -271,7 +320,7 @@ export class TerrainGenerator {
             [0.75, 0.3],
             [0.8, 0.75],
             [1.0, 0.77]
-        ]) 
+        ])
 
         // const grid = this._generateNoiseGrid(chunkPosition, new Vector3(1 / 50, 1 / 50, 1 / 50), 2);
 
@@ -295,10 +344,31 @@ export class TerrainGenerator {
             16,
             3
         )
-        
+
+        const caveNoise1 = this._generateNoiseGrid(
+            chunkPosition,
+            new Vector3(1 / 400, 1 / 250, 1 / 400),
+            4,
+            5
+        );
+
+        const caveNoise2 = this._generateNoiseGrid(
+            chunkPosition,
+            new Vector3(1 / 400, 1 / 250, 1 / 400),
+            4,
+            5,
+            0.5,
+            2.0,
+            new Vector3(512, 512, 512)
+
+        );
 
         for (let x = 0; x < CHUNK_SIZE; x++) {
             for (let z = 0; z < CHUNK_SIZE; z++) {
+
+
+
+
                 const worldX = chunkPosition.x * CHUNK_SIZE + x;
                 const worldZ = chunkPosition.z * CHUNK_SIZE + z;
 
@@ -315,9 +385,9 @@ export class TerrainGenerator {
                     peaksAndValleysSpline,
                     fineDetailRaw
                 );
-                const continentalnessRaw = 
-                (this._bilinearInterpolation(lowResContinentalness, x, z, 16) + 1) / 2;
-                
+                const continentalnessRaw =
+                    (this._bilinearInterpolation(lowResContinentalness, x, z, 16) + 1) / 2;
+
                 const continentalness = this._evaluateCurve(continentalNessSpline, continentalnessRaw);
 
 
@@ -330,8 +400,10 @@ export class TerrainGenerator {
                 for (let y = 0; y < CHUNK_SIZE; y++) {
                     const worldY = chunkPosition.y * CHUNK_SIZE + y;
 
-                    if (worldY < terrainHeight - 7) {
-                        const density = 1.0
+                    const spaghettiDensity = this._spaghettiDensity(x, y, z, caveNoise1, caveNoise2);
+
+                    if (worldY < terrainHeight - 9) {
+                        const density = spaghettiDensity;
                         //const density = Math.random();
 
                         chunk.setDensityAndMaterialAt(
@@ -343,8 +415,8 @@ export class TerrainGenerator {
                                 hash: 12938,
                             }
                         );
-                    } else if (worldY < terrainHeight - 4) {
-                        const density = 1.0
+                    } else if (worldY < terrainHeight - 6) {
+                        const density = spaghettiDensity;
                         //const density = Math.random();
 
                         chunk.setDensityAndMaterialAt(
@@ -357,10 +429,10 @@ export class TerrainGenerator {
                             }
                         );
                     } else if (worldY < terrainHeight) {
-                        const density = Math.max(
+                        const density = Math.min(Math.max(
                             0,
                             ((terrainHeight) - worldY) / surfaceThickness
-                        );
+                        ), spaghettiDensity);
                         //const density = Math.random();
 
                         chunk.setDensityAndMaterialAt(

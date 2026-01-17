@@ -82,7 +82,7 @@ export class Player {
         if (this.keysPressed.has("d")) dir.sub(right);
         if (this.keysPressed.has("a")) dir.add(right);
 
-        dir.normalize().multiplyScalar(-5);
+        dir.normalize().multiplyScalar(-15);
         this.playerBody.setLinvel({ x: dir.x, y: this.playerBody.linvel().y, z: dir.z }, true);
     }
 
@@ -90,7 +90,7 @@ export class Player {
 
         this.handleTranslation();
 
-        camera.position.set(this.playerBody.translation().x, this.playerBody.translation().y, this.playerBody.translation().z);
+        camera.position.set(this.playerBody.translation().x, this.playerBody.translation().y + 1 * 0.4, this.playerBody.translation().z);
         camera.updateMatrix();
 
         console.log("At: ", camera.position.x, camera.position.y, camera.position.z);

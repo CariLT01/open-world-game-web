@@ -11,6 +11,7 @@
   "description": "",
   "dependencies": {
     "@dimforge/rapier3d-compat": "^0.19.3",
+    "@leodeslf/worley-noise": "^1.1.2",
     "fastnoise-lite": "^1.1.1",
     "simplex-noise": "^4.0.3",
     "three": "^0.181.0",

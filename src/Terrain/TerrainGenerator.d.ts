@@ -3,11 +3,14 @@ import { Chunk } from "./Chunk";
 export declare class TerrainGenerator {
     private simplex;
     constructor();
+    private _spaghettiDensity;
     private _fractalNoise3D;
     private _fractalNoise2D;
     private _generateNoiseGrid;
     private _generateNoiseGrid2D;
     private _lerp;
+    private _xyzToIndex;
+    private _xzToIndex;
     private _trilinearInterpolation;
     private _bilinearInterpolation;
     private _evaluateCurve;

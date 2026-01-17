@@ -1,0 +1,1 @@
+{"version":3,"file":"WorleyNoise.d.ts","sourceRoot":"","sources":["WorleyNoise.ts"],"names":[],"mappings":"AAAA,qBAAa,WAAW;IACpB,OAAO,CAAC,IAAI,CAAS;gBAET,IAAI,GAAE,MAAsB;IAKxC,OAAO,CAAC,gBAAgB;IAaxB;;;OAGG;IACI,YAAY,CAAC,CAAC,EAAE,MAAM,EAAE,CAAC,EAAE,MAAM,EAAE,CAAC,EAAE,MAAM,EAAE,KAAK,GAAE,MAAU,GAAG,MAAM;CAgDlF"}
