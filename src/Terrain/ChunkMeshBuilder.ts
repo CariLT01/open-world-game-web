@@ -60,7 +60,7 @@ export class ChunkMeshBuilder {
 
         // Mesh
 
-        const mesh = new Mesh(geometry, new MeshStandardMaterial({color: 0xffffff, vertexColors: true}));
+        const mesh = new Mesh(geometry, new MeshStandardMaterial({color: 0xffffff, vertexColors: true, wireframe: false}));
         mesh.position.set(
             position.x * (CHUNK_SIZE),
             position.y * (CHUNK_SIZE),

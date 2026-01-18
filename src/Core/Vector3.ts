@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { CHUNK_SIZE } from "../Config";
 
 export type Vec3Fast = [number, number, number];
 
@@ -103,6 +104,10 @@ export class Vector3 {
         this.x = x!;
         this.y = y!;
         this.z = z!;
+    }
+    
+    toChunkIndex() {
+        return this.x * CHUNK_SIZE * CHUNK_SIZE + this.y * CHUNK_SIZE + this.z;
     }
 
 

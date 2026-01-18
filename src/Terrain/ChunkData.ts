@@ -1,6 +1,8 @@
 
+import { CHUNK_SIZE } from "../Config";
 import type { Vector3 } from "../Core/Vector3";
-import { CHUNK_SIZE } from "./Chunk";
+import { debugGlobal } from "../DebugGlobal";
+import { FrozenChunkData } from "./FrozenChunkData";
 
 export type MaterialIndex = number & { readonly __brand: "MaterialIndex" };
 export type PaletteIndex = number & { readonly __brand: "PaletteIndex" };
@@ -11,9 +13,25 @@ export type BlockData = {
     hash: number;
 }
 
+const CHUNK_VOLUME = CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE;
+
+let nChunksFrozen = 0;
+let nActiveChunks = 0;
+let memoryUsageFrozen = 0;
+let memoryUsageActive = 0;
+
+const SPACE_TAKEN_PER_CHUNK = CHUNK_VOLUME * 4 + CHUNK_VOLUME;
+
+
+
 export class ChunkData {
-    private densities: Float32Array;
-    private materials: Uint8Array;
+
+    private densitiesBuffer: ArrayBuffer = new ArrayBuffer(CHUNK_VOLUME * 4, { maxByteLength: CHUNK_VOLUME * 4});
+    private materialsBuffer: ArrayBuffer = new ArrayBuffer(CHUNK_VOLUME, { maxByteLength: CHUNK_VOLUME});
+
+
+    private densities: Float32Array = new Float32Array(this.densitiesBuffer);
+    private materials: Uint8Array = new Uint8Array(this.materialsBuffer);
 
     private queuedMaterials: BlockData[] = [];
     private queuedMaterialsHashes: number[] = [];
@@ -21,18 +39,105 @@ export class ChunkData {
     private palette: Map<PaletteIndex, BlockData> = new Map();
     private paletteReverseMap: Map<number, PaletteIndex> = new Map();
 
+    private frozenDensities: FrozenChunkData<Float32Array> = new FrozenChunkData(4, Float32Array);
+    private frozenMaterials: FrozenChunkData<Uint8Array> = new FrozenChunkData(1, Uint8Array);
+
+    private isFrozen: boolean = false;
+
 
 
     constructor() {
-        this.densities = new Float32Array(CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE);
-        this.materials = new Uint8Array(CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE);
+        nActiveChunks++;
     }
 
     private _getIndexFromBlockPosition(position: Vector3) {
         return position.x * CHUNK_SIZE * CHUNK_SIZE + position.y * CHUNK_SIZE + position.z;
     }
 
+    densityAtIndex(i: number) {
+        return this.densities[i];
+    }
+
+    freeze() {
+
+        this.checkFrozen();
+
+        this.frozenDensities.freeze(this.densities);
+        this.frozenMaterials.freeze(this.materials);
+
+        (this.densitiesBuffer).resize(0);
+        (this.materialsBuffer).resize(0);
+
+        this.isFrozen = true;
+
+        console.log("Frozen");
+
+        nChunksFrozen++;
+        nActiveChunks--;
+
+        memoryUsageFrozen += this.frozenMaterials.getSpaceTaken(); 
+        memoryUsageFrozen += this.frozenDensities.getSpaceTaken();
+
+        debugGlobal.updateKey("frozenChunksCount", `${nChunksFrozen}/${nActiveChunks} (${Math.round((nChunksFrozen / nActiveChunks) * 100)}%)`);
+        debugGlobal.updateKey("frozenChunksCompressionRatio", `(${Math.round((memoryUsageFrozen / (SPACE_TAKEN_PER_CHUNK * nChunksFrozen)) * 100)}%)`);
+
+    }
+
+    unfreeze() {
+
+        if (!this.isFrozen) {
+            throw new Error("Cannot unfreeze while not frozen");
+        }
+
+        console.log("Unfreeze");
+
+        // (this.densities.buffer as ArrayBuffer).resize(CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE * 4);
+        // (this.materials.buffer as ArrayBuffer).resize(CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE * 1);
+
+        memoryUsageFrozen -= this.frozenMaterials.getSpaceTaken(); 
+        memoryUsageFrozen -= this.frozenDensities.getSpaceTaken();
+
+        this.densitiesBuffer.resize(CHUNK_VOLUME * 4);
+        this.materialsBuffer.resize(CHUNK_VOLUME * 1);
+
+        this.frozenDensities.unfreeze(this.densities);
+        this.frozenMaterials.unfreeze(this.materials);
+
+        this.isFrozen = false;
+
+        nChunksFrozen--;
+        nActiveChunks++;
+
+        debugGlobal.updateKey("frozenChunksCount", `${nChunksFrozen}/${nActiveChunks} (${Math.round((nChunksFrozen / nActiveChunks) * 100)}%)`);
+        debugGlobal.updateKey("frozenChunksCompressionRatio", `(${Math.round((memoryUsageFrozen / (SPACE_TAKEN_PER_CHUNK * nChunksFrozen)) * 100)}%)`);
+    }
+
+    isEmpty() {
+        if (this.palette.size > 1) return false;
+        if (this.palette.size == 0) return true;
+        if ((this.palette.get(0 as PaletteIndex)!).material == 0) return true;
+        return false;
+    }
+
+    isFilled() {
+        if (this.isEmpty()) return false;
+        const isFilled = this.densities.every(v => v === 1.0)
+
+        return isFilled;
+    }
+
+    getIsFrozen() {
+        return this.isFrozen;
+    }
+
+    private checkFrozen() {
+        if (this.isFrozen) throw new Error("Operation invalid in frozen state, call .unfreeze() and try again");
+    }
+
     flushPaletteChanges() {
+
+        this.checkFrozen();
+
         const oldPaletteSize = this.palette.size;
 
         // 1. Assign permanent indices to queued materials in the current palette
@@ -84,6 +189,8 @@ export class ChunkData {
 
     setBlockAt(position: Vector3, density: number, material: BlockData, flushChanges: boolean) {
 
+        this.checkFrozen();
+
         let toWriteIndex = -1;
 
         if (!this.paletteReverseMap.has(material.hash)) {
@@ -113,6 +220,9 @@ export class ChunkData {
     }
 
     getBlockAt(position: Vector3): PaletteIndex {
+
+        this.checkFrozen();
+
         const index = this._getIndexFromBlockPosition(position);
         if (index >= this.materials.length) throw new Error(`Index out of bounds: ${position.x}, ${position.y}, ${position.z}`)
 
@@ -124,6 +234,9 @@ export class ChunkData {
     }
 
     getDensityAt(position: Vector3) {
+
+        this.checkFrozen();
+
         const index = this._getIndexFromBlockPosition(position);
         if (index >= this.densities.length) throw new Error(`Index out of bounds: ${position.x}, ${position.y}, ${position.z}`)
 

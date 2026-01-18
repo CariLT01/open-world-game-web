@@ -11,6 +11,8 @@ export type BlockData = {
     hash: number;
 };
 export declare class ChunkData {
+    private densitiesBuffer;
+    private materialsBuffer;
     private densities;
     private materials;
     private queuedMaterials;
@@ -18,8 +20,18 @@ export declare class ChunkData {
     private queuedMaterialsSet;
     private palette;
     private paletteReverseMap;
+    private frozenDensities;
+    private frozenMaterials;
+    private isFrozen;
     constructor();
     private _getIndexFromBlockPosition;
+    densityAtIndex(i: number): number | undefined;
+    freeze(): void;
+    unfreeze(): void;
+    isEmpty(): boolean;
+    isFilled(): boolean;
+    getIsFrozen(): boolean;
+    private checkFrozen;
     flushPaletteChanges(): void;
     setBlockAt(position: Vector3, density: number, material: BlockData, flushChanges: boolean): void;
     getBlockAt(position: Vector3): PaletteIndex;

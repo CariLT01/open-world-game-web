@@ -8,8 +8,8 @@ export declare class Player {
     private keysPressed;
     private physicsWorld;
     constructor(world: World);
-    handleTranslation(): void;
-    tick(camera: Camera): void;
+    handleTranslation(delta: number): void;
+    tick(camera: Camera, delta: number): void;
     getPosition(): import("@dimforge/rapier3d-compat").Vector;
     setPosition(x: number, y: number, z: number): void;
 }

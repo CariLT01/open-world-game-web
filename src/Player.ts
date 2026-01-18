@@ -71,24 +71,26 @@ export class Player {
 
     }
 
-    handleTranslation() {
+    handleTranslation(delta: number) {
         const forward = new Vector3(Math.sin(this.yaw), 0, Math.cos(this.yaw));
         const right = new Vector3(Math.sin(this.yaw + Math.PI / 2), 0, Math.cos(this.yaw + Math.PI / 2));
 
         let dir = new Vector3(0, 0, 0);
+
+        const SPEED = -15;
 
         if (this.keysPressed.has("w")) dir.add(forward);
         if (this.keysPressed.has("s")) dir.sub(forward);
         if (this.keysPressed.has("d")) dir.sub(right);
         if (this.keysPressed.has("a")) dir.add(right);
 
-        dir.normalize().multiplyScalar(-15);
+        dir.normalize().multiplyScalar(SPEED);
         this.playerBody.setLinvel({ x: dir.x, y: this.playerBody.linvel().y, z: dir.z }, true);
     }
 
-    tick(camera: Camera) {
+    tick(camera: Camera, delta: number) {
 
-        this.handleTranslation();
+        this.handleTranslation(delta);
 
         camera.position.set(this.playerBody.translation().x, this.playerBody.translation().y + 1 * 0.4, this.playerBody.translation().z);
         camera.updateMatrix();

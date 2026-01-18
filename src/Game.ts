@@ -10,6 +10,7 @@ import { WorldChunks } from "./WorldChunks";
 import { RAPIER } from "./RapierInstance";
 import type { World } from "@dimforge/rapier3d-compat";
 import { Player } from "./Player";
+import { debugGlobal } from "./DebugGlobal";
 
 export class Game {
 
@@ -20,8 +21,10 @@ export class Game {
     private controls!: Player;
     private worldChunks!: WorldChunks;
     private physicsWorld!: World;
+    private clock: THREE.Clock = new THREE.Clock();
 
     private sky!: Sky;
+    private accumulator: number = 0;
 
 
     constructor() {
@@ -115,18 +118,25 @@ export class Game {
     private render() {
         this.renderer.render(this.scene, this.camera);
     }
-    private tick() {
+    private tick(delta: number) {
 
-        this.controls.tick(this.camera);
+        this.controls.tick(this.camera, delta);
 
-        this.physicsWorld.step();
+        this.accumulator += delta;
+
+        while (this.accumulator >= 1 / 60) {
+            this.physicsWorld.timestep = 1 / 60;
+            this.physicsWorld.step();
+            this.accumulator -= 1 / 60;
+        }
+
         const v = this.controls.getPosition();
         const chunkPos = new Vector3(
             Math.round(v.x / CHUNK_SIZE),
             Math.round(v.y / CHUNK_SIZE),
             Math.round(v.z / CHUNK_SIZE)
         );
-        this.worldChunks.tick(chunkPos, this.controls);
+        this.worldChunks.tick(chunkPos, this.controls, this.camera);
 
         this.updateSkyPosition();
 
@@ -135,8 +145,12 @@ export class Game {
 
     renderLoop() {
 
-        this.tick();
+        const delta = this.clock.getDelta();
+
+        this.tick(delta);
         this.render();
+
+        debugGlobal.render();
 
         requestAnimationFrame(this.renderLoop);
     }

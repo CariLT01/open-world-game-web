@@ -3,6 +3,7 @@ import { Vector3 } from "../Core/Vector3";
 import { Chunk, CHUNK_SIZE } from "./Chunk";
 import type { MaterialIndex } from "./ChunkData";
 import { WorleyNoise } from "./WorleyNoise";
+import { debugGlobal } from "../DebugGlobal";
 
 const clamp = (num: number, min: number, max: number): number => {
     return Math.min(Math.max(num, min), max);
@@ -12,6 +13,8 @@ const noise = new WorleyNoise(1341);
 
 export class TerrainGenerator {
     private simplex: SimplexNoise = new SimplexNoise();
+    private heightmapCache: Map<String, Float32Array> = new Map();
+    private heightmapCacheCapacity: number = 100;
 
     constructor() { }
 
@@ -168,6 +171,145 @@ export class TerrainGenerator {
         return grid;
     }
 
+
+
+    private _generateHeightmap(chunkPosition: Vector3) {
+
+        const heightmap: Float32Array = new Float32Array(CHUNK_SIZE * CHUNK_SIZE);
+
+        const surfaceThickness = 5;
+
+        const plateauSpline = new Map([
+            [0, 0],
+            [0.1, 0.05],
+            [0.3, 0.2],
+            [0.45, 0.4],
+            [0.5, 0.8],
+            [0.8, 1.0],
+            [1.0, 0.9],
+        ]);
+
+        const peaksAndValleysSpline = new Map([
+            [0, 1.0],
+            [0.3, 0.77],
+            [0.5, 0.3],
+            [0.6, 0],
+            [0.7, 0.4],
+            [0.75, 0.7],
+            [0.8, 0.75],
+            [1.0, 0.77],
+        ]);
+
+        const continentalNessSpline = new Map([
+            [0, 0.0],
+            [0.3, 0.2],
+            [0.5, 0.7],
+            [0.6, 0.9],
+            [0.8, 0.95],
+            [1.0, 1.0]
+        ]);
+
+        const erosionSpline = new Map([
+            [0, 1.0],
+            [0.3, 0.77],
+            [0.5, 0.4],
+            [0.6, 0.3],
+            [0.7, 0.2],
+            [0.75, 0.3],
+            [0.8, 0.75],
+            [1.0, 0.77]
+        ])
+
+        const lowResGrid = this._generateNoiseGrid2D(
+            chunkPosition,
+            new Vector3(1 / 700, 1 / 700, 1 / 700),
+            8,
+            4
+        );
+
+        const lowResContinentalness = this._generateNoiseGrid2D(
+            chunkPosition,
+            new Vector3(1 / 2000, 1 / 2000, 1 / 2000),
+            16,
+            3
+        );
+
+        const ersionLowRes = this._generateNoiseGrid2D(
+            chunkPosition,
+            new Vector3(1 / 1500, 1 / 1500, 1 / 1500),
+            16,
+            3
+        )
+
+
+
+        for (let x = 0; x < CHUNK_SIZE; x++) {
+            for (let z = 0; z < CHUNK_SIZE; z++) {
+
+
+
+
+                const worldX = chunkPosition.x * CHUNK_SIZE + x;
+                const worldZ = chunkPosition.z * CHUNK_SIZE + z;
+
+                const baseHeightRaw =
+                    (this._bilinearInterpolation(lowResGrid, x, z, 8) + 1) / 2;
+                const baseHeight = this._evaluateCurve(
+                    plateauSpline,
+                    baseHeightRaw
+                );
+                const fineDetailRaw =
+                    (this._fractalNoise2D(worldX / 300, worldZ / 300, 3) + 1) /
+                    2;
+                const fineDetail = this._evaluateCurve(
+                    peaksAndValleysSpline,
+                    fineDetailRaw
+                );
+                const continentalnessRaw =
+                    (this._bilinearInterpolation(lowResContinentalness, x, z, 16) + 1) / 2;
+
+                const continentalness = this._evaluateCurve(continentalNessSpline, continentalnessRaw);
+
+
+                const erionRaw = (this._bilinearInterpolation(ersionLowRes, x, z, 16) + 1) / 2;
+                const erosion = this._evaluateCurve(erosionSpline, erionRaw);
+
+                const terrainHeight =
+                    ((baseHeight * 0.6 + fineDetail * 0.4) * (continentalness * 0.6 + erosion * 0.4)) * 150;
+
+                heightmap[this._xzToIndexNI(x, z)] = terrainHeight;
+            }
+        }
+
+        return heightmap;
+    }
+
+    private _getHeightmap(chunkPosition: Vector3) {
+
+        const key = `${chunkPosition.x},${chunkPosition.z}`;
+
+        if (!this.heightmapCache.has(key)) {
+            const heightmap = this._generateHeightmap(chunkPosition);
+            this.heightmapCache.set(key, heightmap);
+
+            if (this.heightmapCache.size > this.heightmapCacheCapacity) {
+                const toRemove = this.heightmapCache.keys().next().value;
+                if (!toRemove) return;
+                this.heightmapCache.delete(toRemove);
+            }
+
+            debugGlobal.updateKey("heightmapCache: ", `${this.heightmapCache.size}/${this.heightmapCacheCapacity}`);
+
+            return heightmap;
+        } else {
+            return this.heightmapCache.get(key);
+        }
+    }
+
+    private _sampleHeightmap(heightmap: Float32Array, x: number, z: number) {
+        return heightmap[this._xzToIndexNI(x, z)];
+    }
+
     private _lerp(a: number, b: number, t: number) {
         return a + (b - a) * t;
     }
@@ -177,6 +319,10 @@ export class TerrainGenerator {
 
     private _xzToIndex(x: number, z: number) {
         return x * (CHUNK_SIZE + 1) + z;
+    }
+
+    private _xzToIndexNI(x: number, z: number) {
+        return x * (CHUNK_SIZE) + z;
     }
 
     private _trilinearInterpolation(
@@ -279,71 +425,25 @@ export class TerrainGenerator {
     }
 
     generateTerrainOf(chunk: Chunk, chunkPosition: Vector3) {
+
+        if (chunk.chunkData.getIsFrozen()) {
+            chunk.chunkData.unfreeze();
+        }
+
+        if (chunkPosition.y >= 8) {
+            // Limit to 8 up (+256 Y)
+            return;
+        }
+
+        if (chunkPosition.y <= -8) {
+            // Limit to 8 down (-256 Y)
+            return;
+        }
+
+
         const surfaceThickness = 5;
 
-        const plateauSpline = new Map([
-            [0, 0],
-            [0.1, 0.05],
-            [0.3, 0.2],
-            [0.45, 0.4],
-            [0.5, 0.8],
-            [0.8, 1.0],
-            [1.0, 0.9],
-        ]);
 
-        const peaksAndValleysSpline = new Map([
-            [0, 1.0],
-            [0.3, 0.77],
-            [0.5, 0.3],
-            [0.6, 0],
-            [0.7, 0.4],
-            [0.75, 0.7],
-            [0.8, 0.75],
-            [1.0, 0.77],
-        ]);
-
-        const continentalNessSpline = new Map([
-            [0, 0.0],
-            [0.3, 0.2],
-            [0.5, 0.7],
-            [0.6, 0.9],
-            [0.8, 0.95],
-            [1.0, 1.0]
-        ]);
-
-        const erosionSpline = new Map([
-            [0, 1.0],
-            [0.3, 0.77],
-            [0.5, 0.4],
-            [0.6, 0.3],
-            [0.7, 0.2],
-            [0.75, 0.3],
-            [0.8, 0.75],
-            [1.0, 0.77]
-        ])
-
-        // const grid = this._generateNoiseGrid(chunkPosition, new Vector3(1 / 50, 1 / 50, 1 / 50), 2);
-
-        const lowResGrid = this._generateNoiseGrid2D(
-            chunkPosition,
-            new Vector3(1 / 700, 1 / 700, 1 / 700),
-            8,
-            4
-        );
-
-        const lowResContinentalness = this._generateNoiseGrid2D(
-            chunkPosition,
-            new Vector3(1 / 2000, 1 / 2000, 1 / 2000),
-            16,
-            3
-        );
-
-        const ersionLowRes = this._generateNoiseGrid2D(
-            chunkPosition,
-            new Vector3(1 / 1500, 1 / 1500, 1 / 1500),
-            16,
-            3
-        )
 
         const caveNoise1 = this._generateNoiseGrid(
             chunkPosition,
@@ -363,39 +463,12 @@ export class TerrainGenerator {
 
         );
 
+        const heightmap = this._getHeightmap(chunkPosition)!;
+
         for (let x = 0; x < CHUNK_SIZE; x++) {
             for (let z = 0; z < CHUNK_SIZE; z++) {
 
-
-
-
-                const worldX = chunkPosition.x * CHUNK_SIZE + x;
-                const worldZ = chunkPosition.z * CHUNK_SIZE + z;
-
-                const baseHeightRaw =
-                    (this._bilinearInterpolation(lowResGrid, x, z, 8) + 1) / 2;
-                const baseHeight = this._evaluateCurve(
-                    plateauSpline,
-                    baseHeightRaw
-                );
-                const fineDetailRaw =
-                    (this._fractalNoise2D(worldX / 300, worldZ / 300, 3) + 1) /
-                    2;
-                const fineDetail = this._evaluateCurve(
-                    peaksAndValleysSpline,
-                    fineDetailRaw
-                );
-                const continentalnessRaw =
-                    (this._bilinearInterpolation(lowResContinentalness, x, z, 16) + 1) / 2;
-
-                const continentalness = this._evaluateCurve(continentalNessSpline, continentalnessRaw);
-
-
-                const erionRaw = (this._bilinearInterpolation(ersionLowRes, x, z, 16) + 1) / 2;
-                const erosion = this._evaluateCurve(erosionSpline, erionRaw);
-
-                const terrainHeight =
-                    ((baseHeight * 0.6 + fineDetail * 0.4) * (continentalness * 0.6 + erosion * 0.4)) * 150;
+                const terrainHeight = this._sampleHeightmap(heightmap, x, z)!;
 
                 for (let y = 0; y < CHUNK_SIZE; y++) {
                     const worldY = chunkPosition.y * CHUNK_SIZE + y;
@@ -450,5 +523,7 @@ export class TerrainGenerator {
         }
 
         chunk.flushChanges();
+
+        chunk.chunkData.freeze();
     }
 }

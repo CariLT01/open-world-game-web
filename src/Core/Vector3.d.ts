@@ -22,5 +22,6 @@ export declare class Vector3 {
     toFastVec3(): Vec3Fast;
     toKey(): string;
     fromKey(s: string): void;
+    toChunkIndex(): number;
 }
 //# sourceMappingURL=Vector3.d.ts.map

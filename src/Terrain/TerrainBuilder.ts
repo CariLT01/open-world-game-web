@@ -1,10 +1,11 @@
+import { ISOLEVEL } from "../Config";
 import { Vector3, type Vec3Fast } from "../Core/Vector3";
 import { Materials, type MaterialData } from "../Materials";
 import { CHUNK_SIZE, type Chunk } from "./Chunk";
 import type { ChunkData, MaterialIndex } from "./ChunkData";
 import { edgeTable, triTable } from "./Data/TriangulationTable";
 
-const ISOLEVEL: number = 0.5;
+
 
 type Cell = {
     positions: [

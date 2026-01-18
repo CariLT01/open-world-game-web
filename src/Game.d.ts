@@ -6,7 +6,9 @@ export declare class Game {
     private controls;
     private worldChunks;
     private physicsWorld;
+    private clock;
     private sky;
+    private accumulator;
     constructor();
     asyncInit(): Promise<void>;
     initialize(): Promise<void>;
