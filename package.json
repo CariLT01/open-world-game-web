@@ -1,0 +1,48 @@
+{
+  "name": "client",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "server": "node dist/server.bundle.js",
+    "build": "npx webpack",
+    "proto": "npx pbjs -t static-module -w commonjs -o common/generated/proto.js common/proto/messages.proto && npx pbts -o common/generated/proto.d.ts common/generated/proto.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@dimforge/rapier3d-compat": "^0.19.3",
+    "@leodeslf/worley-noise": "^1.1.2",
+    "@types/react": "^19.2.9",
+    "@types/react-dom": "^19.2.3",
+    "@types/ws": "^8.18.1",
+    "fastnoise-lite": "^1.1.1",
+    "protobufjs": "^8.0.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "simplex-noise": "^4.0.3",
+    "three": "^0.181.0",
+    "three-csm": "^4.2.1",
+    "ts-loader": "^9.5.4",
+    "typescript": "^5.9.3",
+    "webpack": "^5.102.1",
+    "webpack-cli": "^6.0.1",
+    "webpack-node-externals": "^3.0.0",
+    "ws": "^8.19.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.18",
+    "@types/three": "^0.181.0",
+    "autoprefixer": "^10.4.23",
+    "css-loader": "^7.1.2",
+    "postcss": "^8.5.6",
+    "postcss-loader": "^8.2.0",
+    "protobufjs-cli": "^2.0.0",
+    "style-loader": "^4.0.0",
+    "tailwindcss": "^4.1.18",
+    "ts-proto": "^2.11.0",
+    "webpackbar": "^7.0.0"
+  }
+}

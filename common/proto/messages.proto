@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package game;
+
+message Vec3f {
+    float x = 1;
+    float y = 2;
+    float z = 3;
+}
+
+message Vec3i {
+    int32 x = 1;
+    int32 y = 2;
+    int32 z = 3;
+}
+
+message PropertyData {
+    string type = 1;
+    string value = 2;
+}
+
+message PaletteData {
+    map<string, PropertyData> attributes = 1;
+    int32 materialIndex = 2;
+}
+
+message ChunkData {
+    repeated PaletteData palette = 1;
+    repeated uint32 chunkData = 2 [packed = true];
+}
+
+message PlayerMoveData {
+    Vec3f position = 1;
+    string name = 2;
+}
+
+message PlayerJoin {
+    string name = 1;
+}
