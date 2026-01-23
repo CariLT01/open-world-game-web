@@ -9,4 +9,6 @@ export enum EventBusEvent {
     CLIENT_ADD_TO_SCENE,
     SERVER_PLAYER_JOINED,
     SERVER_PLAYER_MOVED,
+    SERVER_LOAD_CHUNK,
+    CLIENT_CHUNK_RECEIVED, // TODO: Implement
 }

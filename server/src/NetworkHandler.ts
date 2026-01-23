@@ -26,10 +26,10 @@ export class NetworkHandler {
     }
 
     private _registerEvent() {
-        ServerEventBus.on(EventBusEvent.SEND_PACKET, (packet: IPacket) => {
-            const packetBuffer = packet.serialize();
+        ServerEventBus.on(EventBusEvent.SEND_PACKET, (data) => {
+            const packetBuffer = data.packet.serialize();
             const finalBuffer = new Uint8Array(1 + packetBuffer.byteLength);
-            finalBuffer[0] = packet.packetType;
+            finalBuffer[0] = data.packet.packetType;
             finalBuffer.set(packetBuffer, 1)
 
             for (const client of this.wss.clients) {
@@ -37,14 +37,14 @@ export class NetworkHandler {
             }
         });
 
-        ServerEventBus.on(EventBusEvent.SEND_PACKET_TO_CONNECTION, (packet: IPacket, ws: WebSocket) => {
+        ServerEventBus.on(EventBusEvent.SEND_PACKET_TO_CONNECTION, (data) => {
 
-            const packetBuffer = packet.serialize();
+            const packetBuffer = data.packet.serialize();
             const finalBuffer = new Uint8Array(1 + packetBuffer.byteLength);
-            finalBuffer[0] = packet.packetType;
+            finalBuffer[0] = data.packet.packetType;
             finalBuffer.set(packetBuffer, 1)
 
-            ws.send(finalBuffer);
+            data.connection.send(finalBuffer);
         })
     }
 

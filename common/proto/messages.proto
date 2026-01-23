@@ -22,12 +22,20 @@ message PropertyData {
 message PaletteData {
     map<string, PropertyData> attributes = 1;
     int32 materialIndex = 2;
+    int32 hash = 3;
 }
 
 message ChunkData {
     repeated PaletteData palette = 1;
-    repeated uint32 chunkData = 2 [packed = true];
+    repeated uint32 materialsData = 2 [packed = true];
+    repeated float densitiesData = 3;
+    Vec3i chunkPosition = 4;
 }
+
+message LoadChunkRequest {
+    Vec3i chunkPosition = 1;
+}
+
 
 message PlayerMoveData {
     Vec3f position = 1;

@@ -25,8 +25,8 @@ const SPACE_TAKEN_PER_CHUNK = CHUNK_VOLUME * 4 + CHUNK_VOLUME;
 
 export class ChunkData {
 
-    private densitiesBuffer: ArrayBuffer = new ArrayBuffer(CHUNK_VOLUME * 4, { maxByteLength: CHUNK_VOLUME * 4});
-    private materialsBuffer: ArrayBuffer = new ArrayBuffer(CHUNK_VOLUME, { maxByteLength: CHUNK_VOLUME});
+    private densitiesBuffer: ArrayBuffer = new ArrayBuffer(CHUNK_VOLUME * 4, { maxByteLength: CHUNK_VOLUME * 4 });
+    private materialsBuffer: ArrayBuffer = new ArrayBuffer(CHUNK_VOLUME, { maxByteLength: CHUNK_VOLUME });
 
 
     private densities: Float32Array = new Float32Array(this.densitiesBuffer);
@@ -57,6 +57,17 @@ export class ChunkData {
         return this.densities[i];
     }
 
+    getPalette() {
+        return this.palette;
+    }
+
+    getMaterialsBuffer() {
+        return this.materialsBuffer;
+    }
+    getDensitiesBuffe() {
+        return this.densitiesBuffer;
+    }
+
     freeze() {
 
         this.checkFrozen();
@@ -74,7 +85,7 @@ export class ChunkData {
         nChunksFrozen++;
         nActiveChunks--;
 
-        memoryUsageFrozen += this.frozenMaterials.getSpaceTaken(); 
+        memoryUsageFrozen += this.frozenMaterials.getSpaceTaken();
         memoryUsageFrozen += this.frozenDensities.getSpaceTaken();
 
         // debugGlobal.updateKey("frozenChunksCount", `${nChunksFrozen}/${nActiveChunks} (${Math.round((nChunksFrozen / nActiveChunks) * 100)}%)`);
@@ -93,7 +104,7 @@ export class ChunkData {
         // (this.densities.buffer as ArrayBuffer).resize(CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE * 4);
         // (this.materials.buffer as ArrayBuffer).resize(CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE * 1);
 
-        memoryUsageFrozen -= this.frozenMaterials.getSpaceTaken(); 
+        memoryUsageFrozen -= this.frozenMaterials.getSpaceTaken();
         memoryUsageFrozen -= this.frozenDensities.getSpaceTaken();
 
         this.densitiesBuffer.resize(CHUNK_VOLUME * 4);
@@ -186,8 +197,7 @@ export class ChunkData {
         this.queuedMaterialsHashes = [];
     }
 
-    setBlockAt(position: Vector3, density: number, material: BlockData, flushChanges: boolean) {
-
+    setBlockAtIndex(index: number, density: number, material: BlockData, flushChanges: boolean) {
         this.checkFrozen();
 
         let toWriteIndex = -1;
@@ -208,7 +218,7 @@ export class ChunkData {
             toWriteIndex = this.paletteReverseMap.get(material.hash)!;
         }
 
-        const writeIndexPositoin = this._getIndexFromBlockPosition(position);
+        const writeIndexPositoin = index;
 
         this.densities[writeIndexPositoin] = density;
         this.materials[writeIndexPositoin] = toWriteIndex;
@@ -216,6 +226,11 @@ export class ChunkData {
         if (flushChanges) {
             this.flushPaletteChanges();
         }
+    }
+
+    setBlockAt(position: Vector3, density: number, material: BlockData, flushChanges: boolean) {
+        this.setBlockAtIndex(this._getIndexFromBlockPosition(position), density, material, flushChanges);
+
     }
 
     getBlockAt(position: Vector3): PaletteIndex {

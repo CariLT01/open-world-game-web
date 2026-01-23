@@ -1,3 +1,4 @@
+import type { EventTypePayloads } from "./EventTypePayloads";
 import type { EventBusEvent } from "./EventTypes";
 
 type EventCallback = (...args: any[]) => void;
@@ -12,7 +13,7 @@ export class EventBus {
         if (enableDetailedLogging) this.detailedLogging = true;
     }
 
-    registerEventCallback(eventType: EventBusEvent, eventCallback: EventCallback) {
+    registerEventCallback<K extends keyof EventTypePayloads>(eventType: K, eventCallback: (data: EventTypePayloads[K]) => void) {
 
         if (!this.events.has(eventType)) {
 
@@ -27,18 +28,18 @@ export class EventBus {
 
     }
 
-    fireEvent(eventType: EventBusEvent, ...args: any[]) {
+    fireEvent<K extends keyof EventTypePayloads>(eventType: K, data: EventTypePayloads[K]) {
 
         if (!this.events.has(eventType)) {
             console.warn("Event not registered: " + eventType);
             return;
         }
 
-        console.log("Executing subscribers: ", eventType);
+        // console.log("Executing subscribers: ", eventType);
 
         for (const callback of this.events.get(eventType)!) {
             try {
-                callback(...args);
+                callback(data);
             } catch (e) {
                 console.error("Error occurred in callback: ", e);
             }
@@ -47,7 +48,7 @@ export class EventBus {
     }
 
     // Alias for registerEventCallback
-    on(eventType: EventBusEvent, eventCallback: EventCallback) {
+    on<K extends keyof EventTypePayloads>(eventType: K, eventCallback: (data: EventTypePayloads[K]) => void) {
         this.registerEventCallback(eventType, eventCallback);
     }
 }

@@ -759,6 +759,7 @@ $root.game = (function() {
          * @interface IPaletteData
          * @property {Object.<string,game.IPropertyData>|null} [attributes] PaletteData attributes
          * @property {number|null} [materialIndex] PaletteData materialIndex
+         * @property {number|null} [hash] PaletteData hash
          */
 
         /**
@@ -794,6 +795,14 @@ $root.game = (function() {
         PaletteData.prototype.materialIndex = 0;
 
         /**
+         * PaletteData hash.
+         * @member {number} hash
+         * @memberof game.PaletteData
+         * @instance
+         */
+        PaletteData.prototype.hash = 0;
+
+        /**
          * Creates a new PaletteData instance using the specified properties.
          * @function create
          * @memberof game.PaletteData
@@ -824,6 +833,8 @@ $root.game = (function() {
                 }
             if (message.materialIndex != null && Object.hasOwnProperty.call(message, "materialIndex"))
                 writer.uint32(/* id 2, wireType 0 =*/16).int32(message.materialIndex);
+            if (message.hash != null && Object.hasOwnProperty.call(message, "hash"))
+                writer.uint32(/* id 3, wireType 0 =*/24).int32(message.hash);
             return writer;
         };
 
@@ -887,6 +898,10 @@ $root.game = (function() {
                         message.materialIndex = reader.int32();
                         break;
                     }
+                case 3: {
+                        message.hash = reader.int32();
+                        break;
+                    }
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -935,6 +950,9 @@ $root.game = (function() {
             if (message.materialIndex != null && message.hasOwnProperty("materialIndex"))
                 if (!$util.isInteger(message.materialIndex))
                     return "materialIndex: integer expected";
+            if (message.hash != null && message.hasOwnProperty("hash"))
+                if (!$util.isInteger(message.hash))
+                    return "hash: integer expected";
             return null;
         };
 
@@ -962,6 +980,8 @@ $root.game = (function() {
             }
             if (object.materialIndex != null)
                 message.materialIndex = object.materialIndex | 0;
+            if (object.hash != null)
+                message.hash = object.hash | 0;
             return message;
         };
 
@@ -980,8 +1000,10 @@ $root.game = (function() {
             var object = {};
             if (options.objects || options.defaults)
                 object.attributes = {};
-            if (options.defaults)
+            if (options.defaults) {
                 object.materialIndex = 0;
+                object.hash = 0;
+            }
             var keys2;
             if (message.attributes && (keys2 = Object.keys(message.attributes)).length) {
                 object.attributes = {};
@@ -990,6 +1012,8 @@ $root.game = (function() {
             }
             if (message.materialIndex != null && message.hasOwnProperty("materialIndex"))
                 object.materialIndex = message.materialIndex;
+            if (message.hash != null && message.hasOwnProperty("hash"))
+                object.hash = message.hash;
             return object;
         };
 
@@ -1029,7 +1053,9 @@ $root.game = (function() {
          * @memberof game
          * @interface IChunkData
          * @property {Array.<game.IPaletteData>|null} [palette] ChunkData palette
-         * @property {Array.<number>|null} [chunkData] ChunkData chunkData
+         * @property {Array.<number>|null} [materialsData] ChunkData materialsData
+         * @property {Array.<number>|null} [densitiesData] ChunkData densitiesData
+         * @property {game.IVec3i|null} [chunkPosition] ChunkData chunkPosition
          */
 
         /**
@@ -1042,7 +1068,8 @@ $root.game = (function() {
          */
         function ChunkData(properties) {
             this.palette = [];
-            this.chunkData = [];
+            this.materialsData = [];
+            this.densitiesData = [];
             if (properties)
                 for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                     if (properties[keys[i]] != null)
@@ -1058,12 +1085,28 @@ $root.game = (function() {
         ChunkData.prototype.palette = $util.emptyArray;
 
         /**
-         * ChunkData chunkData.
-         * @member {Array.<number>} chunkData
+         * ChunkData materialsData.
+         * @member {Array.<number>} materialsData
          * @memberof game.ChunkData
          * @instance
          */
-        ChunkData.prototype.chunkData = $util.emptyArray;
+        ChunkData.prototype.materialsData = $util.emptyArray;
+
+        /**
+         * ChunkData densitiesData.
+         * @member {Array.<number>} densitiesData
+         * @memberof game.ChunkData
+         * @instance
+         */
+        ChunkData.prototype.densitiesData = $util.emptyArray;
+
+        /**
+         * ChunkData chunkPosition.
+         * @member {game.IVec3i|null|undefined} chunkPosition
+         * @memberof game.ChunkData
+         * @instance
+         */
+        ChunkData.prototype.chunkPosition = null;
 
         /**
          * Creates a new ChunkData instance using the specified properties.
@@ -1092,12 +1135,20 @@ $root.game = (function() {
             if (message.palette != null && message.palette.length)
                 for (var i = 0; i < message.palette.length; ++i)
                     $root.game.PaletteData.encode(message.palette[i], writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
-            if (message.chunkData != null && message.chunkData.length) {
+            if (message.materialsData != null && message.materialsData.length) {
                 writer.uint32(/* id 2, wireType 2 =*/18).fork();
-                for (var i = 0; i < message.chunkData.length; ++i)
-                    writer.uint32(message.chunkData[i]);
+                for (var i = 0; i < message.materialsData.length; ++i)
+                    writer.uint32(message.materialsData[i]);
                 writer.ldelim();
             }
+            if (message.densitiesData != null && message.densitiesData.length) {
+                writer.uint32(/* id 3, wireType 2 =*/26).fork();
+                for (var i = 0; i < message.densitiesData.length; ++i)
+                    writer.float(message.densitiesData[i]);
+                writer.ldelim();
+            }
+            if (message.chunkPosition != null && Object.hasOwnProperty.call(message, "chunkPosition"))
+                $root.game.Vec3i.encode(message.chunkPosition, writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
             return writer;
         };
 
@@ -1141,14 +1192,29 @@ $root.game = (function() {
                         break;
                     }
                 case 2: {
-                        if (!(message.chunkData && message.chunkData.length))
-                            message.chunkData = [];
+                        if (!(message.materialsData && message.materialsData.length))
+                            message.materialsData = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.chunkData.push(reader.uint32());
+                                message.materialsData.push(reader.uint32());
                         } else
-                            message.chunkData.push(reader.uint32());
+                            message.materialsData.push(reader.uint32());
+                        break;
+                    }
+                case 3: {
+                        if (!(message.densitiesData && message.densitiesData.length))
+                            message.densitiesData = [];
+                        if ((tag & 7) === 2) {
+                            var end2 = reader.uint32() + reader.pos;
+                            while (reader.pos < end2)
+                                message.densitiesData.push(reader.float());
+                        } else
+                            message.densitiesData.push(reader.float());
+                        break;
+                    }
+                case 4: {
+                        message.chunkPosition = $root.game.Vec3i.decode(reader, reader.uint32());
                         break;
                     }
                 default:
@@ -1195,12 +1261,24 @@ $root.game = (function() {
                         return "palette." + error;
                 }
             }
-            if (message.chunkData != null && message.hasOwnProperty("chunkData")) {
-                if (!Array.isArray(message.chunkData))
-                    return "chunkData: array expected";
-                for (var i = 0; i < message.chunkData.length; ++i)
-                    if (!$util.isInteger(message.chunkData[i]))
-                        return "chunkData: integer[] expected";
+            if (message.materialsData != null && message.hasOwnProperty("materialsData")) {
+                if (!Array.isArray(message.materialsData))
+                    return "materialsData: array expected";
+                for (var i = 0; i < message.materialsData.length; ++i)
+                    if (!$util.isInteger(message.materialsData[i]))
+                        return "materialsData: integer[] expected";
+            }
+            if (message.densitiesData != null && message.hasOwnProperty("densitiesData")) {
+                if (!Array.isArray(message.densitiesData))
+                    return "densitiesData: array expected";
+                for (var i = 0; i < message.densitiesData.length; ++i)
+                    if (typeof message.densitiesData[i] !== "number")
+                        return "densitiesData: number[] expected";
+            }
+            if (message.chunkPosition != null && message.hasOwnProperty("chunkPosition")) {
+                var error = $root.game.Vec3i.verify(message.chunkPosition);
+                if (error)
+                    return "chunkPosition." + error;
             }
             return null;
         };
@@ -1227,12 +1305,24 @@ $root.game = (function() {
                     message.palette[i] = $root.game.PaletteData.fromObject(object.palette[i]);
                 }
             }
-            if (object.chunkData) {
-                if (!Array.isArray(object.chunkData))
-                    throw TypeError(".game.ChunkData.chunkData: array expected");
-                message.chunkData = [];
-                for (var i = 0; i < object.chunkData.length; ++i)
-                    message.chunkData[i] = object.chunkData[i] >>> 0;
+            if (object.materialsData) {
+                if (!Array.isArray(object.materialsData))
+                    throw TypeError(".game.ChunkData.materialsData: array expected");
+                message.materialsData = [];
+                for (var i = 0; i < object.materialsData.length; ++i)
+                    message.materialsData[i] = object.materialsData[i] >>> 0;
+            }
+            if (object.densitiesData) {
+                if (!Array.isArray(object.densitiesData))
+                    throw TypeError(".game.ChunkData.densitiesData: array expected");
+                message.densitiesData = [];
+                for (var i = 0; i < object.densitiesData.length; ++i)
+                    message.densitiesData[i] = Number(object.densitiesData[i]);
+            }
+            if (object.chunkPosition != null) {
+                if (typeof object.chunkPosition !== "object")
+                    throw TypeError(".game.ChunkData.chunkPosition: object expected");
+                message.chunkPosition = $root.game.Vec3i.fromObject(object.chunkPosition);
             }
             return message;
         };
@@ -1252,18 +1342,28 @@ $root.game = (function() {
             var object = {};
             if (options.arrays || options.defaults) {
                 object.palette = [];
-                object.chunkData = [];
+                object.materialsData = [];
+                object.densitiesData = [];
             }
+            if (options.defaults)
+                object.chunkPosition = null;
             if (message.palette && message.palette.length) {
                 object.palette = [];
                 for (var j = 0; j < message.palette.length; ++j)
                     object.palette[j] = $root.game.PaletteData.toObject(message.palette[j], options);
             }
-            if (message.chunkData && message.chunkData.length) {
-                object.chunkData = [];
-                for (var j = 0; j < message.chunkData.length; ++j)
-                    object.chunkData[j] = message.chunkData[j];
+            if (message.materialsData && message.materialsData.length) {
+                object.materialsData = [];
+                for (var j = 0; j < message.materialsData.length; ++j)
+                    object.materialsData[j] = message.materialsData[j];
             }
+            if (message.densitiesData && message.densitiesData.length) {
+                object.densitiesData = [];
+                for (var j = 0; j < message.densitiesData.length; ++j)
+                    object.densitiesData[j] = options.json && !isFinite(message.densitiesData[j]) ? String(message.densitiesData[j]) : message.densitiesData[j];
+            }
+            if (message.chunkPosition != null && message.hasOwnProperty("chunkPosition"))
+                object.chunkPosition = $root.game.Vec3i.toObject(message.chunkPosition, options);
             return object;
         };
 
@@ -1294,6 +1394,216 @@ $root.game = (function() {
         };
 
         return ChunkData;
+    })();
+
+    game.LoadChunkRequest = (function() {
+
+        /**
+         * Properties of a LoadChunkRequest.
+         * @memberof game
+         * @interface ILoadChunkRequest
+         * @property {game.IVec3i|null} [chunkPosition] LoadChunkRequest chunkPosition
+         */
+
+        /**
+         * Constructs a new LoadChunkRequest.
+         * @memberof game
+         * @classdesc Represents a LoadChunkRequest.
+         * @implements ILoadChunkRequest
+         * @constructor
+         * @param {game.ILoadChunkRequest=} [properties] Properties to set
+         */
+        function LoadChunkRequest(properties) {
+            if (properties)
+                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * LoadChunkRequest chunkPosition.
+         * @member {game.IVec3i|null|undefined} chunkPosition
+         * @memberof game.LoadChunkRequest
+         * @instance
+         */
+        LoadChunkRequest.prototype.chunkPosition = null;
+
+        /**
+         * Creates a new LoadChunkRequest instance using the specified properties.
+         * @function create
+         * @memberof game.LoadChunkRequest
+         * @static
+         * @param {game.ILoadChunkRequest=} [properties] Properties to set
+         * @returns {game.LoadChunkRequest} LoadChunkRequest instance
+         */
+        LoadChunkRequest.create = function create(properties) {
+            return new LoadChunkRequest(properties);
+        };
+
+        /**
+         * Encodes the specified LoadChunkRequest message. Does not implicitly {@link game.LoadChunkRequest.verify|verify} messages.
+         * @function encode
+         * @memberof game.LoadChunkRequest
+         * @static
+         * @param {game.ILoadChunkRequest} message LoadChunkRequest message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        LoadChunkRequest.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.chunkPosition != null && Object.hasOwnProperty.call(message, "chunkPosition"))
+                $root.game.Vec3i.encode(message.chunkPosition, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+            return writer;
+        };
+
+        /**
+         * Encodes the specified LoadChunkRequest message, length delimited. Does not implicitly {@link game.LoadChunkRequest.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof game.LoadChunkRequest
+         * @static
+         * @param {game.ILoadChunkRequest} message LoadChunkRequest message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        LoadChunkRequest.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a LoadChunkRequest message from the specified reader or buffer.
+         * @function decode
+         * @memberof game.LoadChunkRequest
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {game.LoadChunkRequest} LoadChunkRequest
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        LoadChunkRequest.decode = function decode(reader, length, error) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.game.LoadChunkRequest();
+            while (reader.pos < end) {
+                var tag = reader.uint32();
+                if (tag === error)
+                    break;
+                switch (tag >>> 3) {
+                case 1: {
+                        message.chunkPosition = $root.game.Vec3i.decode(reader, reader.uint32());
+                        break;
+                    }
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a LoadChunkRequest message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof game.LoadChunkRequest
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {game.LoadChunkRequest} LoadChunkRequest
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        LoadChunkRequest.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a LoadChunkRequest message.
+         * @function verify
+         * @memberof game.LoadChunkRequest
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        LoadChunkRequest.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.chunkPosition != null && message.hasOwnProperty("chunkPosition")) {
+                var error = $root.game.Vec3i.verify(message.chunkPosition);
+                if (error)
+                    return "chunkPosition." + error;
+            }
+            return null;
+        };
+
+        /**
+         * Creates a LoadChunkRequest message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof game.LoadChunkRequest
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {game.LoadChunkRequest} LoadChunkRequest
+         */
+        LoadChunkRequest.fromObject = function fromObject(object) {
+            if (object instanceof $root.game.LoadChunkRequest)
+                return object;
+            var message = new $root.game.LoadChunkRequest();
+            if (object.chunkPosition != null) {
+                if (typeof object.chunkPosition !== "object")
+                    throw TypeError(".game.LoadChunkRequest.chunkPosition: object expected");
+                message.chunkPosition = $root.game.Vec3i.fromObject(object.chunkPosition);
+            }
+            return message;
+        };
+
+        /**
+         * Creates a plain object from a LoadChunkRequest message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof game.LoadChunkRequest
+         * @static
+         * @param {game.LoadChunkRequest} message LoadChunkRequest
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        LoadChunkRequest.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            var object = {};
+            if (options.defaults)
+                object.chunkPosition = null;
+            if (message.chunkPosition != null && message.hasOwnProperty("chunkPosition"))
+                object.chunkPosition = $root.game.Vec3i.toObject(message.chunkPosition, options);
+            return object;
+        };
+
+        /**
+         * Converts this LoadChunkRequest to JSON.
+         * @function toJSON
+         * @memberof game.LoadChunkRequest
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        LoadChunkRequest.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for LoadChunkRequest
+         * @function getTypeUrl
+         * @memberof game.LoadChunkRequest
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        LoadChunkRequest.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/game.LoadChunkRequest";
+        };
+
+        return LoadChunkRequest;
     })();
 
     game.PlayerMoveData = (function() {

@@ -5,54 +5,87 @@ import { PlayerMovePacket } from "../../common/packets/PlayerMovePacket";
 import { ServerEventBus } from "./ServerEventBus";
 import { ServerPlayer } from "./ServerPlayer";
 import type { IPacket } from "../../common/packets/IPacket";
+import { EventBus } from "../../common/EventBus";
+import { PlayerJoinPacket } from "../../common/packets/PlayerJoinPacket";
 
 export class PlayersManager {
-
     private players: Map<string, ServerPlayer> = new Map();
     private playerConnections: Map<String, WebSocket> = new Map();
-
 
     constructor() {
         this._handlePlayerEvents();
     }
-
 
     private _addPlayer(username: string) {
         this.players.set(username, new ServerPlayer(username));
     }
 
     private _handlePlayerEvents() {
-        ServerEventBus.on(EventBusEvent.SERVER_PLAYER_JOINED, (playerName: string, ws: WebSocket) => {
-            if (this.players.has(playerName)) {
-                throw new Error("Player already exists in the server!");
-            }
+        ServerEventBus.on(
+            EventBusEvent.SERVER_PLAYER_JOINED,
+            (data) => {
+                const playerName = data.username;
+                const ws = data.ws;
+                if (this.players.has(playerName)) {
+                    throw new Error("Player already exists in the server!");
+                }
 
-            this._addPlayer(playerName);
-            this.playerConnections.set(playerName, ws);
+                this._addPlayer(playerName);
+                this.playerConnections.set(playerName, ws);
 
-            console.log("Player joined: ", playerName);
+                console.log("Player joined: ", playerName);
 
-        });
+                // Broadcast back to everyone else
 
-        ServerEventBus.on(EventBusEvent.SERVER_PLAYER_MOVED, (playerName: string, position: Vector3) => {
-            if (!this.players.has(playerName)) {
-                throw new Error("Player does not exist in the server!");
-            }
+                const joinPacket = new PlayerJoinPacket();
+                joinPacket.name = playerName;
 
-            this.players.get(playerName)!.setPosition(position);
+                ServerEventBus.fireEvent(EventBusEvent.SEND_PACKET, {packet: joinPacket});
 
-            console.log("Player moved: ", playerName, position);
-        });
+                // Send existing players
 
-        ServerEventBus.on(EventBusEvent.SEND_PACKET_TO_PLAYER, (packet: IPacket, playerUsername: string) => {
-            if (!this.playerConnections.has(playerUsername)) {
-                throw new Error("Player does not exist in the server!");
-            }
+                for (const [name, player] of this.players) {
+                    if (name !== playerName) {
 
-            const ws = this.playerConnections.get(playerUsername)!;
+                        joinPacket.name = name;
 
-            ServerEventBus.fireEvent(EventBusEvent.SEND_PACKET_TO_CONNECTION, packet, ws);
-        })
+                        ServerEventBus.fireEvent(EventBusEvent.SEND_PACKET_TO_CONNECTION, {packet: joinPacket, connection: ws});
+                    }
+                }
+            },
+        );
+
+        ServerEventBus.on(
+            EventBusEvent.SERVER_PLAYER_MOVED,
+            (data) => {
+                if (!this.players.has(data.username)) {
+                    throw new Error("Player does not exist in the server!");
+                }
+
+                this.players.get(data.username)!.setPosition(data.position);
+
+                // console.log("Player moved: ", playerName, position);
+            },
+        );
+
+        ServerEventBus.on(
+            EventBusEvent.SEND_PACKET_TO_PLAYER,
+            (data) => {
+                if (!this.playerConnections.has(data.username)) {
+                    throw new Error("Player does not exist in the server!");
+                }
+
+                const ws = this.playerConnections.get(data.username)!;
+
+                ServerEventBus.fireEvent(
+                    EventBusEvent.SEND_PACKET_TO_CONNECTION,
+                    {
+                        packet: data.packet,
+                        connection: ws
+                    },
+                );
+            },
+        );
     }
 
     private _broadcastPlayerPositions() {
@@ -61,11 +94,14 @@ export class PlayersManager {
             playerMovementPacket.name = username;
             playerMovementPacket.position = data.getPosition();
 
-            ServerEventBus.fireEvent(EventBusEvent.SEND_PACKET, playerMovementPacket);
+            ServerEventBus.fireEvent(
+                EventBusEvent.SEND_PACKET,
+                {packet: playerMovementPacket},
+            );
         }
     }
 
     tick() {
-        this._broadcastPlayerPositions()
+        this._broadcastPlayerPositions();
     }
 }

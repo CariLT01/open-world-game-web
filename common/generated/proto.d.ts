@@ -332,6 +332,9 @@ export namespace game {
 
         /** PaletteData materialIndex */
         materialIndex?: (number|null);
+
+        /** PaletteData hash */
+        hash?: (number|null);
     }
 
     /** Represents a PaletteData. */
@@ -348,6 +351,9 @@ export namespace game {
 
         /** PaletteData materialIndex. */
         public materialIndex: number;
+
+        /** PaletteData hash. */
+        public hash: number;
 
         /**
          * Creates a new PaletteData instance using the specified properties.
@@ -433,8 +439,14 @@ export namespace game {
         /** ChunkData palette */
         palette?: (game.IPaletteData[]|null);
 
-        /** ChunkData chunkData */
-        chunkData?: (number[]|null);
+        /** ChunkData materialsData */
+        materialsData?: (number[]|null);
+
+        /** ChunkData densitiesData */
+        densitiesData?: (number[]|null);
+
+        /** ChunkData chunkPosition */
+        chunkPosition?: (game.IVec3i|null);
     }
 
     /** Represents a ChunkData. */
@@ -449,8 +461,14 @@ export namespace game {
         /** ChunkData palette. */
         public palette: game.IPaletteData[];
 
-        /** ChunkData chunkData. */
-        public chunkData: number[];
+        /** ChunkData materialsData. */
+        public materialsData: number[];
+
+        /** ChunkData densitiesData. */
+        public densitiesData: number[];
+
+        /** ChunkData chunkPosition. */
+        public chunkPosition?: (game.IVec3i|null);
 
         /**
          * Creates a new ChunkData instance using the specified properties.
@@ -524,6 +542,103 @@ export namespace game {
 
         /**
          * Gets the default type url for ChunkData
+         * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns The default type url
+         */
+        public static getTypeUrl(typeUrlPrefix?: string): string;
+    }
+
+    /** Properties of a LoadChunkRequest. */
+    interface ILoadChunkRequest {
+
+        /** LoadChunkRequest chunkPosition */
+        chunkPosition?: (game.IVec3i|null);
+    }
+
+    /** Represents a LoadChunkRequest. */
+    class LoadChunkRequest implements ILoadChunkRequest {
+
+        /**
+         * Constructs a new LoadChunkRequest.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: game.ILoadChunkRequest);
+
+        /** LoadChunkRequest chunkPosition. */
+        public chunkPosition?: (game.IVec3i|null);
+
+        /**
+         * Creates a new LoadChunkRequest instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns LoadChunkRequest instance
+         */
+        public static create(properties?: game.ILoadChunkRequest): game.LoadChunkRequest;
+
+        /**
+         * Encodes the specified LoadChunkRequest message. Does not implicitly {@link game.LoadChunkRequest.verify|verify} messages.
+         * @param message LoadChunkRequest message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: game.ILoadChunkRequest, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified LoadChunkRequest message, length delimited. Does not implicitly {@link game.LoadChunkRequest.verify|verify} messages.
+         * @param message LoadChunkRequest message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: game.ILoadChunkRequest, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes a LoadChunkRequest message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns LoadChunkRequest
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): game.LoadChunkRequest;
+
+        /**
+         * Decodes a LoadChunkRequest message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns LoadChunkRequest
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): game.LoadChunkRequest;
+
+        /**
+         * Verifies a LoadChunkRequest message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates a LoadChunkRequest message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns LoadChunkRequest
+         */
+        public static fromObject(object: { [k: string]: any }): game.LoadChunkRequest;
+
+        /**
+         * Creates a plain object from a LoadChunkRequest message. Also converts values to other types if specified.
+         * @param message LoadChunkRequest
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: game.LoadChunkRequest, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this LoadChunkRequest to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+
+        /**
+         * Gets the default type url for LoadChunkRequest
          * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
          * @returns The default type url
          */

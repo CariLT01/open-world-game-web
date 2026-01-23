@@ -1,4 +1,6 @@
 export enum PacketTypes {
     PLAYER_JOIN_PACKET = 0,
-    PLAYER_MOVE_PACKET = 1
+    PLAYER_MOVE_PACKET = 1,
+    CHUNK_DATA_PACKET = 2,
+    CHUNK_LOAD_REQUEST_PACKET = 3,
 }
