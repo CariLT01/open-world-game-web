@@ -18,6 +18,8 @@ import { EventBusEvent } from "../../common/EventTypes";
 import { PlayerJoinPacket } from "../../common/packets/PlayerJoinPacket";
 import { EventBus } from "../../common/EventBus";
 import { PlayersManager } from "./Networking/PlayersManager";
+import { GameSetup } from "./GameSetup";
+import { LocalInventory } from "./LocalInventory";
 
 export class Game {
 
@@ -40,6 +42,10 @@ export class Game {
     private playerUsername: string = prompt("Enter your username:") ?? "Guest"; // Temporary
     private networkingHandler: ClientNetworkingHandler = new ClientNetworkingHandler();
     private playersManager: PlayersManager = new PlayersManager(this.playerUsername);
+
+    private localInventory: LocalInventory = new LocalInventory();
+
+    private pointerLocked: boolean = true;
 
     constructor() {
 
@@ -123,6 +129,12 @@ export class Game {
         })
     }
 
+    private async _runSetupProcesses() {
+        const setup = new GameSetup();
+
+        setup.runSetupProcesses();
+    }
+
     async initialize() {
 
         ClientEventBus.on(EventBusEvent.CLIENT_SOCKET_CONNECTED, () => {
@@ -131,7 +143,7 @@ export class Game {
             const joinPacket = new PlayerJoinPacket();
             joinPacket.name = this.playerUsername;
 
-            ClientEventBus.fireEvent(EventBusEvent.SEND_PACKET, {packet: joinPacket});
+            ClientEventBus.invokeEvent(EventBusEvent.SEND_PACKET, {packet: joinPacket});
         })
 
         this.networkingHandler.connect();
@@ -139,6 +151,7 @@ export class Game {
         await this.asyncInit();
         await this._createWorldAndEnvironment();
         await this._setupEvents();
+        await this._runSetupProcesses();
 
 
 
@@ -146,7 +159,18 @@ export class Game {
         this.worldChunks = new WorldChunks(this.scene, this.physicsWorld);
 
         this.renderer.domElement.addEventListener("click", () => {
-            this.renderer.domElement.requestPointerLock();
+            if (this.pointerLocked) {
+                this.renderer.domElement.requestPointerLock();
+            }
+        })
+
+        ClientEventBus.on(EventBusEvent.CLIENT_TOGGLE_POINTER_LOCK, (data) => {
+            this.pointerLocked = data.lockPointer;
+            if (data.lockPointer) {
+                this.renderer.domElement.requestPointerLock();
+            } else {
+                document.exitPointerLock();
+            }
         })
 
 

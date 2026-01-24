@@ -941,4 +941,313 @@ export namespace game {
          */
         public static getTypeUrl(typeUrlPrefix?: string): string;
     }
+
+    /** Properties of an ItemStack. */
+    interface IItemStack {
+
+        /** ItemStack name */
+        name?: (string|null);
+
+        /** ItemStack count */
+        count?: (number|null);
+
+        /** ItemStack attributes */
+        attributes?: ({ [k: string]: game.IPropertyData }|null);
+    }
+
+    /** Represents an ItemStack. */
+    class ItemStack implements IItemStack {
+
+        /**
+         * Constructs a new ItemStack.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: game.IItemStack);
+
+        /** ItemStack name. */
+        public name: string;
+
+        /** ItemStack count. */
+        public count: number;
+
+        /** ItemStack attributes. */
+        public attributes: { [k: string]: game.IPropertyData };
+
+        /**
+         * Creates a new ItemStack instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns ItemStack instance
+         */
+        public static create(properties?: game.IItemStack): game.ItemStack;
+
+        /**
+         * Encodes the specified ItemStack message. Does not implicitly {@link game.ItemStack.verify|verify} messages.
+         * @param message ItemStack message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: game.IItemStack, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified ItemStack message, length delimited. Does not implicitly {@link game.ItemStack.verify|verify} messages.
+         * @param message ItemStack message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: game.IItemStack, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes an ItemStack message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns ItemStack
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): game.ItemStack;
+
+        /**
+         * Decodes an ItemStack message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns ItemStack
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): game.ItemStack;
+
+        /**
+         * Verifies an ItemStack message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates an ItemStack message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns ItemStack
+         */
+        public static fromObject(object: { [k: string]: any }): game.ItemStack;
+
+        /**
+         * Creates a plain object from an ItemStack message. Also converts values to other types if specified.
+         * @param message ItemStack
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: game.ItemStack, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this ItemStack to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+
+        /**
+         * Gets the default type url for ItemStack
+         * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns The default type url
+         */
+        public static getTypeUrl(typeUrlPrefix?: string): string;
+    }
+
+    /** Properties of an InventorySync. */
+    interface IInventorySync {
+
+        /** InventorySync items */
+        items?: (game.IItemStack[]|null);
+
+        /** InventorySync holding */
+        holding?: (game.IItemStack|null);
+    }
+
+    /** Represents an InventorySync. */
+    class InventorySync implements IInventorySync {
+
+        /**
+         * Constructs a new InventorySync.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: game.IInventorySync);
+
+        /** InventorySync items. */
+        public items: game.IItemStack[];
+
+        /** InventorySync holding. */
+        public holding?: (game.IItemStack|null);
+
+        /**
+         * Creates a new InventorySync instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns InventorySync instance
+         */
+        public static create(properties?: game.IInventorySync): game.InventorySync;
+
+        /**
+         * Encodes the specified InventorySync message. Does not implicitly {@link game.InventorySync.verify|verify} messages.
+         * @param message InventorySync message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: game.IInventorySync, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified InventorySync message, length delimited. Does not implicitly {@link game.InventorySync.verify|verify} messages.
+         * @param message InventorySync message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: game.IInventorySync, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes an InventorySync message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns InventorySync
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): game.InventorySync;
+
+        /**
+         * Decodes an InventorySync message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns InventorySync
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): game.InventorySync;
+
+        /**
+         * Verifies an InventorySync message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates an InventorySync message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns InventorySync
+         */
+        public static fromObject(object: { [k: string]: any }): game.InventorySync;
+
+        /**
+         * Creates a plain object from an InventorySync message. Also converts values to other types if specified.
+         * @param message InventorySync
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: game.InventorySync, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this InventorySync to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+
+        /**
+         * Gets the default type url for InventorySync
+         * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns The default type url
+         */
+        public static getTypeUrl(typeUrlPrefix?: string): string;
+    }
+
+    /** Properties of an InventoryUpdate. */
+    interface IInventoryUpdate {
+
+        /** InventoryUpdate slot */
+        slot?: (number|null);
+    }
+
+    /** Represents an InventoryUpdate. */
+    class InventoryUpdate implements IInventoryUpdate {
+
+        /**
+         * Constructs a new InventoryUpdate.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: game.IInventoryUpdate);
+
+        /** InventoryUpdate slot. */
+        public slot: number;
+
+        /**
+         * Creates a new InventoryUpdate instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns InventoryUpdate instance
+         */
+        public static create(properties?: game.IInventoryUpdate): game.InventoryUpdate;
+
+        /**
+         * Encodes the specified InventoryUpdate message. Does not implicitly {@link game.InventoryUpdate.verify|verify} messages.
+         * @param message InventoryUpdate message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: game.IInventoryUpdate, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified InventoryUpdate message, length delimited. Does not implicitly {@link game.InventoryUpdate.verify|verify} messages.
+         * @param message InventoryUpdate message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: game.IInventoryUpdate, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes an InventoryUpdate message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns InventoryUpdate
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): game.InventoryUpdate;
+
+        /**
+         * Decodes an InventoryUpdate message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns InventoryUpdate
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): game.InventoryUpdate;
+
+        /**
+         * Verifies an InventoryUpdate message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates an InventoryUpdate message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns InventoryUpdate
+         */
+        public static fromObject(object: { [k: string]: any }): game.InventoryUpdate;
+
+        /**
+         * Creates a plain object from an InventoryUpdate message. Also converts values to other types if specified.
+         * @param message InventoryUpdate
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: game.InventoryUpdate, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this InventoryUpdate to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+
+        /**
+         * Gets the default type url for InventoryUpdate
+         * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns The default type url
+         */
+        public static getTypeUrl(typeUrlPrefix?: string): string;
+    }
 }

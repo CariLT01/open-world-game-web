@@ -41,7 +41,7 @@ export class PlayersManager {
                 const joinPacket = new PlayerJoinPacket();
                 joinPacket.name = playerName;
 
-                ServerEventBus.fireEvent(EventBusEvent.SEND_PACKET, {packet: joinPacket});
+                ServerEventBus.invokeEvent(EventBusEvent.SEND_PACKET, {packet: joinPacket});
 
                 // Send existing players
 
@@ -50,9 +50,16 @@ export class PlayersManager {
 
                         joinPacket.name = name;
 
-                        ServerEventBus.fireEvent(EventBusEvent.SEND_PACKET_TO_CONNECTION, {packet: joinPacket, connection: ws});
+                        ServerEventBus.invokeEvent(EventBusEvent.SEND_PACKET_TO_CONNECTION, {packet: joinPacket, connection: ws});
                     }
                 }
+
+
+                // Initial inventory synchronization
+
+                const player = this.players.get(playerName)!;
+
+                player.getInventory().synchronize(playerName);
             },
         );
 
@@ -76,7 +83,7 @@ export class PlayersManager {
                 for (const [username, ws] of this.playerConnections) {
                     if (ws == data.ws) {
 
-                        ServerEventBus.fireEvent(
+                        ServerEventBus.invokeEvent(
                             EventBusEvent.SERVER_PLAYER_LEFT,
                             {
                                 username: username
@@ -100,7 +107,7 @@ export class PlayersManager {
 
                 const ws = this.playerConnections.get(data.username)!;
 
-                ServerEventBus.fireEvent(
+                ServerEventBus.invokeEvent(
                     EventBusEvent.SEND_PACKET_TO_CONNECTION,
                     {
                         packet: data.packet,
@@ -125,12 +132,22 @@ export class PlayersManager {
                 const playerLeavePacket = new PlayerLeavePacket();
                 playerLeavePacket.username = data.username;
 
-                ServerEventBus.fireEvent(
+                ServerEventBus.invokeEvent(
                     EventBusEvent.SEND_PACKET,
                     {
                         packet: playerLeavePacket
                     }
                 );
+            }
+        )
+
+        ServerEventBus.on(
+            EventBusEvent.SERVER_INVENTORY_UPDATE, (data) => {
+                const user = this.players.get(data.username);
+                
+                if (!user) throw new Error("User not found");
+                
+                user.getInventory().handleInventoryClickEvent(data.slot, data.username);
             }
         )
     }
@@ -141,7 +158,7 @@ export class PlayersManager {
             playerMovementPacket.name = username;
             playerMovementPacket.position = data.getPosition();
 
-            ServerEventBus.fireEvent(
+            ServerEventBus.invokeEvent(
                 EventBusEvent.SEND_PACKET,
                 {packet: playerMovementPacket},
             );

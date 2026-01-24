@@ -2250,6 +2250,761 @@ $root.game = (function() {
         return PlayerLeave;
     })();
 
+    game.ItemStack = (function() {
+
+        /**
+         * Properties of an ItemStack.
+         * @memberof game
+         * @interface IItemStack
+         * @property {string|null} [name] ItemStack name
+         * @property {number|null} [count] ItemStack count
+         * @property {Object.<string,game.IPropertyData>|null} [attributes] ItemStack attributes
+         */
+
+        /**
+         * Constructs a new ItemStack.
+         * @memberof game
+         * @classdesc Represents an ItemStack.
+         * @implements IItemStack
+         * @constructor
+         * @param {game.IItemStack=} [properties] Properties to set
+         */
+        function ItemStack(properties) {
+            this.attributes = {};
+            if (properties)
+                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * ItemStack name.
+         * @member {string} name
+         * @memberof game.ItemStack
+         * @instance
+         */
+        ItemStack.prototype.name = "";
+
+        /**
+         * ItemStack count.
+         * @member {number} count
+         * @memberof game.ItemStack
+         * @instance
+         */
+        ItemStack.prototype.count = 0;
+
+        /**
+         * ItemStack attributes.
+         * @member {Object.<string,game.IPropertyData>} attributes
+         * @memberof game.ItemStack
+         * @instance
+         */
+        ItemStack.prototype.attributes = $util.emptyObject;
+
+        /**
+         * Creates a new ItemStack instance using the specified properties.
+         * @function create
+         * @memberof game.ItemStack
+         * @static
+         * @param {game.IItemStack=} [properties] Properties to set
+         * @returns {game.ItemStack} ItemStack instance
+         */
+        ItemStack.create = function create(properties) {
+            return new ItemStack(properties);
+        };
+
+        /**
+         * Encodes the specified ItemStack message. Does not implicitly {@link game.ItemStack.verify|verify} messages.
+         * @function encode
+         * @memberof game.ItemStack
+         * @static
+         * @param {game.IItemStack} message ItemStack message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ItemStack.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.name != null && Object.hasOwnProperty.call(message, "name"))
+                writer.uint32(/* id 1, wireType 2 =*/10).string(message.name);
+            if (message.count != null && Object.hasOwnProperty.call(message, "count"))
+                writer.uint32(/* id 2, wireType 0 =*/16).int32(message.count);
+            if (message.attributes != null && Object.hasOwnProperty.call(message, "attributes"))
+                for (var keys = Object.keys(message.attributes), i = 0; i < keys.length; ++i) {
+                    writer.uint32(/* id 3, wireType 2 =*/26).fork().uint32(/* id 1, wireType 2 =*/10).string(keys[i]);
+                    $root.game.PropertyData.encode(message.attributes[keys[i]], writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim().ldelim();
+                }
+            return writer;
+        };
+
+        /**
+         * Encodes the specified ItemStack message, length delimited. Does not implicitly {@link game.ItemStack.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof game.ItemStack
+         * @static
+         * @param {game.IItemStack} message ItemStack message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ItemStack.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes an ItemStack message from the specified reader or buffer.
+         * @function decode
+         * @memberof game.ItemStack
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {game.ItemStack} ItemStack
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ItemStack.decode = function decode(reader, length, error) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.game.ItemStack(), key, value;
+            while (reader.pos < end) {
+                var tag = reader.uint32();
+                if (tag === error)
+                    break;
+                switch (tag >>> 3) {
+                case 1: {
+                        message.name = reader.string();
+                        break;
+                    }
+                case 2: {
+                        message.count = reader.int32();
+                        break;
+                    }
+                case 3: {
+                        if (message.attributes === $util.emptyObject)
+                            message.attributes = {};
+                        var end2 = reader.uint32() + reader.pos;
+                        key = "";
+                        value = null;
+                        while (reader.pos < end2) {
+                            var tag2 = reader.uint32();
+                            switch (tag2 >>> 3) {
+                            case 1:
+                                key = reader.string();
+                                break;
+                            case 2:
+                                value = $root.game.PropertyData.decode(reader, reader.uint32());
+                                break;
+                            default:
+                                reader.skipType(tag2 & 7);
+                                break;
+                            }
+                        }
+                        message.attributes[key] = value;
+                        break;
+                    }
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes an ItemStack message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof game.ItemStack
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {game.ItemStack} ItemStack
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ItemStack.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies an ItemStack message.
+         * @function verify
+         * @memberof game.ItemStack
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        ItemStack.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.name != null && message.hasOwnProperty("name"))
+                if (!$util.isString(message.name))
+                    return "name: string expected";
+            if (message.count != null && message.hasOwnProperty("count"))
+                if (!$util.isInteger(message.count))
+                    return "count: integer expected";
+            if (message.attributes != null && message.hasOwnProperty("attributes")) {
+                if (!$util.isObject(message.attributes))
+                    return "attributes: object expected";
+                var key = Object.keys(message.attributes);
+                for (var i = 0; i < key.length; ++i) {
+                    var error = $root.game.PropertyData.verify(message.attributes[key[i]]);
+                    if (error)
+                        return "attributes." + error;
+                }
+            }
+            return null;
+        };
+
+        /**
+         * Creates an ItemStack message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof game.ItemStack
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {game.ItemStack} ItemStack
+         */
+        ItemStack.fromObject = function fromObject(object) {
+            if (object instanceof $root.game.ItemStack)
+                return object;
+            var message = new $root.game.ItemStack();
+            if (object.name != null)
+                message.name = String(object.name);
+            if (object.count != null)
+                message.count = object.count | 0;
+            if (object.attributes) {
+                if (typeof object.attributes !== "object")
+                    throw TypeError(".game.ItemStack.attributes: object expected");
+                message.attributes = {};
+                for (var keys = Object.keys(object.attributes), i = 0; i < keys.length; ++i) {
+                    if (typeof object.attributes[keys[i]] !== "object")
+                        throw TypeError(".game.ItemStack.attributes: object expected");
+                    message.attributes[keys[i]] = $root.game.PropertyData.fromObject(object.attributes[keys[i]]);
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Creates a plain object from an ItemStack message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof game.ItemStack
+         * @static
+         * @param {game.ItemStack} message ItemStack
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        ItemStack.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            var object = {};
+            if (options.objects || options.defaults)
+                object.attributes = {};
+            if (options.defaults) {
+                object.name = "";
+                object.count = 0;
+            }
+            if (message.name != null && message.hasOwnProperty("name"))
+                object.name = message.name;
+            if (message.count != null && message.hasOwnProperty("count"))
+                object.count = message.count;
+            var keys2;
+            if (message.attributes && (keys2 = Object.keys(message.attributes)).length) {
+                object.attributes = {};
+                for (var j = 0; j < keys2.length; ++j)
+                    object.attributes[keys2[j]] = $root.game.PropertyData.toObject(message.attributes[keys2[j]], options);
+            }
+            return object;
+        };
+
+        /**
+         * Converts this ItemStack to JSON.
+         * @function toJSON
+         * @memberof game.ItemStack
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        ItemStack.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for ItemStack
+         * @function getTypeUrl
+         * @memberof game.ItemStack
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        ItemStack.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/game.ItemStack";
+        };
+
+        return ItemStack;
+    })();
+
+    game.InventorySync = (function() {
+
+        /**
+         * Properties of an InventorySync.
+         * @memberof game
+         * @interface IInventorySync
+         * @property {Array.<game.IItemStack>|null} [items] InventorySync items
+         * @property {game.IItemStack|null} [holding] InventorySync holding
+         */
+
+        /**
+         * Constructs a new InventorySync.
+         * @memberof game
+         * @classdesc Represents an InventorySync.
+         * @implements IInventorySync
+         * @constructor
+         * @param {game.IInventorySync=} [properties] Properties to set
+         */
+        function InventorySync(properties) {
+            this.items = [];
+            if (properties)
+                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * InventorySync items.
+         * @member {Array.<game.IItemStack>} items
+         * @memberof game.InventorySync
+         * @instance
+         */
+        InventorySync.prototype.items = $util.emptyArray;
+
+        /**
+         * InventorySync holding.
+         * @member {game.IItemStack|null|undefined} holding
+         * @memberof game.InventorySync
+         * @instance
+         */
+        InventorySync.prototype.holding = null;
+
+        /**
+         * Creates a new InventorySync instance using the specified properties.
+         * @function create
+         * @memberof game.InventorySync
+         * @static
+         * @param {game.IInventorySync=} [properties] Properties to set
+         * @returns {game.InventorySync} InventorySync instance
+         */
+        InventorySync.create = function create(properties) {
+            return new InventorySync(properties);
+        };
+
+        /**
+         * Encodes the specified InventorySync message. Does not implicitly {@link game.InventorySync.verify|verify} messages.
+         * @function encode
+         * @memberof game.InventorySync
+         * @static
+         * @param {game.IInventorySync} message InventorySync message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        InventorySync.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.items != null && message.items.length)
+                for (var i = 0; i < message.items.length; ++i)
+                    $root.game.ItemStack.encode(message.items[i], writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+            if (message.holding != null && Object.hasOwnProperty.call(message, "holding"))
+                $root.game.ItemStack.encode(message.holding, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
+            return writer;
+        };
+
+        /**
+         * Encodes the specified InventorySync message, length delimited. Does not implicitly {@link game.InventorySync.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof game.InventorySync
+         * @static
+         * @param {game.IInventorySync} message InventorySync message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        InventorySync.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes an InventorySync message from the specified reader or buffer.
+         * @function decode
+         * @memberof game.InventorySync
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {game.InventorySync} InventorySync
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        InventorySync.decode = function decode(reader, length, error) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.game.InventorySync();
+            while (reader.pos < end) {
+                var tag = reader.uint32();
+                if (tag === error)
+                    break;
+                switch (tag >>> 3) {
+                case 1: {
+                        if (!(message.items && message.items.length))
+                            message.items = [];
+                        message.items.push($root.game.ItemStack.decode(reader, reader.uint32()));
+                        break;
+                    }
+                case 2: {
+                        message.holding = $root.game.ItemStack.decode(reader, reader.uint32());
+                        break;
+                    }
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes an InventorySync message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof game.InventorySync
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {game.InventorySync} InventorySync
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        InventorySync.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies an InventorySync message.
+         * @function verify
+         * @memberof game.InventorySync
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        InventorySync.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.items != null && message.hasOwnProperty("items")) {
+                if (!Array.isArray(message.items))
+                    return "items: array expected";
+                for (var i = 0; i < message.items.length; ++i) {
+                    var error = $root.game.ItemStack.verify(message.items[i]);
+                    if (error)
+                        return "items." + error;
+                }
+            }
+            if (message.holding != null && message.hasOwnProperty("holding")) {
+                var error = $root.game.ItemStack.verify(message.holding);
+                if (error)
+                    return "holding." + error;
+            }
+            return null;
+        };
+
+        /**
+         * Creates an InventorySync message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof game.InventorySync
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {game.InventorySync} InventorySync
+         */
+        InventorySync.fromObject = function fromObject(object) {
+            if (object instanceof $root.game.InventorySync)
+                return object;
+            var message = new $root.game.InventorySync();
+            if (object.items) {
+                if (!Array.isArray(object.items))
+                    throw TypeError(".game.InventorySync.items: array expected");
+                message.items = [];
+                for (var i = 0; i < object.items.length; ++i) {
+                    if (typeof object.items[i] !== "object")
+                        throw TypeError(".game.InventorySync.items: object expected");
+                    message.items[i] = $root.game.ItemStack.fromObject(object.items[i]);
+                }
+            }
+            if (object.holding != null) {
+                if (typeof object.holding !== "object")
+                    throw TypeError(".game.InventorySync.holding: object expected");
+                message.holding = $root.game.ItemStack.fromObject(object.holding);
+            }
+            return message;
+        };
+
+        /**
+         * Creates a plain object from an InventorySync message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof game.InventorySync
+         * @static
+         * @param {game.InventorySync} message InventorySync
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        InventorySync.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            var object = {};
+            if (options.arrays || options.defaults)
+                object.items = [];
+            if (options.defaults)
+                object.holding = null;
+            if (message.items && message.items.length) {
+                object.items = [];
+                for (var j = 0; j < message.items.length; ++j)
+                    object.items[j] = $root.game.ItemStack.toObject(message.items[j], options);
+            }
+            if (message.holding != null && message.hasOwnProperty("holding"))
+                object.holding = $root.game.ItemStack.toObject(message.holding, options);
+            return object;
+        };
+
+        /**
+         * Converts this InventorySync to JSON.
+         * @function toJSON
+         * @memberof game.InventorySync
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        InventorySync.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for InventorySync
+         * @function getTypeUrl
+         * @memberof game.InventorySync
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        InventorySync.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/game.InventorySync";
+        };
+
+        return InventorySync;
+    })();
+
+    game.InventoryUpdate = (function() {
+
+        /**
+         * Properties of an InventoryUpdate.
+         * @memberof game
+         * @interface IInventoryUpdate
+         * @property {number|null} [slot] InventoryUpdate slot
+         */
+
+        /**
+         * Constructs a new InventoryUpdate.
+         * @memberof game
+         * @classdesc Represents an InventoryUpdate.
+         * @implements IInventoryUpdate
+         * @constructor
+         * @param {game.IInventoryUpdate=} [properties] Properties to set
+         */
+        function InventoryUpdate(properties) {
+            if (properties)
+                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * InventoryUpdate slot.
+         * @member {number} slot
+         * @memberof game.InventoryUpdate
+         * @instance
+         */
+        InventoryUpdate.prototype.slot = 0;
+
+        /**
+         * Creates a new InventoryUpdate instance using the specified properties.
+         * @function create
+         * @memberof game.InventoryUpdate
+         * @static
+         * @param {game.IInventoryUpdate=} [properties] Properties to set
+         * @returns {game.InventoryUpdate} InventoryUpdate instance
+         */
+        InventoryUpdate.create = function create(properties) {
+            return new InventoryUpdate(properties);
+        };
+
+        /**
+         * Encodes the specified InventoryUpdate message. Does not implicitly {@link game.InventoryUpdate.verify|verify} messages.
+         * @function encode
+         * @memberof game.InventoryUpdate
+         * @static
+         * @param {game.IInventoryUpdate} message InventoryUpdate message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        InventoryUpdate.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.slot != null && Object.hasOwnProperty.call(message, "slot"))
+                writer.uint32(/* id 1, wireType 0 =*/8).int32(message.slot);
+            return writer;
+        };
+
+        /**
+         * Encodes the specified InventoryUpdate message, length delimited. Does not implicitly {@link game.InventoryUpdate.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof game.InventoryUpdate
+         * @static
+         * @param {game.IInventoryUpdate} message InventoryUpdate message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        InventoryUpdate.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes an InventoryUpdate message from the specified reader or buffer.
+         * @function decode
+         * @memberof game.InventoryUpdate
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {game.InventoryUpdate} InventoryUpdate
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        InventoryUpdate.decode = function decode(reader, length, error) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.game.InventoryUpdate();
+            while (reader.pos < end) {
+                var tag = reader.uint32();
+                if (tag === error)
+                    break;
+                switch (tag >>> 3) {
+                case 1: {
+                        message.slot = reader.int32();
+                        break;
+                    }
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes an InventoryUpdate message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof game.InventoryUpdate
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {game.InventoryUpdate} InventoryUpdate
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        InventoryUpdate.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies an InventoryUpdate message.
+         * @function verify
+         * @memberof game.InventoryUpdate
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        InventoryUpdate.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.slot != null && message.hasOwnProperty("slot"))
+                if (!$util.isInteger(message.slot))
+                    return "slot: integer expected";
+            return null;
+        };
+
+        /**
+         * Creates an InventoryUpdate message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof game.InventoryUpdate
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {game.InventoryUpdate} InventoryUpdate
+         */
+        InventoryUpdate.fromObject = function fromObject(object) {
+            if (object instanceof $root.game.InventoryUpdate)
+                return object;
+            var message = new $root.game.InventoryUpdate();
+            if (object.slot != null)
+                message.slot = object.slot | 0;
+            return message;
+        };
+
+        /**
+         * Creates a plain object from an InventoryUpdate message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof game.InventoryUpdate
+         * @static
+         * @param {game.InventoryUpdate} message InventoryUpdate
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        InventoryUpdate.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            var object = {};
+            if (options.defaults)
+                object.slot = 0;
+            if (message.slot != null && message.hasOwnProperty("slot"))
+                object.slot = message.slot;
+            return object;
+        };
+
+        /**
+         * Converts this InventoryUpdate to JSON.
+         * @function toJSON
+         * @memberof game.InventoryUpdate
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        InventoryUpdate.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for InventoryUpdate
+         * @function getTypeUrl
+         * @memberof game.InventoryUpdate
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        InventoryUpdate.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/game.InventoryUpdate";
+        };
+
+        return InventoryUpdate;
+    })();
+
     return game;
 })();
 

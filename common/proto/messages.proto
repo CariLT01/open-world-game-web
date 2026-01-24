@@ -49,3 +49,18 @@ message PlayerJoin {
 message PlayerLeave {
     string name = 1;
 }
+
+message ItemStack {
+    string name = 1;
+    int32 count = 2;
+    map<string, PropertyData> attributes = 3;
+}
+
+message InventorySync {
+    repeated ItemStack items = 1;
+    ItemStack holding = 2;
+}
+
+message InventoryUpdate {
+    int32 slot = 1;
+}

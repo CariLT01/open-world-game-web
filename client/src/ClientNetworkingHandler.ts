@@ -35,13 +35,13 @@ export class ClientNetworkingHandler {
             }
             this.queuedPacketsSend.length = 0;
 
-            ClientEventBus.fireEvent(EventBusEvent.CLIENT_SOCKET_CONNECTED, {});
+            ClientEventBus.invokeEvent(EventBusEvent.CLIENT_SOCKET_CONNECTED, {});
             
         });
 
         this.socket.addEventListener("error", (e) => {
 
-            ClientEventBus.fireEvent(EventBusEvent.FATAL_CRASH_STATE, {});
+            ClientEventBus.invokeEvent(EventBusEvent.FATAL_CRASH_STATE, {});
 
             throw new Error("Failed to connect to server");
         })
@@ -56,7 +56,7 @@ export class ClientNetworkingHandler {
         }
 
         this.socket.onclose = (e) => {
-            ClientEventBus.fireEvent(EventBusEvent.FATAL_CRASH_STATE, {});
+            ClientEventBus.invokeEvent(EventBusEvent.FATAL_CRASH_STATE, {});
             throw new Error("WebSocket closed");
         }
     }

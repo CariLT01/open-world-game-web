@@ -70,7 +70,7 @@ export class NetworkHandler {
                     this.sockets.delete(uuid);
                 }
 
-                ServerEventBus.fireEvent(EventBusEvent.SERVER_PLAYER_LEFT_WS, {ws: ws});
+                ServerEventBus.invokeEvent(EventBusEvent.SERVER_PLAYER_LEFT_WS, {ws: ws});
             })
 
             ws.on("message", (data) => {

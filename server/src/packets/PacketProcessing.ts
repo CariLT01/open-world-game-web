@@ -7,6 +7,7 @@ import { PlayerJoinPacket } from "../../../common/packets/PlayerJoinPacket";
 import { PlayerMovePacket } from "../../../common/packets/PlayerMovePacket";
 import { ServerEventBus } from "../ServerEventBus";
 import { ChunkLoadRequestPacket } from "../../../common/packets/ChunkLoadRequestPacket";
+import { InventoryUpdatePacket } from "../../../common/packets/InventoryUpdatePacket";
 
 
 export class PacketProcessor {
@@ -14,6 +15,8 @@ export class PacketProcessor {
 
 
     }
+
+    private connectionsToPlayersMap: Map<WebSocket, string> = new Map();
 
 
     processPacket(data: Uint8Array, ws: WebSocket) {
@@ -32,7 +35,11 @@ export class PacketProcessor {
                     throw new Error("No name");
                 }
 
-                ServerEventBus.fireEvent(EventBusEvent.SERVER_PLAYER_JOINED, {username: packetData.name, ws: ws});
+                this.connectionsToPlayersMap.set(ws, packetData.name);
+                ServerEventBus.invokeEvent(EventBusEvent.SERVER_PLAYER_JOINED, {username: packetData.name, ws: ws});
+
+                
+
                 break;
             case PacketTypes.PLAYER_MOVE_PACKET:
                 packetData = new PlayerMovePacket();
@@ -52,7 +59,7 @@ export class PacketProcessor {
                     throw new Error("No name");
                 }
 
-                ServerEventBus.fireEvent(EventBusEvent.SERVER_PLAYER_MOVED, {username: packetData.name, position: playerPosition});
+                ServerEventBus.invokeEvent(EventBusEvent.SERVER_PLAYER_MOVED, {username: packetData.name, position: playerPosition});
                 break;
             case PacketTypes.CHUNK_LOAD_REQUEST_PACKET:
                 packetData = new ChunkLoadRequestPacket();
@@ -62,9 +69,25 @@ export class PacketProcessor {
                     throw new Error("Failed to deserialize");
                 }
 
-                ServerEventBus.fireEvent(EventBusEvent.SERVER_LOAD_CHUNK, {
+                ServerEventBus.invokeEvent(EventBusEvent.SERVER_LOAD_CHUNK, {
                     position: packetData.position,
                     connection: ws
+                });
+                break;
+            case PacketTypes.INVENTORY_UPDATE:
+                packetData = new InventoryUpdatePacket();
+                packetData.deserialize(packetBuffer);
+
+                if (packetData.slot === undefined) {
+                    throw new Error("No slot");
+                }
+
+                const username = this.connectionsToPlayersMap.get(ws);
+                if (!username) throw new Error("No username");
+
+                ServerEventBus.invokeEvent(EventBusEvent.SERVER_INVENTORY_UPDATE, {
+                    slot: packetData.slot,
+                    username: username
                 });
                 break;
             default:

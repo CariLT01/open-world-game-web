@@ -28,7 +28,7 @@ export class ChunksManager {
     private _registerEvents() {
         ServerEventBus.on(EventBusEvent.SERVER_LOAD_CHUNK, (data) => {
 
-            console.log("Requested: ", data.position);
+            // console.log("Requested: ", data.position);
             
             this.queuedChunksToLoad.push({
                 requester: data.connection,
@@ -50,8 +50,8 @@ export class ChunksManager {
             chunkDataPacket.position = position;
             
             // chunk.chunkData.unfreeze();
-            console.log("Load chunk: already exists: ", position, " send directly");
-            ServerEventBus.fireEvent(EventBusEvent.SEND_PACKET_TO_CONNECTION, {packet: chunkDataPacket, connection: requester});
+            // console.log("Load chunk: already exists: ", position, " send directly");
+            ServerEventBus.invokeEvent(EventBusEvent.SEND_PACKET_TO_CONNECTION, {packet: chunkDataPacket, connection: requester});
             // chunk.chunkData.freeze();
         } else {
             // Needs terrain generation
@@ -71,9 +71,9 @@ export class ChunksManager {
             chunkDataPacket.chunkData = chunk.chunkData;
             chunkDataPacket.position = position;
 
-            console.log("Load chunk: doesn't exist: ", position, " generate");
+            // console.log("Load chunk: doesn't exist: ", position, " generate");
             // chunk.chunkData.unfreeze();
-            ServerEventBus.fireEvent(EventBusEvent.SEND_PACKET_TO_CONNECTION, {packet: chunkDataPacket, connection: requester});
+            ServerEventBus.invokeEvent(EventBusEvent.SEND_PACKET_TO_CONNECTION, {packet: chunkDataPacket, connection: requester});
         }
 
     }

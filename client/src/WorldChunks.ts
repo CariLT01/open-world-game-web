@@ -95,11 +95,9 @@ export class WorldChunks {
         const queue: { pos: Vector3, entryFace?: Face }[] = [];
 
         // 1. Setup Camera state
-        const cameraPos = new Vector3(0, 0, 0).fromThreeVector3(camera.position);
-        const viewDir = new Vector3(0, 0, 0);
-        viewDir.fromThreeVector3(
-            new ThreeVector3(0, 0, -1).applyQuaternion(camera.quaternion)
-        );
+        const cameraPos = Vector3.fromThreeVector3(camera.position);
+        const viewDir = Vector3.fromThreeVector3(new ThreeVector3(0, 0, -1).applyQuaternion(camera.quaternion));
+
 
         const frustum = new Frustum();
         const projScreenMatrix = new Matrix4().multiplyMatrices(
@@ -201,7 +199,7 @@ export class WorldChunks {
 
             this.pendingServer.delete(data.position.toKey());
             this.pendingChunks.add(data.position.toKey());
-            console.log("Recv successfull for: ", data.position.toKey());
+            // console.log("Recv successfull for: ", data.position.toKey());
         })
     }
 
@@ -396,7 +394,7 @@ export class WorldChunks {
 
         this.pendingServer.add(pos.toKey());
 
-        ClientEventBus.fireEvent(EventBusEvent.SEND_PACKET, {packet: serverRequestPacket});
+        ClientEventBus.invokeEvent(EventBusEvent.SEND_PACKET, {packet: serverRequestPacket});
 
         // console.log("Queued: ", pos.toKey(), " set has: ", this.pendingServer.size);
     }
@@ -517,7 +515,7 @@ export class WorldChunks {
 
 
             if (!this.isReadyToGenerate(chunkPos)) continue;
-            console.log("Rendering chunk at: ", chunkPos.toKey());
+            console.log("Rendering chunk");
 
             const neighbors = this.getNeighbors(chunkPos);
 

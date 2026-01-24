@@ -22,7 +22,7 @@ export class NetworkingPlayer {
 
         this.threeMesh = new Mesh(geometry, material);
 
-        ClientEventBus.fireEvent(EventBusEvent.CLIENT_ADD_TO_SCENE, {object: this.threeMesh});
+        ClientEventBus.invokeEvent(EventBusEvent.CLIENT_ADD_TO_SCENE, {object: this.threeMesh});
     }
 
     updatePosition(newPosition: Vector3) {
@@ -32,7 +32,7 @@ export class NetworkingPlayer {
     }
 
     dispose() {
-        ClientEventBus.fireEvent(EventBusEvent.CLIENT_REMOVE_FROM_SCENE, {object: this.threeMesh});
+        ClientEventBus.invokeEvent(EventBusEvent.CLIENT_REMOVE_FROM_SCENE, {object: this.threeMesh});
         this.threeMesh.geometry.dispose();
     }
 

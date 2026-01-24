@@ -28,7 +28,7 @@ export class EventBus {
 
     }
 
-    fireEvent<K extends keyof EventTypePayloads>(eventType: K, data: EventTypePayloads[K]) {
+    invokeEvent<K extends keyof EventTypePayloads>(eventType: K, data: EventTypePayloads[K]) {
 
         if (!this.events.has(eventType)) {
             console.warn("Event not registered: " + eventType);
@@ -43,7 +43,7 @@ export class EventBus {
             } catch (e) {
                 console.error("Error occurred in callback: ", e);
             }
-            
+
         }
     }
 

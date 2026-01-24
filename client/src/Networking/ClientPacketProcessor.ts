@@ -2,6 +2,7 @@ import { Vector3 } from "../../../common/Core/Vector3";
 import { EventBus } from "../../../common/EventBus";
 import { EventBusEvent } from "../../../common/EventTypes";
 import { ChunkDataPacket } from "../../../common/packets/ChunkDataPacket";
+import { InventorySyncPacket } from "../../../common/packets/InventorySyncPacket";
 import { PacketTypes } from "../../../common/packets/PacketTypes";
 import { PlayerJoinPacket } from "../../../common/packets/PlayerJoinPacket";
 import { PlayerLeavePacket } from "../../../common/packets/PlayerLeavePacket";
@@ -26,7 +27,7 @@ export class ClientPacketProcessor {
                 decodedPacket = new PlayerJoinPacket();
                 decodedPacket.deserialize(packetBuffer);
 
-                ClientEventBus.fireEvent(
+                ClientEventBus.invokeEvent(
                     EventBusEvent.CLIENT_PLAYER_JOINED,
                     {name: decodedPacket.name ?? "UNKNOWN"}
                 );
@@ -39,7 +40,7 @@ export class ClientPacketProcessor {
                     throw new Error("Packet has no positoin");
                 }
 
-                ClientEventBus.fireEvent(EventBusEvent.CLIENT_PLAYER_MOVED, {
+                ClientEventBus.invokeEvent(EventBusEvent.CLIENT_PLAYER_MOVED, {
                     name: decodedPacket.name ?? "",
                     position: new Vector3(
                         decodedPacket.position.x ?? 0,
@@ -63,7 +64,7 @@ export class ClientPacketProcessor {
 
                 // console.log("Got chunk data packet at: ", decodedPacket.position.toKey());
 
-                ClientEventBus.fireEvent(EventBusEvent.CLIENT_CHUNK_RECEIVED, {
+                ClientEventBus.invokeEvent(EventBusEvent.CLIENT_CHUNK_RECEIVED, {
                     position: decodedPacket.position,
                     data: decodedPacket.chunkData,
                 })
@@ -79,10 +80,22 @@ export class ClientPacketProcessor {
                     throw new Error("No username in packet");
                 }
 
-                ClientEventBus.fireEvent(EventBusEvent.SERVER_PLAYER_LEFT, {
+                ClientEventBus.invokeEvent(EventBusEvent.SERVER_PLAYER_LEFT, {
                     username: decodedPacket.username
                 });
 
+                break;
+            case PacketTypes.INVENTORY_SYNC:
+                decodedPacket = new InventorySyncPacket();
+                decodedPacket.deserialize(packetBuffer);
+
+                if (decodedPacket.container === undefined) {
+                    throw new Error("Failed to decode container");
+                }
+
+                ClientEventBus.invokeEvent(EventBusEvent.CLIENT_INVENTORY_SYNC, {
+                    container: decodedPacket.container
+                });
                 break;
             default:
                 console.warn("Unknown packet type: ", packetType);

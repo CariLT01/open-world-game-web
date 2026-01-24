@@ -1,22 +1,29 @@
 import { EventBusEvent } from "../../../common/EventTypes";
+import { ItemStack } from "../../../common/ItemStack";
+import { PlayerInventoryContainer } from "../../../common/PlayerInventoryContainer";
 import { ClientEventBus } from "../ClientEventBus";
 import { InventoryStore } from "../Stores/InventoryStore";
 import { InventoryRow } from "./InventoryRow";
-import { InventorySlot } from "./InventorySlot";
-import { _generateInventoryRow } from "./InventoryTypes";
-import { ItemStack } from "../../../common/ItemStack"; // Import ItemStack
+import { _generateInventoryRow, type InventorySlotData } from "./InventoryTypes";
 
-export function Hotbar() {
 
-    const container = InventoryStore(state => state.container);
+
+
+
+export function Inventory() {
+    const isVisible = InventoryStore(state => state.isVisible);
+    const slots = InventoryStore(state => state.container);
     const updateTime = InventoryStore(state => state.updateTime);
 
-    const ROW_4_START = 27;
-    const ROW_4_END = 35;
-
-
-    const onClick = (slotIndex: number) => { // Renamed slotIndeX to slotIndex for consistency
-        console.log("Clicked hotbar slot index:", slotIndex); // Updated log message
+    const ROW_0_START = 0
+    const ROW_0_END = 8;
+    const ROW_1_START = 9;
+    const ROW_1_END = 17;
+    const ROW_2_START = 18;
+    const ROW_2_END = 26;
+    
+    const onClick = (slotIndex: number) => {
+        console.log("Clicked slot index:", slotIndex);
 
         const currentHoldingItem = InventoryStore.getState().holding;
         const itemInClickedSlot = InventoryStore.getState().getItemInSlot(slotIndex);
@@ -49,7 +56,12 @@ export function Hotbar() {
         ClientEventBus.invokeEvent(EventBusEvent.CLIENT_INVENTORY_SLOT_CLICKED, {slot: slotIndex});
     }
 
-    return <div className="fixed bottom-5 left-[50%] translate-x-[-50%] z-99 flex gap-2 pointer-events-auto">
-        <InventoryRow slots={_generateInventoryRow(container, ROW_4_START, ROW_4_END)} onClick={onClick}></InventoryRow>
-    </div>
+    return isVisible ? <div className="w-fit h-fit p-4 fixed top-[50%] left-[50%] translate-x-[-50%] bg-black/15 rounded-md border border-white/15 pointer-events-auto">
+        <div className="flex flex-col gap-2 items-center">
+            <InventoryRow slots={_generateInventoryRow(slots, ROW_0_START, ROW_0_END)} onClick={onClick}></InventoryRow>
+            <InventoryRow slots={_generateInventoryRow(slots, ROW_1_START, ROW_1_END)} onClick={onClick}></InventoryRow>
+            <InventoryRow slots={_generateInventoryRow(slots, ROW_2_START, ROW_2_END)} onClick={onClick}></InventoryRow>
+            {updateTime}
+        </div>
+    </div> : null;
 }

@@ -15,6 +15,14 @@ export class Vector3 {
         this.z = z;
     }
 
+    static fromThreeVector3(v: THREE.Vector3) {
+        return new Vector3(v.x, v.y, v.z);
+    }
+
+    static zero() {
+        return new Vector3(0, 0, 0);
+    }
+
     set(x: number, y: number, z: number) {
         this.x = x!;
         this.y = y!;
@@ -139,13 +147,6 @@ export class Vector3 {
         return this.x * other.x + this.y * other.y + this.z * other.z;
     }
 
-    fromThreeVector3(v: THREE.Vector3) {
-        this.x = v.x;
-        this.y = v.y;
-        this.z = v.z;
-
-        return this;
-    }
 
     distanceTo(v: Vector3) {
         return this.sub(v).length();

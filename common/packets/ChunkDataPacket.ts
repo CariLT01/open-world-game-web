@@ -56,7 +56,7 @@ export class ChunkDataPacket implements IPacket {
         const materialsArray = Array.from(this.chunkData.getMaterialsBuffer());
         const densitiesArray = Array.from(this.chunkData.getDensitiesBuffer());
 
-        console.log("Mat l: ", materialsArray.length, " dens l: ", densitiesArray.length);
+        // console.log("Mat l: ", materialsArray.length, " dens l: ", densitiesArray.length);
 
         const encodedPacket = game.ChunkData.encode({
             palette: palette,
@@ -154,7 +154,7 @@ export class ChunkDataPacket implements IPacket {
         
         chunkData.flushPaletteChanges();
         if (instancesInvalidPaletteCount > 0) {
-            console.warn(`There were ${instancesInvalidPaletteCount} voxels filled with AIR because palette entry could not be found!`);
+            // console.warn(`There were ${instancesInvalidPaletteCount} voxels filled with AIR because palette entry could not be found!`);
         }
 
         this.chunkData = chunkData;

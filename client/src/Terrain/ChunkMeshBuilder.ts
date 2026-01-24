@@ -44,7 +44,7 @@ export class ChunkMeshBuilder {
 
         }
 
-        console.log("Vertex list has: ", triList.length, " items");
+        // console.log("Vertex list has: ", triList.length, " items");
 
         if (triList.length == 0) {
             return {}
