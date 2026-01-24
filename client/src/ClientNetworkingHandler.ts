@@ -33,6 +33,9 @@ export class ClientNetworkingHandler {
         });
 
         this.socket.addEventListener("error", (e) => {
+
+            ClientEventBus.fireEvent(EventBusEvent.FATAL_CRASH_STATE, {});
+
             throw new Error("Failed to connect to server");
         })
 
@@ -43,6 +46,11 @@ export class ClientNetworkingHandler {
             } else {
                 console.warn("Received non-binary message:", event.data);
             }
+        }
+
+        this.socket.onclose = (e) => {
+            ClientEventBus.fireEvent(EventBusEvent.FATAL_CRASH_STATE, {});
+            throw new Error("WebSocket closed");
         }
     }
 
@@ -69,7 +77,12 @@ export class ClientNetworkingHandler {
     tick() {
 
         for (const packet of this.queuedPackets) {
-            this.packetProcessor.processPacket(packet);
+            try {
+                this.packetProcessor.processPacket(packet);
+            } catch (e) {
+                console.error("Bad packet: ", e);
+            }
+            
         }
         this.queuedPackets.length = 0;
     }

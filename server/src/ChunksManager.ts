@@ -3,10 +3,11 @@ import type { Vector3 } from "../../common/Core/Vector3";
 import { EventBus } from "../../common/EventBus";
 import { EventBusEvent } from "../../common/EventTypes";
 import { ChunkDataPacket } from "../../common/packets/ChunkDataPacket";
-import { ServerChunk } from "./ServerChunk";
 import { CHUNKS_PER_TICK } from "./ServerConfig";
 import { ServerEventBus } from "./ServerEventBus";
 import { TerrainGenerator } from "./TerrainGenerator";
+import { Chunk } from "../../common/Chunk";
+import { TerrainGenerator2 } from "./TerrainGenerator2";
 
 type ChunkToLoadEntry = {
     requester: WebSocket;
@@ -17,8 +18,8 @@ export class ChunksManager {
 
     private queuedChunksToLoad: ChunkToLoadEntry[] = [];
 
-    private chunks: Map<string, ServerChunk> = new Map();
-    private terrainGenerator: TerrainGenerator = new TerrainGenerator();
+    private chunks: Map<string, Chunk> = new Map();
+    private terrainGenerator: TerrainGenerator2 = new TerrainGenerator2();
 
     constructor() {
         this._registerEvents();
@@ -26,6 +27,9 @@ export class ChunksManager {
 
     private _registerEvents() {
         ServerEventBus.on(EventBusEvent.SERVER_LOAD_CHUNK, (data) => {
+
+            console.log("Requested: ", data.position);
+            
             this.queuedChunksToLoad.push({
                 requester: data.connection,
                 position: data.position
@@ -43,17 +47,21 @@ export class ChunksManager {
 
             const chunkDataPacket = new ChunkDataPacket();
             chunkDataPacket.chunkData = chunk.chunkData;
+            chunkDataPacket.position = position;
             
             // chunk.chunkData.unfreeze();
+            console.log("Load chunk: already exists: ", position, " send directly");
             ServerEventBus.fireEvent(EventBusEvent.SEND_PACKET_TO_CONNECTION, {packet: chunkDataPacket, connection: requester});
             // chunk.chunkData.freeze();
         } else {
             // Needs terrain generation
 
-            const generatedChunk = this.terrainGenerator.generateTerrain(position);
+            const chunk = new Chunk();
 
-            const chunk = new ServerChunk();
-            chunk.chunkData = generatedChunk;
+            const generatedChunk = this.terrainGenerator.generateTerrainOf(chunk, position);
+
+            
+            
 
             this.chunks.set(position.toKey(), chunk);
 
@@ -61,7 +69,9 @@ export class ChunksManager {
 
             const chunkDataPacket = new ChunkDataPacket();
             chunkDataPacket.chunkData = chunk.chunkData;
+            chunkDataPacket.position = position;
 
+            console.log("Load chunk: doesn't exist: ", position, " generate");
             // chunk.chunkData.unfreeze();
             ServerEventBus.fireEvent(EventBusEvent.SEND_PACKET_TO_CONNECTION, {packet: chunkDataPacket, connection: requester});
         }
@@ -69,14 +79,19 @@ export class ChunksManager {
     }
 
     private _processChunks() {
+        // console.log("Chunks remaining: ", this.queuedChunksToLoad.length);
         for (let i = 0; i < CHUNKS_PER_TICK; i++) {
 
             if (this.queuedChunksToLoad.length === 0) return;
             const first = this.queuedChunksToLoad[0]!;
             this.queuedChunksToLoad.splice(0, 1);
 
+            // console.log("Loading chunk: ", first.position);
+
             this._processChunk(first.position, first.requester);
         }
+
+        
     }
 
     tick() {

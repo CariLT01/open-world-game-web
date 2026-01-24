@@ -1,5 +1,5 @@
 import { BufferAttribute, BufferGeometry, Mesh, MeshPhysicalMaterial, MeshStandardMaterial } from "three";
-import { CHUNK_SIZE, type Chunk } from "./Chunk";
+import { CHUNK_SIZE, type Chunk } from "../../../common/Chunk";
 import type { TerrainBuilder, Triangle } from "./TerrainBuilder";
 import type { Vector3 } from "../../../common/Core/Vector3";
 import type { ChunkData } from "../../../common/ChunkData";

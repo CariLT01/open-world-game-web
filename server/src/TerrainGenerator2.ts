@@ -1,17 +1,15 @@
 import { SimplexNoise } from "three/examples/jsm/Addons.js";
-import { Vector3 } from "../../../common/Core/Vector3";
-import { Chunk, CHUNK_SIZE } from "./Chunk";
-import type { MaterialIndex } from "../../../common/ChunkData";
-import { WorleyNoise } from "./WorleyNoise";
-import { debugGlobal } from "../DebugGlobal";
+import { Vector3 } from "../../common/Core/Vector3";
+import { CHUNK_SIZE } from "../../common/Config";
+import type { Chunk } from "../../common/Chunk";
+import type { MaterialIndex } from "../../common/ChunkData";
 
 const clamp = (num: number, min: number, max: number): number => {
     return Math.min(Math.max(num, min), max);
 };
 
-const noise = new WorleyNoise(1341);
 
-export class TerrainGenerator {
+export class TerrainGenerator2 {
     private simplex: SimplexNoise = new SimplexNoise();
     private heightmapCache: Map<String, Float32Array> = new Map();
     private heightmapCacheCapacity: number = 100;
@@ -298,7 +296,7 @@ export class TerrainGenerator {
                 this.heightmapCache.delete(toRemove);
             }
 
-            debugGlobal.updateKey("heightmapCache: ", `${this.heightmapCache.size}/${this.heightmapCacheCapacity}`);
+            // debugGlobal.updateKey("heightmapCache: ", `${this.heightmapCache.size}/${this.heightmapCacheCapacity}`);
 
             return heightmap;
         } else {

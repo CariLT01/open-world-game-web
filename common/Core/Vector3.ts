@@ -22,7 +22,7 @@ export class Vector3 {
     }
     copy(other: Vector3) {
         this.x = other.x;
-        this.y = other.x;
+        this.y = other.y;
         this.z = other.z;
     }
     add(other: Vector3) {

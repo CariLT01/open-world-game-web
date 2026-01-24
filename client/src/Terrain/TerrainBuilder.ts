@@ -1,7 +1,7 @@
 import { ISOLEVEL } from "../../../common/Config";
 import { Vector3, type Vec3Fast } from "../../../common/Core/Vector3";
 import { Materials, type MaterialData } from "../../../common/Materials";
-import { CHUNK_SIZE, type Chunk } from "./Chunk";
+import { CHUNK_SIZE, type Chunk } from "../../../common/Chunk";
 import type { ChunkData, MaterialIndex } from "../../../common/ChunkData";
 import { edgeTable, triTable } from "./Data/TriangulationTable";
 
@@ -259,7 +259,7 @@ export class TerrainBuilder {
         }
 
         if (!targetChunk) {
-            throw new Error("Target chunk is null")
+            return 0; // Default to air/empty space if neighbor is null
         }
 
         return targetChunk.getDensityAtFast([localX, localY, localZ]);

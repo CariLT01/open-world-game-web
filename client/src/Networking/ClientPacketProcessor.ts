@@ -1,6 +1,7 @@
 import { Vector3 } from "../../../common/Core/Vector3";
 import { EventBus } from "../../../common/EventBus";
 import { EventBusEvent } from "../../../common/EventTypes";
+import { ChunkDataPacket } from "../../../common/packets/ChunkDataPacket";
 import { PacketTypes } from "../../../common/packets/PacketTypes";
 import { PlayerJoinPacket } from "../../../common/packets/PlayerJoinPacket";
 import { PlayerMovePacket } from "../../../common/packets/PlayerMovePacket";
@@ -45,6 +46,29 @@ export class ClientPacketProcessor {
                         decodedPacket.position.z ?? 0,
                     ),
                 });
+                break;
+            case PacketTypes.CHUNK_DATA_PACKET:
+                decodedPacket = new ChunkDataPacket();
+                decodedPacket.deserialize(packetBuffer);
+
+
+                if (decodedPacket.position === undefined) {
+                    throw new Error("Packet has no position");
+                }
+
+                if (decodedPacket.chunkData === undefined) {
+                    throw new Error("Packet has no chunk data");
+                }
+
+                // console.log("Got chunk data packet at: ", decodedPacket.position.toKey());
+
+                ClientEventBus.fireEvent(EventBusEvent.CLIENT_CHUNK_RECEIVED, {
+                    position: decodedPacket.position,
+                    data: decodedPacket.chunkData,
+                })
+
+                
+
                 break;
             default:
                 console.warn("Unknown packet type: ", packetType);

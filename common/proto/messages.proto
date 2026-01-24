@@ -9,9 +9,9 @@ message Vec3f {
 }
 
 message Vec3i {
-    int32 x = 1;
-    int32 y = 2;
-    int32 z = 3;
+    sint32 x = 1;
+    sint32 y = 2;
+    sint32 z = 3;
 }
 
 message PropertyData {

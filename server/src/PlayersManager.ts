@@ -10,7 +10,7 @@ import { PlayerJoinPacket } from "../../common/packets/PlayerJoinPacket";
 
 export class PlayersManager {
     private players: Map<string, ServerPlayer> = new Map();
-    private playerConnections: Map<String, WebSocket> = new Map();
+    private playerConnections: Map<string, WebSocket> = new Map();
 
     constructor() {
         this._handlePlayerEvents();
@@ -67,6 +67,28 @@ export class PlayersManager {
                 // console.log("Player moved: ", playerName, position);
             },
         );
+
+        ServerEventBus.on(
+            EventBusEvent.SERVER_PLAYER_LEFT_WS,
+            (data) => {
+                // Check which username
+                for (const [username, ws] of this.playerConnections) {
+                    if (ws == data.ws) {
+
+                        ServerEventBus.fireEvent(
+                            EventBusEvent.SERVER_PLAYER_LEFT,
+                            {
+                                username: username
+                            }
+                        )
+
+                        this.players.delete(username);
+                        this.playerConnections.delete(username);
+                        break;
+                    }
+                }
+            }
+        )
 
         ServerEventBus.on(
             EventBusEvent.SEND_PACKET_TO_PLAYER,

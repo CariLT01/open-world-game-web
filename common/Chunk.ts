@@ -1,7 +1,7 @@
-import { CHUNK_VOLUME, Face, ISOLEVEL } from "../../../common/Config";
-import { Vector3, type Vec3Fast } from "../../../common/Core/Vector3";
-import { Queue } from "../Queue";
-import { ChunkData, type BlockData, type PaletteIndex } from "../../../common/ChunkData";
+import { CHUNK_VOLUME, Face, ISOLEVEL } from "./Config";
+import { Vector3, type Vec3Fast } from "./Core/Vector3";
+import { Queue } from "../client/src/Queue";
+import { ChunkData, type BlockData, type PaletteIndex } from "./ChunkData";
 
 export const CHUNK_SIZE = 32;
 

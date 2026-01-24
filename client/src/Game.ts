@@ -1,5 +1,5 @@
 import { BufferAttribute, BufferGeometry, GridHelper, HemisphereLight, Material, Mesh, MeshBasicMaterial, MeshPhysicalMaterial, PerspectiveCamera, PointLight, Scene, WebGLRenderer } from "three";
-import { Chunk, CHUNK_SIZE } from "./Terrain/Chunk";
+import { Chunk, CHUNK_SIZE } from "../../common/Chunk";
 import { Vector3 } from "../../common/Core/Vector3";
 import * as THREE from 'three'
 import { TerrainBuilder, type Triangle } from "./Terrain/TerrainBuilder";
@@ -30,6 +30,8 @@ export class Game {
     private physicsWorld!: World;
     private clock: THREE.Clock = new THREE.Clock();
 
+    private crashed: boolean = false;
+
 
 
     private sky!: Sky;
@@ -45,7 +47,9 @@ export class Game {
         this.renderLoop = this.renderLoop.bind(this);
 
 
-
+        ClientEventBus.on(EventBusEvent.FATAL_CRASH_STATE, (data) => {
+            this.crashed = true;
+        })
     }
 
     async asyncInit() {
@@ -179,6 +183,10 @@ export class Game {
 
 
     renderLoop() {
+
+        if (this.crashed) {
+            throw new Error("Game crashed");
+        }
 
         const delta = this.clock.getDelta();
 

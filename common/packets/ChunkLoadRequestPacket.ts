@@ -33,6 +33,11 @@ export class ChunkLoadRequestPacket implements IPacket {
             throw new Error("No position");
         }
 
+        if (decoded.chunkPosition.x == null || decoded.chunkPosition.y == null || decoded.chunkPosition.z == null) {
+            throw new Error("XYZ of chunk position not defined");
+        }
+
+
         this.position = new Vector3(
             decoded.chunkPosition.x ?? 0,
             decoded.chunkPosition.y ?? 0,

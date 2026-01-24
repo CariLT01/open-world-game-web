@@ -62,10 +62,10 @@ export class ChunkData {
     }
 
     getMaterialsBuffer() {
-        return this.materialsBuffer;
+        return this.materials;
     }
-    getDensitiesBuffe() {
-        return this.densitiesBuffer;
+    getDensitiesBuffer() {
+        return this.densities;
     }
 
     freeze() {

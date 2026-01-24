@@ -1,9 +1,8 @@
 import { Box3, Camera, Frustum, Matrix4, type Mesh, type Scene, Vector3 as ThreeVector3 } from "three";
 import { Vector3 } from "../../common/Core/Vector3";
-import { Chunk, CHUNK_SIZE } from "./Terrain/Chunk";
+import { Chunk, CHUNK_SIZE } from "../../common/Chunk";
 import { ChunkMeshBuilder } from "./Terrain/ChunkMeshBuilder";
 import { TerrainBuilder } from "./Terrain/TerrainBuilder";
-import { TerrainGenerator } from "./Terrain/TerrainGenerator";
 import { RAPIER } from "./RapierInstance";
 import type { Collider, World } from "@dimforge/rapier3d-compat";
 import { checkType } from "./TypeCheck";
@@ -46,6 +45,8 @@ export class WorldChunks {
         this.physicsWorld = phyicsWorld;
 
         this._bakeClosestChunks();
+
+        this._registerEvents();
     }
 
     private _computeVisibility(chunkPosition: Vector3, camera: Camera) {
@@ -184,6 +185,26 @@ export class WorldChunks {
         this.cachedClosestChunks = chunks;
     }
 
+    private _registerEvents() {
+        ClientEventBus.on(EventBusEvent.CLIENT_CHUNK_RECEIVED, (data) => {
+            if (!this.pendingServer.has(data.position.toKey())) {
+                console.warn("Received chunk that was never requested: " + data.position.toKey() + " l: " + this.pendingServer.size);
+                return;
+            }
+
+            const chunk = new Chunk();
+            chunk.chunkData = data.data;
+
+            chunk.computeVisibilityMask(); // TODO: Move off-thread, doing this main-thread for testing
+
+            this.chunks.set(data.position.toKey(), chunk);
+
+            this.pendingServer.delete(data.position.toKey());
+            this.pendingChunks.add(data.position.toKey());
+            console.log("Recv successfull for: ", data.position.toKey());
+        })
+    }
+
     getChunkToGenerate(currentPosition: Vector3) {
         for (const chunkPos of this.cachedClosestChunks) {
 
@@ -266,6 +287,8 @@ export class WorldChunks {
                 if (!chunk.chunkData.getIsFrozen()) {
                     chunk.chunkData.freeze();
                 }
+
+                this.chunks.delete(c); // We have the luxury to delete it from memory, since it is already stored on server!
             }
         }
 
@@ -279,12 +302,23 @@ export class WorldChunks {
             }
         }
 
+        const toRemoveFromServerPending: Set<string> = new Set();
+        for (const c of this.pendingServer) {
+            if (!shouldBeLoaded.has(c)) {
+                toRemoveFromServerPending.add(c);
+            }
+        }
+
         for (const c of toRemove) {
             this.chunksMeshes.delete(c);
         }
 
         for (const c of toRemovePending) {
             this.pendingChunks.delete(c);
+        }
+
+        for (const c of toRemoveFromServerPending) {
+            this.pendingServer.delete(c);
         }
     }
 
@@ -316,7 +350,11 @@ export class WorldChunks {
         const serverRequestPacket = new ChunkLoadRequestPacket();
         serverRequestPacket.position = pos;
 
+        this.pendingServer.add(pos.toKey());
+
         ClientEventBus.fireEvent(EventBusEvent.SEND_PACKET, {packet: serverRequestPacket});
+
+        // console.log("Queued: ", pos.toKey(), " set has: ", this.pendingServer.size);
     }
 
     tick(playerPosition: Vector3, player: Player, camera: Camera) {
@@ -345,12 +383,12 @@ export class WorldChunks {
 
         if (!this.chunks.has(toGenerate.toKey())) {
             // const chunk_ = new Chunk();
-
-
-
+            if (!this.pendingServer.has(toGenerate.toKey())) {
+                this._requestServer(toGenerate);
+            }
             // this.terrainGenerator.generateTerrainOf(chunk_, toGenerate);
-            this._requestServer(toGenerate);
-            this.pendingServer.add(toGenerate.toKey());
+            
+            // this.pendingServer.add(toGenerate.toKey());
 
             // this.chunks.set(toGenerate.toKey(), chunk_);
 
@@ -435,7 +473,7 @@ export class WorldChunks {
 
 
             if (!this.isReadyToGenerate(chunkPos)) continue;
-            console.log("Rendering chunk");
+            console.log("Rendering chunk at: ", chunkPos.toKey());
 
             const neighbors = this.getNeighbors(chunkPos);
 

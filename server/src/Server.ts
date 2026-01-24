@@ -1,3 +1,4 @@
+import { ChunksManager } from "./ChunksManager";
 import { NetworkHandler } from "./NetworkHandler";
 import { PlayersManager } from "./PlayersManager";
 
@@ -9,6 +10,7 @@ export class Server {
 
     private networkingHandler!: NetworkHandler;
     private playersManager!: PlayersManager;
+    private chunksManager!: ChunksManager;
 
     constructor() {
         this._createServer();
@@ -18,12 +20,14 @@ export class Server {
         console.log("Server initializing...");
         this.networkingHandler = new NetworkHandler();
         this.playersManager = new PlayersManager();
+        this.chunksManager = new ChunksManager();
         console.log("Server initialized!");
     }
 
     async tick() {
         this.networkingHandler.tick();
         this.playersManager.tick();
+        this.chunksManager.tick();
     }
 
     async run() {
@@ -32,6 +36,7 @@ export class Server {
         while (true) {
             await this.tick();
             await sleep(50);
+            // console.log("Tick");
         }
     }
 

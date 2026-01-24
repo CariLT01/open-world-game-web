@@ -15,7 +15,7 @@ export class TerrainGenerator {
 
         for (let x = 0; x < CHUNK_SIZE; x++) {
             for (let z = 0; z < CHUNK_SIZE; z++) {
-                const terrainHeight = 0;
+                const terrainHeight = 15;
                 for (let y = 0; y < CHUNK_SIZE; y++) {
                     const currentHeight = chunkPosition.y * CHUNK_SIZE + y;
 

@@ -69,6 +69,8 @@ export class NetworkHandler {
                 if (this.sockets.has(uuid)) {
                     this.sockets.delete(uuid);
                 }
+
+                ServerEventBus.fireEvent(EventBusEvent.SERVER_PLAYER_LEFT_WS, {ws: ws});
             })
 
             ws.on("message", (data) => {

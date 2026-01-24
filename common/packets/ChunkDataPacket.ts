@@ -42,6 +42,10 @@ export class ChunkDataPacket implements IPacket {
                 .getPalette()
                 .get(paletteIndex as PaletteIndex)!;
 
+            if (paletteContent.material === null) {
+                throw new Error("No material");
+            }
+
             palette.push({
                 hash: paletteContent.hash,
                 attributes: {},
@@ -49,17 +53,18 @@ export class ChunkDataPacket implements IPacket {
             });
         }
 
+        const materialsArray = Array.from(this.chunkData.getMaterialsBuffer());
+        const densitiesArray = Array.from(this.chunkData.getDensitiesBuffer());
+
+        console.log("Mat l: ", materialsArray.length, " dens l: ", densitiesArray.length);
+
         const encodedPacket = game.ChunkData.encode({
             palette: palette,
-            materialsData: Array.prototype.slice.call(
-                this.chunkData.getMaterialsBuffer(),
-            ),
-            densitiesData: Array.prototype.slice.call(
-                this.chunkData.getDensitiesBuffe(),
-            ),
+            materialsData: materialsArray,
+            densitiesData: densitiesArray,
             chunkPosition: {
                 x: this.position.x,
-                y: this.position.z,
+                y: this.position.y,
                 z: this.position.z,
             },
         }).finish();
@@ -76,6 +81,10 @@ export class ChunkDataPacket implements IPacket {
 
         if (!decodedPacket.chunkPosition) {
             throw new Error("No chunk position");
+        }
+
+        if (decodedPacket.chunkPosition.x == null || decodedPacket.chunkPosition.y == null || decodedPacket.chunkPosition.z == null) {
+            throw new Error("XYZ of chunk position not defined");
         }
 
         this.position = new Vector3(
@@ -99,14 +108,35 @@ export class ChunkDataPacket implements IPacket {
 
         const chunkData = new ChunkData();
 
+        let instancesInvalidPaletteCount = 0;
+
         for (let i = 0; i < materialsData.length; i++) {
             const density = densitiesData[i] ?? 0;
             const paletteIndex = materialsData[i] ?? 0;
             const paletteEntry = palette[paletteIndex];
             if (!paletteEntry) {
-                throw new Error(
-                    "Could not find palette entry: " + paletteIndex,
-                );
+                // console.error(palette);
+                //console.warn(
+                //    "Could not find palette entry: " + paletteIndex, "; setting voxel to AIR"
+                //);
+                instancesInvalidPaletteCount++;
+
+                chunkData.setBlockAtIndex(
+                    i,
+                    0.0,
+                    {
+                        material: 0 as MaterialIndex,
+                        hash: 0,
+                        properties: new Map(),
+                    },
+                    false
+
+                )
+                continue;
+            }
+
+            if (paletteEntry.materialIndex === undefined) {
+                console.warn("No material index at: ", i, " setting to 0 (air)");
             }
 
             chunkData.setBlockAtIndex(
@@ -123,6 +153,9 @@ export class ChunkDataPacket implements IPacket {
         }
         
         chunkData.flushPaletteChanges();
+        if (instancesInvalidPaletteCount > 0) {
+            console.warn(`There were ${instancesInvalidPaletteCount} voxels filled with AIR because palette entry could not be found!`);
+        }
 
         this.chunkData = chunkData;
     }
