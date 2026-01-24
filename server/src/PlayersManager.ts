@@ -7,6 +7,7 @@ import { ServerPlayer } from "./ServerPlayer";
 import type { IPacket } from "../../common/packets/IPacket";
 import { EventBus } from "../../common/EventBus";
 import { PlayerJoinPacket } from "../../common/packets/PlayerJoinPacket";
+import { PlayerLeavePacket } from "../../common/packets/PlayerLeavePacket";
 
 export class PlayersManager {
     private players: Map<string, ServerPlayer> = new Map();
@@ -108,6 +109,30 @@ export class PlayersManager {
                 );
             },
         );
+
+        ServerEventBus.on(
+            EventBusEvent.SERVER_PLAYER_LEFT,
+            (data) => {
+                console.log("Player left: ", data.username);
+
+                if (!this.players.has(data.username)) {
+                    throw new Error("Username does not exist on the server");
+                }
+
+                this.players.delete(data.username);
+                this.playerConnections.delete(data.username);
+                
+                const playerLeavePacket = new PlayerLeavePacket();
+                playerLeavePacket.username = data.username;
+
+                ServerEventBus.fireEvent(
+                    EventBusEvent.SEND_PACKET,
+                    {
+                        packet: playerLeavePacket
+                    }
+                );
+            }
+        )
     }
 
     private _broadcastPlayerPositions() {

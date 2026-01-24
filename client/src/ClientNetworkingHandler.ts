@@ -9,6 +9,7 @@ export class ClientNetworkingHandler {
     private connected: boolean = false;
 
     private queuedPackets: Uint8Array[] = [];
+    private queuedPacketsSend: Uint8Array[] = [];
 
     private packetProcessor: ClientPacketProcessor = new ClientPacketProcessor();
 
@@ -29,7 +30,13 @@ export class ClientNetworkingHandler {
             this.connected = true;
             console.log("Connected to server");
 
+            for (const packet of this.queuedPacketsSend) {
+                this.socket?.send(packet);
+            }
+            this.queuedPacketsSend.length = 0;
+
             ClientEventBus.fireEvent(EventBusEvent.CLIENT_SOCKET_CONNECTED, {});
+            
         });
 
         this.socket.addEventListener("error", (e) => {
@@ -70,6 +77,10 @@ export class ClientNetworkingHandler {
             finalBuffer.set(packetBuffer, 1)
 
 
+            if (!this.connected) {
+                this.queuedPacketsSend.push(finalBuffer);
+                return;
+            }
             this.socket.send(finalBuffer);
         })
     }

@@ -31,6 +31,11 @@ export class NetworkingPlayer {
         this.threeMesh.position.set(this.position.x, this.position.y, this.position.z);
     }
 
+    dispose() {
+        ClientEventBus.fireEvent(EventBusEvent.CLIENT_REMOVE_FROM_SCENE, {object: this.threeMesh});
+        this.threeMesh.geometry.dispose();
+    }
+
 
 
 }

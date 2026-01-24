@@ -117,6 +117,10 @@ export class Game {
         ClientEventBus.on(EventBusEvent.CLIENT_ADD_TO_SCENE, (data) => {
             this.scene.add(data.object);
         })
+
+        ClientEventBus.on(EventBusEvent.CLIENT_REMOVE_FROM_SCENE, (data) => {
+            this.scene.remove(data.object);
+        })
     }
 
     async initialize() {

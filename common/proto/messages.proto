@@ -45,3 +45,7 @@ message PlayerMoveData {
 message PlayerJoin {
     string name = 1;
 }
+
+message PlayerLeave {
+    string name = 1;
+}

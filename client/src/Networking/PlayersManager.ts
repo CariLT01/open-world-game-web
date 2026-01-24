@@ -28,6 +28,20 @@ export class PlayersManager {
 
             this.setPositionFor(data.name, data.position);
         })
+
+        ClientEventBus.on(EventBusEvent.SERVER_PLAYER_LEFT, (data) => {
+            if (data.username === this.myUsername) return; // Should not happen
+
+            if (!this.players.has(data.username)) throw new Error("Player does not exist");
+
+            console.log("Deleting player: ", data.username);
+
+            const player = this.players.get(data.username)!;
+
+            player.dispose();
+
+            this.players.delete(data.username);
+        })
     }
 
     addPlayer(username: string) {

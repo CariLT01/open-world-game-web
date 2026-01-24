@@ -8,6 +8,7 @@ import type { ChunkData } from "./ChunkData";
 
 export interface EventTypePayloads {
     [EventBusEvent.CLIENT_ADD_TO_SCENE]: {object: Object3D},
+    [EventBusEvent.CLIENT_REMOVE_FROM_SCENE]: {object: Object3D},
     [EventBusEvent.CLIENT_PLAYER_JOINED]: {name: string},
     [EventBusEvent.CLIENT_PLAYER_MOVED]: {name: string, position: Vector3},
     [EventBusEvent.CLIENT_SOCKET_CONNECTED]: {},

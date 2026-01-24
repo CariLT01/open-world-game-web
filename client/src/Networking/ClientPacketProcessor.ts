@@ -4,6 +4,7 @@ import { EventBusEvent } from "../../../common/EventTypes";
 import { ChunkDataPacket } from "../../../common/packets/ChunkDataPacket";
 import { PacketTypes } from "../../../common/packets/PacketTypes";
 import { PlayerJoinPacket } from "../../../common/packets/PlayerJoinPacket";
+import { PlayerLeavePacket } from "../../../common/packets/PlayerLeavePacket";
 import { PlayerMovePacket } from "../../../common/packets/PlayerMovePacket";
 import { ClientEventBus } from "../ClientEventBus";
 
@@ -68,6 +69,19 @@ export class ClientPacketProcessor {
                 })
 
                 
+
+                break;
+            case PacketTypes.PLAYER_LEAVE_PACKET:
+                decodedPacket = new PlayerLeavePacket();
+                decodedPacket.deserialize(packetBuffer);
+
+                if (decodedPacket.username === undefined) {
+                    throw new Error("No username in packet");
+                }
+
+                ClientEventBus.fireEvent(EventBusEvent.SERVER_PLAYER_LEFT, {
+                    username: decodedPacket.username
+                });
 
                 break;
             default:
