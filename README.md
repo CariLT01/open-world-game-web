@@ -36,3 +36,25 @@ Written in TypeScript.
 
    Client build is `dist/index.html`. Open that file in a web browser.
 
+# todo
+# todo bug fixes & performance
+
+only includes performance and bug fixes.
+
+**Client**
+
+- [ ] Move mesh building off the render thread in order to impove performance
+- [ ] Move packet decoding off the render thread to reduce stuttering
+- [ ] Possibly move occlusion culling flood-fill baking process off the render thread?
+- [ ] FIX THE OCCLUSION CULLING!!!
+
+**Server**
+
+- [ ] Move terrain generation off the server thread in order to make it playable
+- [ ] Do something about the queued chunk updates list, in order to prevent new players from waiting a while before receiving their first chunks
+- [ ] Serialize `ChunkDataPacket` with the `ChunkData`'s frozen state instead of active state to reduce bandwidth
+
+# todo features
+
+- [ ] Destroying blocks
+- [ ] The inventory oh hell nah
