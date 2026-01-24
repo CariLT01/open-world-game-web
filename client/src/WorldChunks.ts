@@ -288,8 +288,36 @@ export class WorldChunks {
                     chunk.chunkData.freeze();
                 }
 
-                this.chunks.delete(c); // We have the luxury to delete it from memory, since it is already stored on server!
+                // this.chunks.delete(c); // We have the luxury to delete it from memory, since it is already stored on server!
             }
+        }
+
+        // Delete from loaded chunks
+        const toDeleteFromLoadedChunks = new Set<string>;
+        for (const c of this.loadedChunks) {
+            if (!shouldBeLoaded.has(c)) {
+                toDeleteFromLoadedChunks.add(c);
+            }
+        }
+
+        for (const c of toDeleteFromLoadedChunks) {
+            this.loadedChunks.delete(c);
+        }
+
+        // Delete from chunks
+
+        const toDeleteChunks: Set<string> = new Set();
+
+        for (const [c, data] of this.chunks) {
+            if (!shouldBeLoaded.has(c)) {
+
+                toDeleteChunks.add(c);
+            }
+        }
+        
+
+        for (const toDelete of toDeleteChunks) {
+            this.chunks.delete(toDelete);
         }
 
         // Also delete pending ones
@@ -302,20 +330,29 @@ export class WorldChunks {
             }
         }
 
+        // Also delete server pending ones
+
         const toRemoveFromServerPending: Set<string> = new Set();
         for (const c of this.pendingServer) {
             if (!shouldBeLoaded.has(c)) {
                 toRemoveFromServerPending.add(c);
             }
+
         }
+
+        // Delete from meshes
 
         for (const c of toRemove) {
             this.chunksMeshes.delete(c);
         }
 
+        // Delete from pending
+
         for (const c of toRemovePending) {
             this.pendingChunks.delete(c);
         }
+
+        // Delete from pending server
 
         for (const c of toRemoveFromServerPending) {
             this.pendingServer.delete(c);
@@ -347,6 +384,13 @@ export class WorldChunks {
     }
 
     private _requestServer(pos: Vector3) {
+
+        if (this.pendingServer.size >= 128) {
+            return;
+        }
+
+        debugGlobal.updateKey("pendingServer", this.pendingServer.size.toString())
+
         const serverRequestPacket = new ChunkLoadRequestPacket();
         serverRequestPacket.position = pos;
 
