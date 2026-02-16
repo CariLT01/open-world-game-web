@@ -8,6 +8,8 @@ import type { IPacket } from "../../common/packets/IPacket";
 import { EventBus } from "../../common/EventBus";
 import { PlayerJoinPacket } from "../../common/packets/PlayerJoinPacket";
 import { PlayerLeavePacket } from "../../common/packets/PlayerLeavePacket";
+import { HOTBAR_END, HOTBAR_START } from "../../common/SlotRanges";
+import { HoldingItemUpdatePacket } from "../../common/packets/HoldingItemUpdatePacket";
 
 export class PlayersManager {
     private players: Map<string, ServerPlayer> = new Map();
@@ -150,7 +152,48 @@ export class PlayersManager {
                 user.getInventory().handleInventoryClickEvent(data.slot, data.username);
             }
         )
+
+        ServerEventBus.on(
+            EventBusEvent.SERVER_PLAYER_HOTBAR_SELECT_UPDATE, (data) => {
+                const user = this.players.get(data.username);
+
+                if (!user) throw new Error("Player not found");
+
+                this._handlePlayerHotbarSelectUpdate(data.slot, user);
+            }
+        )
     }
+
+    private _handlePlayerHotbarSelectUpdate(slot: number, player: ServerPlayer) {
+        // get slot
+
+        // check if in the correct range
+        
+        
+        if (slot < 0 || slot >= 9) {
+            console.warn("Invalid slot: ", slot);
+            return;
+        }
+
+        const slotIndex = HOTBAR_START + slot;
+
+        const item = player.getInventory().getContainer().getItemStackAt(slotIndex);
+
+        if (item.isEmpty()) {
+            // empty stack
+            return;
+        }
+
+        // broadcast
+
+        const itemChangePacket = new HoldingItemUpdatePacket();
+        itemChangePacket.itemName = item.getName();
+        itemChangePacket.playerName = player.getName();
+
+        ServerEventBus.invokeEvent(
+            EventBusEvent.SEND_PACKET, {packet: itemChangePacket}
+        );
+    }       
 
     private _broadcastPlayerPositions() {
         for (const [username, data] of this.players) {

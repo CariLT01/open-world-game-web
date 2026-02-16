@@ -114,20 +114,34 @@ export class PlayerInventory {
     }
 
     moveItem(toSlot: number) {
-        const moveResult = this._checkMoveValid(toSlot);
-        if (!moveResult.valid) return;
+        const destination = this.container.getItemStackAt(toSlot);
         if (!this.holding) return;
 
-        if (moveResult.holdingRemainingCount <= 0) {
-            this.holding = null;
-        } else {
-            this.holding.setCount(moveResult.holdingRemainingCount);
+        // SCENARIO 1: Names match - Try to Stack/Merge
+        if (destination.getName() === this.holding.getName() || destination.isEmpty()) {
+            const moveResult = this._checkMoveValid(toSlot);
+            if (!moveResult.valid) return;
+
+            // Update Name if we are moving into an empty slot
+            if (destination.isEmpty()) {
+                destination.setName(this.holding.getName());
+            }
+
+            // Update Counts
+            destination.setCount(moveResult.targetRemainingCount);
+
+            if (moveResult.holdingRemainingCount <= 0) {
+                this.holding = null;
+            } else {
+                this.holding.setCount(moveResult.holdingRemainingCount);
+            }
         }
-
-
-        const destination = this.container.getItemStackAt(toSlot);
-        destination.setCount(moveResult.targetRemainingCount);
-
+        // SCENARIO 2: Names differ - SWAP
+        else {
+            const temp = this.holding;
+            this.holding = destination;
+            this.container.setItemStackAt(toSlot, temp);
+        }
     }
 
     grabItem(fromSlot: number) {

@@ -4,6 +4,7 @@ import type { PlayerInventoryContainer } from "../../../common/PlayerInventoryCo
 export type InventorySlotData = {
     slot: ItemStack
     slotIndex: number;
+    selected?: boolean;
 }
 
 export function _generateInventoryRow(container: PlayerInventoryContainer, rangeStart: number, rangeEnd: number) {

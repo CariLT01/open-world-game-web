@@ -2,6 +2,7 @@ import { Vector3 } from "../../../common/Core/Vector3";
 import { EventBus } from "../../../common/EventBus";
 import { EventBusEvent } from "../../../common/EventTypes";
 import { ChunkDataPacket } from "../../../common/packets/ChunkDataPacket";
+import { HoldingItemUpdatePacket } from "../../../common/packets/HoldingItemUpdatePacket";
 import { InventorySyncPacket } from "../../../common/packets/InventorySyncPacket";
 import { PacketTypes } from "../../../common/packets/PacketTypes";
 import { PlayerJoinPacket } from "../../../common/packets/PlayerJoinPacket";
@@ -95,6 +96,22 @@ export class ClientPacketProcessor {
 
                 ClientEventBus.invokeEvent(EventBusEvent.CLIENT_INVENTORY_SYNC, {
                     container: decodedPacket.container
+                });
+                break;
+            case PacketTypes.HOLDING_ITEM_UPDATE:
+                decodedPacket = new HoldingItemUpdatePacket();
+                decodedPacket.deserialize(packetBuffer);
+
+                if (decodedPacket.itemName === undefined) {
+                    throw new Error("no item name");
+                }
+                if (decodedPacket.playerName === undefined) {
+                    throw new Error("no player name");
+                }
+
+                ClientEventBus.invokeEvent(EventBusEvent.CLIENT_MULTIPLAYER_PLAYER_HANDHELD_UPDATE, {
+                    itemName: decodedPacket.itemName,
+                    username: decodedPacket.playerName
                 });
                 break;
             default:

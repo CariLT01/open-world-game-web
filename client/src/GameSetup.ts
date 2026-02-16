@@ -1,3 +1,4 @@
+import { HotbarSelectionEvents } from "./Setup/HotbarSelectionEvents";
 import { InventoryVisibilityEvent } from "./Setup/InventoryVisibilityToggle";
 import { MousePositionEvents } from "./Setup/MousePositionEvents";
 import type { ISetupProcess } from "./Setup/SetupProcessInterface";
@@ -6,7 +7,8 @@ type SetupProcessConstructor = new () => ISetupProcess;
 
 const SETUP_PROCESSESS: SetupProcessConstructor[] = [
     InventoryVisibilityEvent,
-    MousePositionEvents
+    MousePositionEvents,
+    HotbarSelectionEvents
 ];
 
 export class GameSetup {

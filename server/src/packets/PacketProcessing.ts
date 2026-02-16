@@ -8,6 +8,7 @@ import { PlayerMovePacket } from "../../../common/packets/PlayerMovePacket";
 import { ServerEventBus } from "../ServerEventBus";
 import { ChunkLoadRequestPacket } from "../../../common/packets/ChunkLoadRequestPacket";
 import { InventoryUpdatePacket } from "../../../common/packets/InventoryUpdatePacket";
+import { HotbarSelectionUpdatePacket } from "../../../common/packets/HotbarSelectionUpdatePacket";
 
 
 export class PacketProcessor {
@@ -90,6 +91,23 @@ export class PacketProcessor {
                     username: username
                 });
                 break;
+            case PacketTypes.HOTBAR_SELECT_UPDATE:
+                packetData = new HotbarSelectionUpdatePacket();
+                packetData.deserialize(packetBuffer);
+
+                if (packetData.slot === undefined) {
+                    throw new Error("No slot");
+                }
+
+                const username2 = this.connectionsToPlayersMap.get(ws);
+                if (!username2) throw new Error("No username");
+
+                ServerEventBus.invokeEvent(EventBusEvent.SERVER_PLAYER_HOTBAR_SELECT_UPDATE, {
+                    username: username2,
+                    slot: packetData.slot
+                });
+                break;
+
             default:
                 console.warn("Unrecognized packet type: ", packetType);
                 break;

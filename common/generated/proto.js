@@ -3005,6 +3005,440 @@ $root.game = (function() {
         return InventoryUpdate;
     })();
 
+    game.HotbarSelectUpdate = (function() {
+
+        /**
+         * Properties of a HotbarSelectUpdate.
+         * @memberof game
+         * @interface IHotbarSelectUpdate
+         * @property {number|null} [slot] HotbarSelectUpdate slot
+         */
+
+        /**
+         * Constructs a new HotbarSelectUpdate.
+         * @memberof game
+         * @classdesc Represents a HotbarSelectUpdate.
+         * @implements IHotbarSelectUpdate
+         * @constructor
+         * @param {game.IHotbarSelectUpdate=} [properties] Properties to set
+         */
+        function HotbarSelectUpdate(properties) {
+            if (properties)
+                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * HotbarSelectUpdate slot.
+         * @member {number} slot
+         * @memberof game.HotbarSelectUpdate
+         * @instance
+         */
+        HotbarSelectUpdate.prototype.slot = 0;
+
+        /**
+         * Creates a new HotbarSelectUpdate instance using the specified properties.
+         * @function create
+         * @memberof game.HotbarSelectUpdate
+         * @static
+         * @param {game.IHotbarSelectUpdate=} [properties] Properties to set
+         * @returns {game.HotbarSelectUpdate} HotbarSelectUpdate instance
+         */
+        HotbarSelectUpdate.create = function create(properties) {
+            return new HotbarSelectUpdate(properties);
+        };
+
+        /**
+         * Encodes the specified HotbarSelectUpdate message. Does not implicitly {@link game.HotbarSelectUpdate.verify|verify} messages.
+         * @function encode
+         * @memberof game.HotbarSelectUpdate
+         * @static
+         * @param {game.IHotbarSelectUpdate} message HotbarSelectUpdate message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        HotbarSelectUpdate.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.slot != null && Object.hasOwnProperty.call(message, "slot"))
+                writer.uint32(/* id 1, wireType 0 =*/8).int32(message.slot);
+            return writer;
+        };
+
+        /**
+         * Encodes the specified HotbarSelectUpdate message, length delimited. Does not implicitly {@link game.HotbarSelectUpdate.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof game.HotbarSelectUpdate
+         * @static
+         * @param {game.IHotbarSelectUpdate} message HotbarSelectUpdate message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        HotbarSelectUpdate.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a HotbarSelectUpdate message from the specified reader or buffer.
+         * @function decode
+         * @memberof game.HotbarSelectUpdate
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {game.HotbarSelectUpdate} HotbarSelectUpdate
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        HotbarSelectUpdate.decode = function decode(reader, length, error) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.game.HotbarSelectUpdate();
+            while (reader.pos < end) {
+                var tag = reader.uint32();
+                if (tag === error)
+                    break;
+                switch (tag >>> 3) {
+                case 1: {
+                        message.slot = reader.int32();
+                        break;
+                    }
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a HotbarSelectUpdate message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof game.HotbarSelectUpdate
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {game.HotbarSelectUpdate} HotbarSelectUpdate
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        HotbarSelectUpdate.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a HotbarSelectUpdate message.
+         * @function verify
+         * @memberof game.HotbarSelectUpdate
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        HotbarSelectUpdate.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.slot != null && message.hasOwnProperty("slot"))
+                if (!$util.isInteger(message.slot))
+                    return "slot: integer expected";
+            return null;
+        };
+
+        /**
+         * Creates a HotbarSelectUpdate message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof game.HotbarSelectUpdate
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {game.HotbarSelectUpdate} HotbarSelectUpdate
+         */
+        HotbarSelectUpdate.fromObject = function fromObject(object) {
+            if (object instanceof $root.game.HotbarSelectUpdate)
+                return object;
+            var message = new $root.game.HotbarSelectUpdate();
+            if (object.slot != null)
+                message.slot = object.slot | 0;
+            return message;
+        };
+
+        /**
+         * Creates a plain object from a HotbarSelectUpdate message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof game.HotbarSelectUpdate
+         * @static
+         * @param {game.HotbarSelectUpdate} message HotbarSelectUpdate
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        HotbarSelectUpdate.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            var object = {};
+            if (options.defaults)
+                object.slot = 0;
+            if (message.slot != null && message.hasOwnProperty("slot"))
+                object.slot = message.slot;
+            return object;
+        };
+
+        /**
+         * Converts this HotbarSelectUpdate to JSON.
+         * @function toJSON
+         * @memberof game.HotbarSelectUpdate
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        HotbarSelectUpdate.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for HotbarSelectUpdate
+         * @function getTypeUrl
+         * @memberof game.HotbarSelectUpdate
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        HotbarSelectUpdate.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/game.HotbarSelectUpdate";
+        };
+
+        return HotbarSelectUpdate;
+    })();
+
+    game.HoldingItemUpdate = (function() {
+
+        /**
+         * Properties of a HoldingItemUpdate.
+         * @memberof game
+         * @interface IHoldingItemUpdate
+         * @property {string|null} [itemName] HoldingItemUpdate itemName
+         * @property {string|null} [playerName] HoldingItemUpdate playerName
+         */
+
+        /**
+         * Constructs a new HoldingItemUpdate.
+         * @memberof game
+         * @classdesc Represents a HoldingItemUpdate.
+         * @implements IHoldingItemUpdate
+         * @constructor
+         * @param {game.IHoldingItemUpdate=} [properties] Properties to set
+         */
+        function HoldingItemUpdate(properties) {
+            if (properties)
+                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * HoldingItemUpdate itemName.
+         * @member {string} itemName
+         * @memberof game.HoldingItemUpdate
+         * @instance
+         */
+        HoldingItemUpdate.prototype.itemName = "";
+
+        /**
+         * HoldingItemUpdate playerName.
+         * @member {string} playerName
+         * @memberof game.HoldingItemUpdate
+         * @instance
+         */
+        HoldingItemUpdate.prototype.playerName = "";
+
+        /**
+         * Creates a new HoldingItemUpdate instance using the specified properties.
+         * @function create
+         * @memberof game.HoldingItemUpdate
+         * @static
+         * @param {game.IHoldingItemUpdate=} [properties] Properties to set
+         * @returns {game.HoldingItemUpdate} HoldingItemUpdate instance
+         */
+        HoldingItemUpdate.create = function create(properties) {
+            return new HoldingItemUpdate(properties);
+        };
+
+        /**
+         * Encodes the specified HoldingItemUpdate message. Does not implicitly {@link game.HoldingItemUpdate.verify|verify} messages.
+         * @function encode
+         * @memberof game.HoldingItemUpdate
+         * @static
+         * @param {game.IHoldingItemUpdate} message HoldingItemUpdate message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        HoldingItemUpdate.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.itemName != null && Object.hasOwnProperty.call(message, "itemName"))
+                writer.uint32(/* id 1, wireType 2 =*/10).string(message.itemName);
+            if (message.playerName != null && Object.hasOwnProperty.call(message, "playerName"))
+                writer.uint32(/* id 2, wireType 2 =*/18).string(message.playerName);
+            return writer;
+        };
+
+        /**
+         * Encodes the specified HoldingItemUpdate message, length delimited. Does not implicitly {@link game.HoldingItemUpdate.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof game.HoldingItemUpdate
+         * @static
+         * @param {game.IHoldingItemUpdate} message HoldingItemUpdate message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        HoldingItemUpdate.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a HoldingItemUpdate message from the specified reader or buffer.
+         * @function decode
+         * @memberof game.HoldingItemUpdate
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {game.HoldingItemUpdate} HoldingItemUpdate
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        HoldingItemUpdate.decode = function decode(reader, length, error) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.game.HoldingItemUpdate();
+            while (reader.pos < end) {
+                var tag = reader.uint32();
+                if (tag === error)
+                    break;
+                switch (tag >>> 3) {
+                case 1: {
+                        message.itemName = reader.string();
+                        break;
+                    }
+                case 2: {
+                        message.playerName = reader.string();
+                        break;
+                    }
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a HoldingItemUpdate message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof game.HoldingItemUpdate
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {game.HoldingItemUpdate} HoldingItemUpdate
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        HoldingItemUpdate.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a HoldingItemUpdate message.
+         * @function verify
+         * @memberof game.HoldingItemUpdate
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        HoldingItemUpdate.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.itemName != null && message.hasOwnProperty("itemName"))
+                if (!$util.isString(message.itemName))
+                    return "itemName: string expected";
+            if (message.playerName != null && message.hasOwnProperty("playerName"))
+                if (!$util.isString(message.playerName))
+                    return "playerName: string expected";
+            return null;
+        };
+
+        /**
+         * Creates a HoldingItemUpdate message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof game.HoldingItemUpdate
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {game.HoldingItemUpdate} HoldingItemUpdate
+         */
+        HoldingItemUpdate.fromObject = function fromObject(object) {
+            if (object instanceof $root.game.HoldingItemUpdate)
+                return object;
+            var message = new $root.game.HoldingItemUpdate();
+            if (object.itemName != null)
+                message.itemName = String(object.itemName);
+            if (object.playerName != null)
+                message.playerName = String(object.playerName);
+            return message;
+        };
+
+        /**
+         * Creates a plain object from a HoldingItemUpdate message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof game.HoldingItemUpdate
+         * @static
+         * @param {game.HoldingItemUpdate} message HoldingItemUpdate
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        HoldingItemUpdate.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            var object = {};
+            if (options.defaults) {
+                object.itemName = "";
+                object.playerName = "";
+            }
+            if (message.itemName != null && message.hasOwnProperty("itemName"))
+                object.itemName = message.itemName;
+            if (message.playerName != null && message.hasOwnProperty("playerName"))
+                object.playerName = message.playerName;
+            return object;
+        };
+
+        /**
+         * Converts this HoldingItemUpdate to JSON.
+         * @function toJSON
+         * @memberof game.HoldingItemUpdate
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        HoldingItemUpdate.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for HoldingItemUpdate
+         * @function getTypeUrl
+         * @memberof game.HoldingItemUpdate
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        HoldingItemUpdate.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/game.HoldingItemUpdate";
+        };
+
+        return HoldingItemUpdate;
+    })();
+
     return game;
 })();
 

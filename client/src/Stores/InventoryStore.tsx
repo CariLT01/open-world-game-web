@@ -7,6 +7,7 @@ interface InventoryStoreInterface {
     container: PlayerInventoryContainer;
     updateTime: number;
     holding: ItemStack;
+    hotbarSelectedIndex: number;
     
     // Actions
     setIsVisible: (visible: boolean) => void;
@@ -23,6 +24,7 @@ export const InventoryStore = create<InventoryStoreInterface>((set, get) => {
         container: new PlayerInventoryContainer(),
         updateTime: Date.now(),
         holding: ItemStack.empty(),
+        hotbarSelectedIndex: 0,
 
         setIsVisible: (visible: boolean) => set({ isVisible: visible }),
         setHolding: (itemStack: ItemStack) => set({ holding: itemStack, updateTime: Date.now() }),

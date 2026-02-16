@@ -1,4 +1,5 @@
 import { Vector3 } from "../../common/Core/Vector3";
+import { ItemTypes } from "../../common/data/ItemTypes";
 import { ItemStack } from "../../common/ItemStack";
 import { PlayerInventoryContainer } from "../../common/PlayerInventoryContainer";
 import { PlayerInventory } from "./PlayerInventory";
@@ -18,18 +19,18 @@ export class ServerPlayer {
         // We add some troll items first
 
         this.inventory.getContainer().setItemStackAt(12,
-            new ItemStack("Diamond", 24)
+            new ItemStack(ItemTypes.DIAMOND, 24)
         );
         this.inventory.getContainer().setItemStackAt(14,
-            new ItemStack("Diamond", 45)
+            new ItemStack(ItemTypes.DIAMOND, 45)
         );
 
         this.inventory.getContainer().setItemStackAt(18,
-            new ItemStack("Fake Diamond", 14)
+            new ItemStack(ItemTypes.STICK, 14)
         );
 
         this.inventory.getContainer().setItemStackAt(27,
-            new ItemStack("Fake Diamond", 60)
+            new ItemStack(ItemTypes.STICK, 60)
         );
     }
 

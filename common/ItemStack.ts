@@ -20,6 +20,10 @@ export class ItemStack {
         return new ItemStack("", 0);
     }
 
+    isEmpty() {
+        return this.name == "" || this.count == 0;
+    }
+
     getName() {
         return this.name;
     }

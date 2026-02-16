@@ -1,4 +1,5 @@
 import "../Styling/Main.css"
+import { Crosshair } from "./Crosshair"
 import { HoldingInventorySlot } from "./HoldingInventorySlot"
 import { Hotbar } from "./Hotbar"
 import { Inventory } from "./Inventory"
@@ -8,5 +9,6 @@ export function App() {
         <Hotbar></Hotbar>
         <Inventory></Inventory>
         <HoldingInventorySlot></HoldingInventorySlot>
+        <Crosshair></Crosshair>
     </div>
 }

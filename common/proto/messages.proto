@@ -64,3 +64,12 @@ message InventorySync {
 message InventoryUpdate {
     int32 slot = 1;
 }
+
+message HotbarSelectUpdate {
+    int32 slot = 1;
+}
+
+message HoldingItemUpdate {
+    string itemName = 1;
+    string playerName = 2;
+}

@@ -1250,4 +1250,204 @@ export namespace game {
          */
         public static getTypeUrl(typeUrlPrefix?: string): string;
     }
+
+    /** Properties of a HotbarSelectUpdate. */
+    interface IHotbarSelectUpdate {
+
+        /** HotbarSelectUpdate slot */
+        slot?: (number|null);
+    }
+
+    /** Represents a HotbarSelectUpdate. */
+    class HotbarSelectUpdate implements IHotbarSelectUpdate {
+
+        /**
+         * Constructs a new HotbarSelectUpdate.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: game.IHotbarSelectUpdate);
+
+        /** HotbarSelectUpdate slot. */
+        public slot: number;
+
+        /**
+         * Creates a new HotbarSelectUpdate instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns HotbarSelectUpdate instance
+         */
+        public static create(properties?: game.IHotbarSelectUpdate): game.HotbarSelectUpdate;
+
+        /**
+         * Encodes the specified HotbarSelectUpdate message. Does not implicitly {@link game.HotbarSelectUpdate.verify|verify} messages.
+         * @param message HotbarSelectUpdate message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: game.IHotbarSelectUpdate, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified HotbarSelectUpdate message, length delimited. Does not implicitly {@link game.HotbarSelectUpdate.verify|verify} messages.
+         * @param message HotbarSelectUpdate message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: game.IHotbarSelectUpdate, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes a HotbarSelectUpdate message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns HotbarSelectUpdate
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): game.HotbarSelectUpdate;
+
+        /**
+         * Decodes a HotbarSelectUpdate message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns HotbarSelectUpdate
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): game.HotbarSelectUpdate;
+
+        /**
+         * Verifies a HotbarSelectUpdate message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates a HotbarSelectUpdate message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns HotbarSelectUpdate
+         */
+        public static fromObject(object: { [k: string]: any }): game.HotbarSelectUpdate;
+
+        /**
+         * Creates a plain object from a HotbarSelectUpdate message. Also converts values to other types if specified.
+         * @param message HotbarSelectUpdate
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: game.HotbarSelectUpdate, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this HotbarSelectUpdate to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+
+        /**
+         * Gets the default type url for HotbarSelectUpdate
+         * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns The default type url
+         */
+        public static getTypeUrl(typeUrlPrefix?: string): string;
+    }
+
+    /** Properties of a HoldingItemUpdate. */
+    interface IHoldingItemUpdate {
+
+        /** HoldingItemUpdate itemName */
+        itemName?: (string|null);
+
+        /** HoldingItemUpdate playerName */
+        playerName?: (string|null);
+    }
+
+    /** Represents a HoldingItemUpdate. */
+    class HoldingItemUpdate implements IHoldingItemUpdate {
+
+        /**
+         * Constructs a new HoldingItemUpdate.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: game.IHoldingItemUpdate);
+
+        /** HoldingItemUpdate itemName. */
+        public itemName: string;
+
+        /** HoldingItemUpdate playerName. */
+        public playerName: string;
+
+        /**
+         * Creates a new HoldingItemUpdate instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns HoldingItemUpdate instance
+         */
+        public static create(properties?: game.IHoldingItemUpdate): game.HoldingItemUpdate;
+
+        /**
+         * Encodes the specified HoldingItemUpdate message. Does not implicitly {@link game.HoldingItemUpdate.verify|verify} messages.
+         * @param message HoldingItemUpdate message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: game.IHoldingItemUpdate, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified HoldingItemUpdate message, length delimited. Does not implicitly {@link game.HoldingItemUpdate.verify|verify} messages.
+         * @param message HoldingItemUpdate message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: game.IHoldingItemUpdate, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes a HoldingItemUpdate message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns HoldingItemUpdate
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): game.HoldingItemUpdate;
+
+        /**
+         * Decodes a HoldingItemUpdate message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns HoldingItemUpdate
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): game.HoldingItemUpdate;
+
+        /**
+         * Verifies a HoldingItemUpdate message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates a HoldingItemUpdate message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns HoldingItemUpdate
+         */
+        public static fromObject(object: { [k: string]: any }): game.HoldingItemUpdate;
+
+        /**
+         * Creates a plain object from a HoldingItemUpdate message. Also converts values to other types if specified.
+         * @param message HoldingItemUpdate
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: game.HoldingItemUpdate, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this HoldingItemUpdate to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+
+        /**
+         * Gets the default type url for HoldingItemUpdate
+         * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns The default type url
+         */
+        public static getTypeUrl(typeUrlPrefix?: string): string;
+    }
 }

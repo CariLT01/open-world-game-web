@@ -22,8 +22,9 @@ export function HoldingInventorySlot() {
                 onClick={() => {}}
                 name={holdingItem.getName()}
                 count={holdingItem.getCount()}
+                hideSlotTexture={true}
             ></InventorySlot>
-            {updateTime}
+            <span className="hidden">{updateTime}</span>
         </div>
     ) : null;
 }

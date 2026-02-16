@@ -57,11 +57,12 @@ export function Inventory() {
     }
 
     return isVisible ? <div className="w-fit h-fit p-4 fixed top-[50%] left-[50%] translate-x-[-50%] bg-black/15 rounded-md border border-white/15 pointer-events-auto">
-        <div className="flex flex-col gap-2 items-center">
+        <div className="flex flex-col gap-1 items-center">
             <InventoryRow slots={_generateInventoryRow(slots, ROW_0_START, ROW_0_END)} onClick={onClick}></InventoryRow>
             <InventoryRow slots={_generateInventoryRow(slots, ROW_1_START, ROW_1_END)} onClick={onClick}></InventoryRow>
             <InventoryRow slots={_generateInventoryRow(slots, ROW_2_START, ROW_2_END)} onClick={onClick}></InventoryRow>
-            {updateTime}
+            <span className="hidden">{updateTime}</span>
+            
         </div>
     </div> : null;
 }

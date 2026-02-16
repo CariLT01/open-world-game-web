@@ -20,12 +20,14 @@ import { EventBus } from "../../common/EventBus";
 import { PlayersManager } from "./Networking/PlayersManager";
 import { GameSetup } from "./GameSetup";
 import { LocalInventory } from "./LocalInventory";
+import { WebGPURenderer } from "three/webgpu";
+import { HeldItem } from "./HeldItem";
 
 export class Game {
 
     private scene!: Scene;
     private camera!: PerspectiveCamera;
-    private renderer!: WebGLRenderer;
+    private renderer!: WebGPURenderer;
     private testMesh!: Mesh;
     private controls!: Player;
     private worldChunks!: WorldChunks;
@@ -44,6 +46,7 @@ export class Game {
     private playersManager: PlayersManager = new PlayersManager(this.playerUsername);
 
     private localInventory: LocalInventory = new LocalInventory();
+    private handheldItem!: HeldItem;
 
     private pointerLocked: boolean = true;
 
@@ -76,7 +79,8 @@ export class Game {
         );
         this.camera.position.set(0, 2, 5);
 
-        this.renderer = new WebGLRenderer({ antialias: true });
+        this.renderer = new WebGPURenderer({ antialias: true });
+        await this.renderer.init();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
 
         document.body.appendChild(this.renderer.domElement);
@@ -87,7 +91,8 @@ export class Game {
 
         const sky = new Sky();
         sky.scale.setScalar(200); // really big
-        this.scene.add(sky);
+        /// this.scene.add(sky);
+        this.scene.background = new THREE.Color().setRGB(135 / 255, 206 / 255, 235 / 255);
 
         const sun = new THREE.Vector3();
         sun.setFromSphericalCoords(
@@ -116,6 +121,9 @@ export class Game {
 
         const gridHelper = new GridHelper(10, 10);
         this.scene.add(gridHelper);
+        this.scene.add(this.camera);
+
+        this.handheldItem = new HeldItem(this.camera);
     }
 
 

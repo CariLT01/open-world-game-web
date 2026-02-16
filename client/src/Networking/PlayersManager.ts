@@ -42,6 +42,16 @@ export class PlayersManager {
 
             this.players.delete(data.username);
         })
+
+        ClientEventBus.on(EventBusEvent.CLIENT_MULTIPLAYER_PLAYER_HANDHELD_UPDATE, (data) => {
+            if (data.username == this.myUsername) return;
+
+            if (!this.players.has(data.username)) throw new Error("Player does not exist");
+
+            const player = this.players.get(data.username)!;
+
+            player.setHeldItem(data.itemName);
+        })
     }
 
     addPlayer(username: string) {

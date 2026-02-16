@@ -15,6 +15,7 @@ import { ClientEventBus } from "./ClientEventBus";
 import { EventBusEvent } from "../../common/EventTypes";
 
 export const RENDER_DISTANCE = 5;
+const OCCLUSION_CULLING_ENABLED = true;
 
 export class WorldChunks {
     private chunkMeshBuilder: ChunkMeshBuilder;
@@ -92,7 +93,7 @@ export class WorldChunks {
 
         }
         const visibleChunks: Set<string> = new Set();
-        const queue: { pos: Vector3, entryFace?: Face }[] = [];
+        const queue: { pos: Vector3, entryFace?: Face, traveledDirections: Set<Face> }[] = [];
 
         // 1. Setup Camera state
         const cameraPos = Vector3.fromThreeVector3(camera.position);
@@ -109,7 +110,7 @@ export class WorldChunks {
         const startKey = chunkPosition.toKey();
 
         // Start with the chunk the camera is in
-        queue.push({ pos: chunkPosition });
+        queue.push({ pos: chunkPosition, traveledDirections: new Set([]) });
 
         while (queue.length > 0) {
             const item = queue.shift()!;
@@ -124,18 +125,44 @@ export class WorldChunks {
             const connection = chunk.visibility;
 
             for (const face of FACES) {
+
                 const faceNormal = FACE_DIRECTIONS[face];
                 const neighborPos = item.pos.add(faceNormal);
+
+                const distance = neighborPos.sub(chunkPosition).length();
+
+                if (distance < 1.8 || !OCCLUSION_CULLING_ENABLED) {
+
+                    
+
+                    const nextDirs = new Set(item.traveledDirections);
+
+                    queue.push({
+                        pos: neighborPos,
+                        entryFace: OPPOSITE_FACE[face],
+                        traveledDirections: nextDirs
+                    });
+                    continue;
+                }
+
+                if (item.traveledDirections.has(OPPOSITE_FACE[face])) {
+                    // If the branch is trying to travel to the opposite face that we already travelled to, block it
+                    // It is probably trying to "contour" a wall, or something
+                    if (neighborPos.sub(chunkPosition).length() > 1.8) {
+                        // Only cull if more than 1.8 chunks away from us
+                        continue;
+                    }
+
+
+                }
+
+
+
                 const neighborKey = neighborPos.toKey();
 
                 if (visibleChunks.has(neighborKey)) continue;
 
-                // --- FILTER 1: DIRECTIONAL (The "Going Back" check) ---
-                // If the direction to the neighbor is opposite our view, skip.
-                // (Only apply this filter once we are outside the starting chunk)
                 if (currentKey !== startKey) {
-                    if (faceNormal.dot(viewDir) < -0.3) continue;
-
                     // --- FILTER 2: CONNECTIVITY (The "Cave Culling" check) ---
                     if (item.entryFace !== undefined) {
                         const canPass = connection.get(item.entryFace)?.has(face);
@@ -153,9 +180,18 @@ export class WorldChunks {
                     if (neighborPos.sub(chunkPosition).length() > 1.8) continue;
                 }
 
+                // Add it to the queue
+                // Add the direction we travelled into
+
+
+                const nextDirs = new Set(item.traveledDirections);
+                nextDirs.add(face);
+
+
                 queue.push({
                     pos: neighborPos,
-                    entryFace: OPPOSITE_FACE[face]
+                    entryFace: OPPOSITE_FACE[face],
+                    traveledDirections: nextDirs
                 });
             }
         }
@@ -312,7 +348,7 @@ export class WorldChunks {
                 toDeleteChunks.add(c);
             }
         }
-        
+
 
         for (const toDelete of toDeleteChunks) {
             this.chunks.delete(toDelete);
@@ -379,6 +415,7 @@ export class WorldChunks {
         }
 
         debugGlobal.updateKey("chunksCulled", `${culledChunks}/${totalChunks} (${Math.round((culledChunks / totalChunks) * 100)}%)`)
+        debugGlobal.updateKey("chunksDrawn", `${totalChunks - culledChunks}/${totalChunks}`)
     }
 
     private _requestServer(pos: Vector3) {
@@ -394,7 +431,7 @@ export class WorldChunks {
 
         this.pendingServer.add(pos.toKey());
 
-        ClientEventBus.invokeEvent(EventBusEvent.SEND_PACKET, {packet: serverRequestPacket});
+        ClientEventBus.invokeEvent(EventBusEvent.SEND_PACKET, { packet: serverRequestPacket });
 
         // console.log("Queued: ", pos.toKey(), " set has: ", this.pendingServer.size);
     }
@@ -429,7 +466,7 @@ export class WorldChunks {
                 this._requestServer(toGenerate);
             }
             // this.terrainGenerator.generateTerrainOf(chunk_, toGenerate);
-            
+
             // this.pendingServer.add(toGenerate.toKey());
 
             // this.chunks.set(toGenerate.toKey(), chunk_);
