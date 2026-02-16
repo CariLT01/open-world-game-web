@@ -16,8 +16,20 @@ export class PlayerInventory {
     private container: PlayerInventoryContainer; // Holds the actual data
     private holding: ItemStack | null = null; // What player is currently holding
 
+    private hotbarSlotSelected: number = 0;
+    private hotbarItemNameSelected: string = "";
+
     constructor() {
         this.container = new PlayerInventoryContainer();
+    }
+
+    setHotbarSelected(hotbarSlotIndex: number, name: string) {
+        this.hotbarSlotSelected = hotbarSlotIndex;
+        this.hotbarItemNameSelected = name;
+    }
+
+    getHotbarSelectedName() {
+        return this.hotbarItemNameSelected;
     }
 
     private _checkMoveValid(toSlot: number): MoveResult {

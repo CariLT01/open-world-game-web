@@ -56,6 +56,20 @@ export class PlayersManager {
                     }
                 }
 
+                // Send existing players tool holding
+
+                const hotbarUpdatePacket = new HoldingItemUpdatePacket();
+
+                for (const [name, player] of this.players) {
+                    if (name !== playerName) {
+                        if (player.getInventory().getHotbarSelectedName() !== "") {
+                            hotbarUpdatePacket.itemName = player.getInventory().getHotbarSelectedName()
+                            hotbarUpdatePacket.playerName = name;
+
+                            ServerEventBus.invokeEvent(EventBusEvent.SEND_PACKET_TO_CONNECTION, {packet: hotbarUpdatePacket, connection: ws});
+                        }
+                    }
+                }
 
                 // Initial inventory synchronization
 
@@ -183,6 +197,9 @@ export class PlayersManager {
             // empty stack
             return;
         }
+
+        // set
+        player.getInventory().setHotbarSelected(slot, item.getName());
 
         // broadcast
 

@@ -32,6 +32,10 @@ export class ServerPlayer {
         this.inventory.getContainer().setItemStackAt(27,
             new ItemStack(ItemTypes.STICK, 60)
         );
+
+        this.inventory.getContainer().setItemStackAt(26,
+            new ItemStack(ItemTypes.IRON_PICKAXE, 1)
+        );
     }
 
     getPosition(): Vector3 {

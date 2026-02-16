@@ -1,11 +1,13 @@
 import { ItemTypes } from "../../../../common/data/ItemTypes";
 import { ItemModelTypes, type ItemModelData } from "./ModelTypes";
 
-import stickMeshTexture from "../../../assets/models/items/stick.png"
-import diamondMeshTexture from "../../../assets/models/items/diamond.png"
+import stickMeshTexture from "../../../assets/models/items/stick.png";
+import diamondMeshTexture from "../../../assets/models/items/diamond.png";
+import ironPickaxeMeshTexture from "../../../assets/models/items/iron_pickaxe.png";
 
 import diamondMesh from "../../../assets/models/items/diamond.glb";
-import stickMesh from "../../../assets/models/items/stick.glb"
+import stickMesh from "../../../assets/models/items/stick.glb";
+import ironPickaxeMesh from "../../../assets/models/items/iron_pickaxe.glb";
 
 import { Vector3 } from "three";
 
@@ -54,6 +56,25 @@ export const ItemModels: { [key: string]: ItemModelData } = {
             },
             modelName: diamondMesh,
             texture: diamondMeshTexture
+        }
+    },
+    [ItemTypes.IRON_PICKAXE]: {
+        type: ItemModelTypes.CUSTOM,
+        data: {
+            transform: {
+                thumbnail: {
+                    position: new Vector3(0, -0.7, 0),
+                    scale: new Vector3(0.2, 0.2, 0.2),
+                    rotation: new Vector3(0, 0, 0)
+                },
+                hand: {
+                    offset: new Vector3(defaultHandTransform.offset.x, defaultHandTransform.offset.y - 0.6, defaultHandTransform.offset.z),
+                    scale: new Vector3(0.07, 0.07, 0.07),
+                    rotation: new Vector3(0.7, -Math.PI / 2, Math.PI / 4)
+                }
+            },
+            modelName: ironPickaxeMesh,
+            texture: ironPickaxeMeshTexture
         }
     }
 }

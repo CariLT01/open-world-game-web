@@ -14,5 +14,8 @@ export const ItemData: {[key: string]: ClientItemData} = {
     },
     [ItemTypes.DIAMOND]: {
         description: "Valuable mineral"
+    },
+    [ItemTypes.IRON_PICKAXE]: {
+        description: "A good-enough pickaxe"
     }
 }
