@@ -22,6 +22,7 @@ export interface EventTypePayloads {
     [EventBusEvent.CLIENT_HOTBAR_SELECTION_CHANGED]: {index: number},
     [EventBusEvent.CLIENT_HANDHELD_ITEM_UPDATE]: {stack: ItemStack},
     [EventBusEvent.CLIENT_MULTIPLAYER_PLAYER_HANDHELD_UPDATE]: {itemName: string, username: string},
+    [EventBusEvent.CLIENT_ATTACK]: {}
 
     // Common
     [EventBusEvent.SEND_PACKET]: {packet: IPacket},

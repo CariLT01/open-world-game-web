@@ -196,6 +196,7 @@ export class Game {
         this.networkingHandler.tick();
 
         this.controls.tick(this.camera, delta);
+        this.handheldItem.update();
 
         this.accumulator += delta;
 
