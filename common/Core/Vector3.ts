@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { CHUNK_SIZE } from "../Config";
+import RAPIER from "@dimforge/rapier3d-compat";
 
 export type Vec3Fast = [number, number, number];
 
@@ -16,6 +17,9 @@ export class Vector3 {
     }
 
     static fromThreeVector3(v: THREE.Vector3) {
+        return new Vector3(v.x, v.y, v.z);
+    }
+    static fromRapierVec3(v: RAPIER.Vector3) {
         return new Vector3(v.x, v.y, v.z);
     }
 
@@ -124,6 +128,9 @@ export class Vector3 {
     }
     toThreeVec3() {
         return new THREE.Vector3(this.x, this.y, this.z);
+    }
+    toRapierVec3() {
+        return new RAPIER.Vector3(this.x, this.y, this.z);
     }
     toFastVec3() {
         return [this.x, this.y, this.z] as Vec3Fast;

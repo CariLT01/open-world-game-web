@@ -13,6 +13,7 @@ import { ChunkLoadRequestPacket } from "../../common/packets/ChunkLoadRequestPac
 import { server } from "typescript";
 import { ClientEventBus } from "./ClientEventBus";
 import { EventBusEvent } from "../../common/EventTypes";
+import { Raycaster } from "./Raycaster";
 
 export const RENDER_DISTANCE = 5;
 const OCCLUSION_CULLING_ENABLED = true;
@@ -44,6 +45,8 @@ export class WorldChunks {
         // this.terrainGenerator = new TerrainGenerator();
         this.scene = scene;
         this.physicsWorld = phyicsWorld;
+
+        Raycaster.setWorld(this.physicsWorld);
 
         this._bakeClosestChunks();
 
@@ -133,7 +136,7 @@ export class WorldChunks {
 
                 if (distance < 1.8 || !OCCLUSION_CULLING_ENABLED) {
 
-                    
+
 
                     const nextDirs = new Set(item.traveledDirections);
 
@@ -222,8 +225,20 @@ export class WorldChunks {
     private _registerEvents() {
         ClientEventBus.on(EventBusEvent.CLIENT_CHUNK_RECEIVED, (data) => {
             if (!this.pendingServer.has(data.position.toKey())) {
-                console.warn("Received chunk that was never requested: " + data.position.toKey() + " l: " + this.pendingServer.size);
-                return;
+                if (!this.chunks.has(data.position.toKey())) {
+                    // not already known, and not requested
+                    console.warn("Received chunk that was never requested: " + data.position.toKey() + " l: " + this.pendingServer.size);
+                    return;
+                } else {
+                    // already known, but not requested. This means that the chunk needs update
+
+                    const existingChunk = this.chunks.get(data.position.toKey())!;
+                    existingChunk.chunkData = data.data;
+                    existingChunk.computeVisibilityMask();
+
+                    this.pendingChunks.add(data.position.toKey()); // add to pending, pending for rebuild
+                }
+
             }
 
             const chunk = new Chunk();
@@ -285,6 +300,42 @@ export class WorldChunks {
         ] as Chunk[];
     }
 
+    private _unloadChunk(c: string, unloadChunkData?: boolean) {
+        // Unload
+        const mesh = this.chunksMeshes.get(c)!;
+        this.scene.remove(mesh);
+        mesh.geometry.dispose();
+
+
+        const collider = this.chunksColliders.get(c);
+        if (collider) {
+            const parentBody = collider.parent();
+            this.physicsWorld.removeCollider(collider, true);
+            if (parentBody) {
+                this.physicsWorld.removeRigidBody(parentBody);
+            }
+            this.chunksColliders.delete(c);
+        }
+
+        this.loadedChunks.delete(c);
+
+        
+
+        if (unloadChunkData) {
+
+            const chunk = this.chunks.get(c)!;
+
+            // Freeze data to save memory
+            if (!chunk.chunkData.getIsFrozen()) {
+                chunk.chunkData.freeze();
+            }
+            this.chunks.delete(c); // We have the luxury to delete it from memory, since it is already stored on server!
+        } else {
+            console.log("unload/keep-data");
+        }
+        
+    }
+
     private _handleUnload(currentPos: Vector3) {
         const shouldBeLoaded: Set<string> = new Set();
         for (const cached of this.cachedClosestChunks) {
@@ -298,31 +349,7 @@ export class WorldChunks {
                 // Unload
 
                 toRemove.add(c);
-                const mesh = this.chunksMeshes.get(c)!;
-                this.scene.remove(mesh);
-                mesh.geometry.dispose();
-
-
-                const collider = this.chunksColliders.get(c);
-                if (collider) {
-                    const parentBody = collider.parent();
-                    this.physicsWorld.removeCollider(collider, true);
-                    if (parentBody) {
-                        this.physicsWorld.removeRigidBody(parentBody);
-                    }
-                    this.chunksColliders.delete(c);
-                }
-
-                this.loadedChunks.delete(c);
-
-                const chunk = this.chunks.get(c)!;
-
-                // Freeze data to save memory
-                if (!chunk.chunkData.getIsFrozen()) {
-                    chunk.chunkData.freeze();
-                }
-
-                // this.chunks.delete(c); // We have the luxury to delete it from memory, since it is already stored on server!
+                this._unloadChunk(c, true);
             }
         }
 
@@ -418,6 +445,8 @@ export class WorldChunks {
         debugGlobal.updateKey("chunksDrawn", `${totalChunks - culledChunks}/${totalChunks}`)
     }
 
+
+
     private _requestServer(pos: Vector3) {
 
         if (this.pendingServer.size >= 128) {
@@ -434,6 +463,12 @@ export class WorldChunks {
         ClientEventBus.invokeEvent(EventBusEvent.SEND_PACKET, { packet: serverRequestPacket });
 
         // console.log("Queued: ", pos.toKey(), " set has: ", this.pendingServer.size);
+    }
+
+    private _unloadIfExists(c: string) {
+        if (this.chunksMeshes.has(c)) {
+            this._unloadChunk(c, false);
+        }
     }
 
     tick(playerPosition: Vector3, player: Player, camera: Camera) {
@@ -488,6 +523,8 @@ export class WorldChunks {
             if (chunk.chunkData.getIsFrozen()) {
                 chunk.chunkData.unfreeze();
             }
+
+            this._unloadIfExists(toGenerate.toKey());
             const neighbors = this.getNeighbors(toGenerate)
 
             this._unfreezeList(neighbors);
@@ -554,6 +591,7 @@ export class WorldChunks {
             if (!this.isReadyToGenerate(chunkPos)) continue;
             console.log("Rendering chunk");
 
+            this._unloadIfExists(chunkPos.toKey());
             const neighbors = this.getNeighbors(chunkPos);
 
             this._unfreezeList(neighbors);

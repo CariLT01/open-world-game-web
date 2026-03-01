@@ -73,3 +73,7 @@ message HoldingItemUpdate {
     string itemName = 1;
     string playerName = 2;
 }
+
+message ItemUseAttack {
+    
+}
