@@ -2,15 +2,25 @@ import { SimplexNoise } from "three/examples/jsm/Addons.js";
 import { Vector3 } from "../../common/Core/Vector3";
 import { CHUNK_SIZE } from "../../common/Config";
 import type { Chunk } from "../../common/Chunk";
-import type { MaterialIndex } from "../../common/ChunkData";
+import type { ChunkData, MaterialIndex } from "../../common/ChunkData";
+import type { Prop } from "./ServerPropsManager";
+import type { PropsDataContainer } from "./PropsDataContainer";
+import { TreesManager } from "./terrain/Trees";
+import { Euler, Quaternion } from "three";
+import { toChunkCoord } from "../../common/Core/CoordUtils";
 
 const clamp = (num: number, min: number, max: number): number => {
     return Math.min(Math.max(num, min), max);
 };
 
+export type TerrainGenerateData = {
+    props: Prop[];
+    terrain: ChunkData;
+}
 
 export class TerrainGenerator2 {
     private simplex: SimplexNoise = new SimplexNoise();
+    private treesManager: TreesManager = new TreesManager();
     private heightmapCache: Map<String, Float32Array> = new Map();
     private heightmapCacheCapacity: number = 100;
 
@@ -422,7 +432,7 @@ export class TerrainGenerator2 {
         return 0; // fallback
     }
 
-    generateTerrainOf(chunk: Chunk, chunkPosition: Vector3) {
+    generateTerrainOf(chunk: Chunk, props: PropsDataContainer, chunkPosition: Vector3) {
 
         if (chunk.chunkData.getIsFrozen()) {
             chunk.chunkData.unfreeze();
@@ -517,6 +527,79 @@ export class TerrainGenerator2 {
                         );
                     }
                 }
+            }
+        }
+
+        // add trees and calculate slope, using derivative and quaternions
+
+        const up = new Vector3(0, 1, 0);
+
+        for (let x = 0; x < CHUNK_SIZE; x++) {
+            for (let z = 0; z < CHUNK_SIZE; z++) {
+
+                const worldX = x + chunkPosition.x * CHUNK_SIZE;
+                const worldZ = z + chunkPosition.z * CHUNK_SIZE;
+
+                if (Math.random() < 0.01 && this.treesManager.shouldSpawn(worldX, worldZ)) {
+
+
+                    const worldY = Math.floor(this._sampleHeightmap(heightmap, x, z)!);
+                    
+                    const propPosition = new Vector3(worldX, worldY, worldZ)
+
+                    if (toChunkCoord(propPosition).toKey() != chunkPosition.toKey()) continue;
+
+
+                    const yL = this._sampleHeightmap(heightmap, x - 1, z)!;
+                    const yR = this._sampleHeightmap(heightmap, x + 1, z)!;
+                    const yD = this._sampleHeightmap(heightmap, x, z - 1)!;
+                    const yU = this._sampleHeightmap(heightmap, x, z + 1)!;
+
+                    
+
+                    const dx = (yR - yL) / (2.0 * 1);
+                    const dz = (yU - yD) / (2.0 * 1);
+
+                    const slope = Math.sqrt(dx * dx + dz * dz);
+
+                    if (slope > 0.75) {
+                        // too steep to have trees
+                        continue;
+                    }
+
+                    const normal = new Vector3(-dx, 1.0, -dz).normalize();
+
+                    const q = new Quaternion();
+                    q.setFromUnitVectors(up.toThreeVec3(), normal);
+
+                    // TODO: use quaternions only. Euler angles have gimbal lock
+                    const euler = new Euler();
+                    euler.setFromQuaternion(q, 'XYZ');
+
+                    const shift = normal.mulScalar(-0.4);
+                    if (Number.isNaN(shift.x) || Number.isNaN(shift.y) || Number.isNaN(shift.z)) {
+                        continue;
+                    }
+
+                    propPosition.addMut(shift);
+                    if (toChunkCoord(propPosition).toKey() != chunkPosition.toKey()) continue;
+
+                    // add tree
+                    props.addProp({
+                        "modelName": "pineTree",
+                        "position": propPosition,
+                        "rotation": new Vector3(euler.x, euler.y, euler.z),
+                        "scale": new Vector3(1, 1, 1)
+                    });
+
+                    console.log("Add at: ", propPosition.x, propPosition.y, propPosition.z, " chunk: ", chunkPosition, " x: ", x, " z: ", z);
+
+                    this.treesManager.occupyReal(worldX, worldZ);
+                }
+
+
+
+
             }
         }
 

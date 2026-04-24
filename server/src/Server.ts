@@ -28,8 +28,6 @@ export class Server {
         this.networkingHandler.tick();
         this.playersManager.tick();
         this.chunksManager.tick(this.playersManager);
-
-        TODO: UNLOAD
     }
 
     async run() {

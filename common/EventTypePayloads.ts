@@ -7,6 +7,8 @@ import type WebSocket from "ws";
 import type { ChunkData } from "./ChunkData";
 import type { PlayerInventoryContainer } from "./PlayerInventoryContainer";
 import type { ItemStack } from "./ItemStack";
+import type { WorldProp } from "./packets/PropsDataPacket";
+
 
 export interface EventTypePayloads {
     // Client
@@ -15,6 +17,7 @@ export interface EventTypePayloads {
     [EventType.CLIENT_PLAYER_JOINED]: {name: string},
     [EventType.CLIENT_PLAYER_MOVED]: {name: string, position: Vector3},
     [EventType.CLIENT_SOCKET_CONNECTED]: {},
+    [EventType.CLIENT_PROPS_RECEIVED]: {position: Vector3, props: WorldProp[]},
     [EventType.CLIENT_CHUNK_RECEIVED]: {position: Vector3, data: ChunkData},
     [EventType.CLIENT_TOGGLE_POINTER_LOCK]: {lockPointer: boolean},
     [EventType.CLIENT_INVENTORY_SLOT_CLICKED]: {slot: number},

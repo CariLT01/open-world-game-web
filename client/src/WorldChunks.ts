@@ -14,13 +14,15 @@ import { server } from "typescript";
 import { ClientEventBus } from "./ClientEventBus";
 import { EventType } from "../../common/EventTypes";
 import { Raycaster } from "./Raycaster";
+import { PropsManager } from "./Models/PropsManager";
 
 export const RENDER_DISTANCE = 5;
-const OCCLUSION_CULLING_ENABLED = true;
+const OCCLUSION_CULLING_ENABLED = false;
 
 export class WorldChunks {
     private chunkMeshBuilder: ChunkMeshBuilder;
     private terrainBuilder: TerrainBuilder;
+    private propsManager: PropsManager;
     // private terrainGenerator: TerrainGenerator;
     private pendingServer: Set<string> = new Set();
 
@@ -42,13 +44,13 @@ export class WorldChunks {
     constructor(scene: Scene, phyicsWorld: World) {
         this.terrainBuilder = new TerrainBuilder();
         this.chunkMeshBuilder = new ChunkMeshBuilder(this.terrainBuilder);
+        this.propsManager = new PropsManager();
         // this.terrainGenerator = new TerrainGenerator();
         this.scene = scene;
         this.physicsWorld = phyicsWorld;
 
         Raycaster.setWorld(this.physicsWorld);
 
-        this._bakeClosestChunks();
 
         this._registerEvents();
     }
@@ -201,32 +203,13 @@ export class WorldChunks {
         return visibleChunks;
     }
 
-    private _bakeClosestChunks() {
-        const chunks: Vector3[] = [];
-
-        for (let x = -RENDER_DISTANCE; x <= RENDER_DISTANCE; x++) {
-            for (let y = -RENDER_DISTANCE; y <= RENDER_DISTANCE; y++) {
-                for (let z = -RENDER_DISTANCE; z <= RENDER_DISTANCE; z++) {
-                    chunks.push(new Vector3(x, y, z));
-                }
-            }
-        }
-
-        // sort by distance from origin (0,0,0) or player position
-        chunks.sort((a, b) => {
-            const distA = a.x * a.x + a.y * a.y + a.z * a.z; // squared distance
-            const distB = b.x * b.x + b.y * b.y + b.z * b.z;
-            return distA - distB;
-        });
-
-        this.cachedClosestChunks = chunks;
-    }
 
     private _registerEvents() {
         ClientEventBus.on(EventType.CLIENT_CHUNK_RECEIVED, (data) => {
 
             if (!this.chunks.has(data.position.toKey())) {
                 // chunk doesn't exist, create a new one
+                // console.log("Received chunk: ", data.position.toKey());
 
                 const chunk = new Chunk();
                 chunk.chunkData = data.data;
@@ -250,29 +233,18 @@ export class WorldChunks {
 
 
         })
+
+        ClientEventBus.on(EventType.CLIENT_UNLOAD_CHUNK, (data) => {
+            console.log("received unload chunk");
+            this._unloadChunk(data.position.toKey(), true);
+        })
     }
 
-    getChunkToGenerate(currentPosition: Vector3) {
-        for (const chunkPos of this.cachedClosestChunks) {
-
-
-            const realPos = chunkPos.add(currentPosition);
-
-            if (
-                !this.loadedChunks.has(realPos.toKey()) &&
-                !this.pendingChunks.has(realPos.toKey()) &&
-                !this.pendingServer.has(realPos.toKey())
-            ) {
-                return realPos;
-            }
-        }
-
-        return null;
-    }
 
     isReadyToGenerate(chunkPosition: Vector3) {
         if (
-            this.visibleChunks.has(chunkPosition.toKey()) &&
+            //this.visibleChunks.has(chunkPosition.toKey()) &&
+            // TODO: fix occlusion culling not working!
             this.chunks.has(chunkPosition.add(new Vector3(1, 0, 0)).toKey()) &&
             this.chunks.has(chunkPosition.add(new Vector3(0, 1, 0)).toKey()) &&
             this.chunks.has(chunkPosition.add(new Vector3(0, 0, 1)).toKey()) &&
@@ -300,24 +272,29 @@ export class WorldChunks {
 
     private _unloadChunk(c: string, unloadChunkData?: boolean) {
         // Unload
-        const mesh = this.chunksMeshes.get(c)!;
-        this.scene.remove(mesh);
-        mesh.geometry.dispose();
+
+        console.log("Unloading: ", c);
+
+        const mesh = this.chunksMeshes.get(c);
+        if (mesh) {
+            this.scene.remove(mesh);
+            mesh.geometry.dispose();
 
 
-        const collider = this.chunksColliders.get(c);
-        if (collider) {
-            const parentBody = collider.parent();
-            this.physicsWorld.removeCollider(collider, true);
-            if (parentBody) {
-                this.physicsWorld.removeRigidBody(parentBody);
+            const collider = this.chunksColliders.get(c);
+            if (collider) {
+                const parentBody = collider.parent();
+                this.physicsWorld.removeCollider(collider, true);
+                if (parentBody) {
+                    this.physicsWorld.removeRigidBody(parentBody);
+                }
+                this.chunksColliders.delete(c);
             }
-            this.chunksColliders.delete(c);
         }
+
 
         this.loadedChunks.delete(c);
 
-        
 
         if (unloadChunkData) {
 
@@ -331,91 +308,7 @@ export class WorldChunks {
         } else {
             console.log("unload/keep-data");
         }
-        
-    }
 
-    private _handleUnload(currentPos: Vector3) {
-        const shouldBeLoaded: Set<string> = new Set();
-        for (const cached of this.cachedClosestChunks) {
-            shouldBeLoaded.add(cached.add(currentPos).toKey());
-        }
-
-        const toRemove: Set<string> = new Set();
-
-        for (const [c, mesh] of this.chunksMeshes) {
-            if (!shouldBeLoaded.has(c)) {
-                // Unload
-
-                toRemove.add(c);
-                this._unloadChunk(c, true);
-            }
-        }
-
-        // Delete from loaded chunks
-        const toDeleteFromLoadedChunks = new Set<string>;
-        for (const c of this.loadedChunks) {
-            if (!shouldBeLoaded.has(c)) {
-                toDeleteFromLoadedChunks.add(c);
-            }
-        }
-
-        for (const c of toDeleteFromLoadedChunks) {
-            this.loadedChunks.delete(c);
-        }
-
-        // Delete from chunks
-
-        const toDeleteChunks: Set<string> = new Set();
-
-        for (const [c, data] of this.chunks) {
-            if (!shouldBeLoaded.has(c)) {
-
-                toDeleteChunks.add(c);
-            }
-        }
-
-
-        for (const toDelete of toDeleteChunks) {
-            this.chunks.delete(toDelete);
-        }
-
-        // Also delete pending ones
-
-        const toRemovePending: Set<string> = new Set();
-
-        for (const c of this.pendingChunks) {
-            if (!shouldBeLoaded.has(c)) {
-                toRemovePending.add(c);
-            }
-        }
-
-        // Also delete server pending ones
-
-        const toRemoveFromServerPending: Set<string> = new Set();
-        for (const c of this.pendingServer) {
-            if (!shouldBeLoaded.has(c)) {
-                toRemoveFromServerPending.add(c);
-            }
-
-        }
-
-        // Delete from meshes
-
-        for (const c of toRemove) {
-            this.chunksMeshes.delete(c);
-        }
-
-        // Delete from pending
-
-        for (const c of toRemovePending) {
-            this.pendingChunks.delete(c);
-        }
-
-        // Delete from pending server
-
-        for (const c of toRemoveFromServerPending) {
-            this.pendingServer.delete(c);
-        }
     }
 
     private _unfreezeList(list: Chunk[]) {
@@ -447,19 +340,6 @@ export class WorldChunks {
 
     private _requestServer(pos: Vector3) {
 
-        if (this.pendingServer.size >= 128) {
-            return;
-        }
-
-        debugGlobal.updateKey("pendingServer", this.pendingServer.size.toString())
-
-        const serverRequestPacket = new ChunkLoadRequestPacket();
-        serverRequestPacket.position = pos;
-
-        this.pendingServer.add(pos.toKey());
-
-        ClientEventBus.invokeEvent(EventType.SEND_PACKET, { packet: serverRequestPacket });
-
         // console.log("Queued: ", pos.toKey(), " set has: ", this.pendingServer.size);
     }
 
@@ -471,17 +351,18 @@ export class WorldChunks {
 
     tick(playerPosition: Vector3, player: Player, camera: Camera) {
 
-        this.computeOcclusion(playerPosition, camera);
-
-        this._handleUnload(playerPosition);
+        if (OCCLUSION_CULLING_ENABLED) {
+            this.computeOcclusion(playerPosition, camera);
+        }
+        
 
         if (this.isFirstChunk) {
             player.setPosition(0, 50, 0);
         }
 
-        const toGenerate = this.getChunkToGenerate(playerPosition);
+        /* const toGenerate = this.getChunkToGenerate(playerPosition);
 
-        if (!toGenerate) return;
+        if (!toGenerate) return; */
 
         // console.log("Generate: ", toGenerate.x, toGenerate.y, toGenerate.z);
 
@@ -491,7 +372,7 @@ export class WorldChunks {
 
 
 
-        let chunk: Chunk | null = null;
+        /* let chunk: Chunk | null = null;
 
         if (!this.chunks.has(toGenerate.toKey())) {
             // const chunk_ = new Chunk();
@@ -541,6 +422,7 @@ export class WorldChunks {
 
             this.loadedChunks.add(toGenerate.toKey());
             if (mesh.mesh && mesh.colliderDesc) {
+                console.log('added chunk: ', toGenerate.toKey());
                 this.chunksMeshes.set(toGenerate.toKey(), mesh.mesh);
 
                 this.scene.add(mesh.mesh);
@@ -571,14 +453,14 @@ export class WorldChunks {
 
 
 
-        }
+        } */
 
         const toRemoveFromPending: Set<Vector3> = new Set();
 
         for (const chunkPosI of this.pendingChunks) {
 
             const chunkPos = new Vector3(0, 0, 0)
-            chunkPos.fromKey(chunkPosI);
+            chunkPos.importFromKey(chunkPosI);
 
             const chunk = this.chunks.get(chunkPos.toKey());
 
@@ -587,7 +469,7 @@ export class WorldChunks {
 
 
             if (!this.isReadyToGenerate(chunkPos)) continue;
-            console.log("Rendering chunk");
+            // console.log("Rendering chunk: ", chunkPos.toKey());
 
             this._unloadIfExists(chunkPos.toKey());
             const neighbors = this.getNeighbors(chunkPos);
@@ -643,7 +525,7 @@ export class WorldChunks {
 
                     const v = chunkPos.mulScalar(CHUNK_SIZE).add(new Vector3(CHUNK_SIZE / 2, CHUNK_SIZE, CHUNK_SIZE / 2));
 
-                    player.setPosition(v.x, v.y, v.z);
+                    player.setPosition(v.x, v.y + 50, v.z);
                     this.isFirstChunk = false;
                 }
             };

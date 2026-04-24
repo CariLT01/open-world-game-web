@@ -8,6 +8,7 @@ import { PacketTypes } from "../../../common/packets/PacketTypes";
 import { PlayerJoinPacket } from "../../../common/packets/PlayerJoinPacket";
 import { PlayerLeavePacket } from "../../../common/packets/PlayerLeavePacket";
 import { PlayerMovePacket } from "../../../common/packets/PlayerMovePacket";
+import { PropsDataPacket } from "../../../common/packets/PropsDataPacket";
 import { UnloadChunkPacket } from "../../../common/packets/UnloadChunkPacket";
 import { ClientEventBus } from "../ClientEventBus";
 
@@ -125,6 +126,24 @@ export class ClientPacketProcessor {
 
                 ClientEventBus.invokeEvent(EventType.CLIENT_UNLOAD_CHUNK, {
                     position: decodedPacket.chunkPosition
+                });
+                break;
+            
+            case PacketTypes.PROPS_DATA_PACKET:
+                decodedPacket = new PropsDataPacket();
+                decodedPacket.deserialize(packetBuffer);
+
+                if (!decodedPacket.chunkPosition) {
+                    throw new Error("no chunk pos");
+                }
+
+                if (!decodedPacket.props) {
+                    throw new Error("no props");
+                }
+
+                ClientEventBus.invokeEvent(EventType.CLIENT_PROPS_RECEIVED, {
+                    position: decodedPacket.chunkPosition,
+                    props: decodedPacket.props
                 });
                 break;
 

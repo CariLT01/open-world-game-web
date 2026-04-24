@@ -548,6 +548,230 @@ export namespace game {
         public static getTypeUrl(typeUrlPrefix?: string): string;
     }
 
+    /** Properties of a WorldProp. */
+    interface IWorldProp {
+
+        /** WorldProp position */
+        position?: (game.IVec3f|null);
+
+        /** WorldProp scale */
+        scale?: (game.IVec3f|null);
+
+        /** WorldProp rotation */
+        rotation?: (game.IVec3f|null);
+
+        /** WorldProp model */
+        model?: (string|null);
+
+        /** WorldProp id */
+        id?: (number|null);
+    }
+
+    /** Represents a WorldProp. */
+    class WorldProp implements IWorldProp {
+
+        /**
+         * Constructs a new WorldProp.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: game.IWorldProp);
+
+        /** WorldProp position. */
+        public position?: (game.IVec3f|null);
+
+        /** WorldProp scale. */
+        public scale?: (game.IVec3f|null);
+
+        /** WorldProp rotation. */
+        public rotation?: (game.IVec3f|null);
+
+        /** WorldProp model. */
+        public model: string;
+
+        /** WorldProp id. */
+        public id: number;
+
+        /**
+         * Creates a new WorldProp instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns WorldProp instance
+         */
+        public static create(properties?: game.IWorldProp): game.WorldProp;
+
+        /**
+         * Encodes the specified WorldProp message. Does not implicitly {@link game.WorldProp.verify|verify} messages.
+         * @param message WorldProp message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: game.IWorldProp, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified WorldProp message, length delimited. Does not implicitly {@link game.WorldProp.verify|verify} messages.
+         * @param message WorldProp message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: game.IWorldProp, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes a WorldProp message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns WorldProp
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): game.WorldProp;
+
+        /**
+         * Decodes a WorldProp message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns WorldProp
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): game.WorldProp;
+
+        /**
+         * Verifies a WorldProp message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates a WorldProp message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns WorldProp
+         */
+        public static fromObject(object: { [k: string]: any }): game.WorldProp;
+
+        /**
+         * Creates a plain object from a WorldProp message. Also converts values to other types if specified.
+         * @param message WorldProp
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: game.WorldProp, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this WorldProp to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+
+        /**
+         * Gets the default type url for WorldProp
+         * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns The default type url
+         */
+        public static getTypeUrl(typeUrlPrefix?: string): string;
+    }
+
+    /** Properties of a PropsData. */
+    interface IPropsData {
+
+        /** PropsData chunkPosition */
+        chunkPosition?: (game.IVec3i|null);
+
+        /** PropsData props */
+        props?: (game.IWorldProp[]|null);
+    }
+
+    /** Represents a PropsData. */
+    class PropsData implements IPropsData {
+
+        /**
+         * Constructs a new PropsData.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: game.IPropsData);
+
+        /** PropsData chunkPosition. */
+        public chunkPosition?: (game.IVec3i|null);
+
+        /** PropsData props. */
+        public props: game.IWorldProp[];
+
+        /**
+         * Creates a new PropsData instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns PropsData instance
+         */
+        public static create(properties?: game.IPropsData): game.PropsData;
+
+        /**
+         * Encodes the specified PropsData message. Does not implicitly {@link game.PropsData.verify|verify} messages.
+         * @param message PropsData message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: game.IPropsData, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified PropsData message, length delimited. Does not implicitly {@link game.PropsData.verify|verify} messages.
+         * @param message PropsData message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: game.IPropsData, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes a PropsData message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns PropsData
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): game.PropsData;
+
+        /**
+         * Decodes a PropsData message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns PropsData
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): game.PropsData;
+
+        /**
+         * Verifies a PropsData message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates a PropsData message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns PropsData
+         */
+        public static fromObject(object: { [k: string]: any }): game.PropsData;
+
+        /**
+         * Creates a plain object from a PropsData message. Also converts values to other types if specified.
+         * @param message PropsData
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: game.PropsData, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this PropsData to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+
+        /**
+         * Gets the default type url for PropsData
+         * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns The default type url
+         */
+        public static getTypeUrl(typeUrlPrefix?: string): string;
+    }
+
     /** Properties of an UnloadChunk. */
     interface IUnloadChunk {
 

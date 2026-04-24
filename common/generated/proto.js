@@ -1396,6 +1396,574 @@ $root.game = (function() {
         return ChunkData;
     })();
 
+    game.WorldProp = (function() {
+
+        /**
+         * Properties of a WorldProp.
+         * @memberof game
+         * @interface IWorldProp
+         * @property {game.IVec3f|null} [position] WorldProp position
+         * @property {game.IVec3f|null} [scale] WorldProp scale
+         * @property {game.IVec3f|null} [rotation] WorldProp rotation
+         * @property {string|null} [model] WorldProp model
+         * @property {number|null} [id] WorldProp id
+         */
+
+        /**
+         * Constructs a new WorldProp.
+         * @memberof game
+         * @classdesc Represents a WorldProp.
+         * @implements IWorldProp
+         * @constructor
+         * @param {game.IWorldProp=} [properties] Properties to set
+         */
+        function WorldProp(properties) {
+            if (properties)
+                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * WorldProp position.
+         * @member {game.IVec3f|null|undefined} position
+         * @memberof game.WorldProp
+         * @instance
+         */
+        WorldProp.prototype.position = null;
+
+        /**
+         * WorldProp scale.
+         * @member {game.IVec3f|null|undefined} scale
+         * @memberof game.WorldProp
+         * @instance
+         */
+        WorldProp.prototype.scale = null;
+
+        /**
+         * WorldProp rotation.
+         * @member {game.IVec3f|null|undefined} rotation
+         * @memberof game.WorldProp
+         * @instance
+         */
+        WorldProp.prototype.rotation = null;
+
+        /**
+         * WorldProp model.
+         * @member {string} model
+         * @memberof game.WorldProp
+         * @instance
+         */
+        WorldProp.prototype.model = "";
+
+        /**
+         * WorldProp id.
+         * @member {number} id
+         * @memberof game.WorldProp
+         * @instance
+         */
+        WorldProp.prototype.id = 0;
+
+        /**
+         * Creates a new WorldProp instance using the specified properties.
+         * @function create
+         * @memberof game.WorldProp
+         * @static
+         * @param {game.IWorldProp=} [properties] Properties to set
+         * @returns {game.WorldProp} WorldProp instance
+         */
+        WorldProp.create = function create(properties) {
+            return new WorldProp(properties);
+        };
+
+        /**
+         * Encodes the specified WorldProp message. Does not implicitly {@link game.WorldProp.verify|verify} messages.
+         * @function encode
+         * @memberof game.WorldProp
+         * @static
+         * @param {game.IWorldProp} message WorldProp message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        WorldProp.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.position != null && Object.hasOwnProperty.call(message, "position"))
+                $root.game.Vec3f.encode(message.position, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+            if (message.scale != null && Object.hasOwnProperty.call(message, "scale"))
+                $root.game.Vec3f.encode(message.scale, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
+            if (message.rotation != null && Object.hasOwnProperty.call(message, "rotation"))
+                $root.game.Vec3f.encode(message.rotation, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
+            if (message.model != null && Object.hasOwnProperty.call(message, "model"))
+                writer.uint32(/* id 4, wireType 2 =*/34).string(message.model);
+            if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+                writer.uint32(/* id 5, wireType 0 =*/40).int32(message.id);
+            return writer;
+        };
+
+        /**
+         * Encodes the specified WorldProp message, length delimited. Does not implicitly {@link game.WorldProp.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof game.WorldProp
+         * @static
+         * @param {game.IWorldProp} message WorldProp message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        WorldProp.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a WorldProp message from the specified reader or buffer.
+         * @function decode
+         * @memberof game.WorldProp
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {game.WorldProp} WorldProp
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        WorldProp.decode = function decode(reader, length, error) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.game.WorldProp();
+            while (reader.pos < end) {
+                var tag = reader.uint32();
+                if (tag === error)
+                    break;
+                switch (tag >>> 3) {
+                case 1: {
+                        message.position = $root.game.Vec3f.decode(reader, reader.uint32());
+                        break;
+                    }
+                case 2: {
+                        message.scale = $root.game.Vec3f.decode(reader, reader.uint32());
+                        break;
+                    }
+                case 3: {
+                        message.rotation = $root.game.Vec3f.decode(reader, reader.uint32());
+                        break;
+                    }
+                case 4: {
+                        message.model = reader.string();
+                        break;
+                    }
+                case 5: {
+                        message.id = reader.int32();
+                        break;
+                    }
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a WorldProp message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof game.WorldProp
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {game.WorldProp} WorldProp
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        WorldProp.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a WorldProp message.
+         * @function verify
+         * @memberof game.WorldProp
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        WorldProp.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.position != null && message.hasOwnProperty("position")) {
+                var error = $root.game.Vec3f.verify(message.position);
+                if (error)
+                    return "position." + error;
+            }
+            if (message.scale != null && message.hasOwnProperty("scale")) {
+                var error = $root.game.Vec3f.verify(message.scale);
+                if (error)
+                    return "scale." + error;
+            }
+            if (message.rotation != null && message.hasOwnProperty("rotation")) {
+                var error = $root.game.Vec3f.verify(message.rotation);
+                if (error)
+                    return "rotation." + error;
+            }
+            if (message.model != null && message.hasOwnProperty("model"))
+                if (!$util.isString(message.model))
+                    return "model: string expected";
+            if (message.id != null && message.hasOwnProperty("id"))
+                if (!$util.isInteger(message.id))
+                    return "id: integer expected";
+            return null;
+        };
+
+        /**
+         * Creates a WorldProp message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof game.WorldProp
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {game.WorldProp} WorldProp
+         */
+        WorldProp.fromObject = function fromObject(object) {
+            if (object instanceof $root.game.WorldProp)
+                return object;
+            var message = new $root.game.WorldProp();
+            if (object.position != null) {
+                if (typeof object.position !== "object")
+                    throw TypeError(".game.WorldProp.position: object expected");
+                message.position = $root.game.Vec3f.fromObject(object.position);
+            }
+            if (object.scale != null) {
+                if (typeof object.scale !== "object")
+                    throw TypeError(".game.WorldProp.scale: object expected");
+                message.scale = $root.game.Vec3f.fromObject(object.scale);
+            }
+            if (object.rotation != null) {
+                if (typeof object.rotation !== "object")
+                    throw TypeError(".game.WorldProp.rotation: object expected");
+                message.rotation = $root.game.Vec3f.fromObject(object.rotation);
+            }
+            if (object.model != null)
+                message.model = String(object.model);
+            if (object.id != null)
+                message.id = object.id | 0;
+            return message;
+        };
+
+        /**
+         * Creates a plain object from a WorldProp message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof game.WorldProp
+         * @static
+         * @param {game.WorldProp} message WorldProp
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        WorldProp.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            var object = {};
+            if (options.defaults) {
+                object.position = null;
+                object.scale = null;
+                object.rotation = null;
+                object.model = "";
+                object.id = 0;
+            }
+            if (message.position != null && message.hasOwnProperty("position"))
+                object.position = $root.game.Vec3f.toObject(message.position, options);
+            if (message.scale != null && message.hasOwnProperty("scale"))
+                object.scale = $root.game.Vec3f.toObject(message.scale, options);
+            if (message.rotation != null && message.hasOwnProperty("rotation"))
+                object.rotation = $root.game.Vec3f.toObject(message.rotation, options);
+            if (message.model != null && message.hasOwnProperty("model"))
+                object.model = message.model;
+            if (message.id != null && message.hasOwnProperty("id"))
+                object.id = message.id;
+            return object;
+        };
+
+        /**
+         * Converts this WorldProp to JSON.
+         * @function toJSON
+         * @memberof game.WorldProp
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        WorldProp.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for WorldProp
+         * @function getTypeUrl
+         * @memberof game.WorldProp
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        WorldProp.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/game.WorldProp";
+        };
+
+        return WorldProp;
+    })();
+
+    game.PropsData = (function() {
+
+        /**
+         * Properties of a PropsData.
+         * @memberof game
+         * @interface IPropsData
+         * @property {game.IVec3i|null} [chunkPosition] PropsData chunkPosition
+         * @property {Array.<game.IWorldProp>|null} [props] PropsData props
+         */
+
+        /**
+         * Constructs a new PropsData.
+         * @memberof game
+         * @classdesc Represents a PropsData.
+         * @implements IPropsData
+         * @constructor
+         * @param {game.IPropsData=} [properties] Properties to set
+         */
+        function PropsData(properties) {
+            this.props = [];
+            if (properties)
+                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * PropsData chunkPosition.
+         * @member {game.IVec3i|null|undefined} chunkPosition
+         * @memberof game.PropsData
+         * @instance
+         */
+        PropsData.prototype.chunkPosition = null;
+
+        /**
+         * PropsData props.
+         * @member {Array.<game.IWorldProp>} props
+         * @memberof game.PropsData
+         * @instance
+         */
+        PropsData.prototype.props = $util.emptyArray;
+
+        /**
+         * Creates a new PropsData instance using the specified properties.
+         * @function create
+         * @memberof game.PropsData
+         * @static
+         * @param {game.IPropsData=} [properties] Properties to set
+         * @returns {game.PropsData} PropsData instance
+         */
+        PropsData.create = function create(properties) {
+            return new PropsData(properties);
+        };
+
+        /**
+         * Encodes the specified PropsData message. Does not implicitly {@link game.PropsData.verify|verify} messages.
+         * @function encode
+         * @memberof game.PropsData
+         * @static
+         * @param {game.IPropsData} message PropsData message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        PropsData.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.chunkPosition != null && Object.hasOwnProperty.call(message, "chunkPosition"))
+                $root.game.Vec3i.encode(message.chunkPosition, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+            if (message.props != null && message.props.length)
+                for (var i = 0; i < message.props.length; ++i)
+                    $root.game.WorldProp.encode(message.props[i], writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
+            return writer;
+        };
+
+        /**
+         * Encodes the specified PropsData message, length delimited. Does not implicitly {@link game.PropsData.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof game.PropsData
+         * @static
+         * @param {game.IPropsData} message PropsData message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        PropsData.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a PropsData message from the specified reader or buffer.
+         * @function decode
+         * @memberof game.PropsData
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {game.PropsData} PropsData
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        PropsData.decode = function decode(reader, length, error) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.game.PropsData();
+            while (reader.pos < end) {
+                var tag = reader.uint32();
+                if (tag === error)
+                    break;
+                switch (tag >>> 3) {
+                case 1: {
+                        message.chunkPosition = $root.game.Vec3i.decode(reader, reader.uint32());
+                        break;
+                    }
+                case 2: {
+                        if (!(message.props && message.props.length))
+                            message.props = [];
+                        message.props.push($root.game.WorldProp.decode(reader, reader.uint32()));
+                        break;
+                    }
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a PropsData message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof game.PropsData
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {game.PropsData} PropsData
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        PropsData.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a PropsData message.
+         * @function verify
+         * @memberof game.PropsData
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        PropsData.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.chunkPosition != null && message.hasOwnProperty("chunkPosition")) {
+                var error = $root.game.Vec3i.verify(message.chunkPosition);
+                if (error)
+                    return "chunkPosition." + error;
+            }
+            if (message.props != null && message.hasOwnProperty("props")) {
+                if (!Array.isArray(message.props))
+                    return "props: array expected";
+                for (var i = 0; i < message.props.length; ++i) {
+                    var error = $root.game.WorldProp.verify(message.props[i]);
+                    if (error)
+                        return "props." + error;
+                }
+            }
+            return null;
+        };
+
+        /**
+         * Creates a PropsData message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof game.PropsData
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {game.PropsData} PropsData
+         */
+        PropsData.fromObject = function fromObject(object) {
+            if (object instanceof $root.game.PropsData)
+                return object;
+            var message = new $root.game.PropsData();
+            if (object.chunkPosition != null) {
+                if (typeof object.chunkPosition !== "object")
+                    throw TypeError(".game.PropsData.chunkPosition: object expected");
+                message.chunkPosition = $root.game.Vec3i.fromObject(object.chunkPosition);
+            }
+            if (object.props) {
+                if (!Array.isArray(object.props))
+                    throw TypeError(".game.PropsData.props: array expected");
+                message.props = [];
+                for (var i = 0; i < object.props.length; ++i) {
+                    if (typeof object.props[i] !== "object")
+                        throw TypeError(".game.PropsData.props: object expected");
+                    message.props[i] = $root.game.WorldProp.fromObject(object.props[i]);
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Creates a plain object from a PropsData message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof game.PropsData
+         * @static
+         * @param {game.PropsData} message PropsData
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        PropsData.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            var object = {};
+            if (options.arrays || options.defaults)
+                object.props = [];
+            if (options.defaults)
+                object.chunkPosition = null;
+            if (message.chunkPosition != null && message.hasOwnProperty("chunkPosition"))
+                object.chunkPosition = $root.game.Vec3i.toObject(message.chunkPosition, options);
+            if (message.props && message.props.length) {
+                object.props = [];
+                for (var j = 0; j < message.props.length; ++j)
+                    object.props[j] = $root.game.WorldProp.toObject(message.props[j], options);
+            }
+            return object;
+        };
+
+        /**
+         * Converts this PropsData to JSON.
+         * @function toJSON
+         * @memberof game.PropsData
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        PropsData.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for PropsData
+         * @function getTypeUrl
+         * @memberof game.PropsData
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        PropsData.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/game.PropsData";
+        };
+
+        return PropsData;
+    })();
+
     game.UnloadChunk = (function() {
 
         /**

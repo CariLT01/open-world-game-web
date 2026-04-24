@@ -140,12 +140,18 @@ export class Vector3 {
         return `${this.x},${this.y},${this.z}`;
     }
 
-    fromKey(s: string) {
+    importFromKey(s: string) {
         const [x, y, z] = s.split(',').map(Number);
         this.x = x!;
         this.y = y!;
         this.z = z!;
     }
+
+    static fromKey(s: string) {
+        const [x, y, z] = s.split(',').map(Number);
+        return new Vector3(x!, y!, z!);
+    }
+
 
     toChunkIndex() {
         return this.x * CHUNK_SIZE * CHUNK_SIZE + this.y * CHUNK_SIZE + this.z;

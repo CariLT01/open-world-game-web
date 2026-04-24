@@ -32,6 +32,19 @@ message ChunkData {
     Vec3i chunkPosition = 4;
 }
 
+message WorldProp {
+    Vec3f position = 1;
+    Vec3f scale = 2;
+    Vec3f rotation = 3;
+    string model = 4;
+    int32 id = 5;
+}
+
+message PropsData {
+    Vec3i chunkPosition = 1;
+    repeated WorldProp props = 2;
+}
+
 message UnloadChunk {
     Vec3i chunkPosition = 1;
 }
