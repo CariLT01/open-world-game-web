@@ -145,56 +145,65 @@ export class ChunkData {
     }
 
     flushPaletteChanges() {
-
         this.checkFrozen();
 
-        const oldPaletteSize = this.palette.size;
+        const palette = this.palette;
+        const reverse = this.paletteReverseMap;
+        const queued = this.queuedMaterials;
+        const materials = this.materials;
+        const materialCount = materials.length;
 
-        // 1. Assign permanent indices to queued materials in the current palette
-        for (const material of this.queuedMaterials) {
-            const nextIdx = this.palette.size as PaletteIndex;
-            this.palette.set(nextIdx, material);
-            this.paletteReverseMap.set(material.hash, nextIdx);
+        // Append queued materials to the palette first
+        for (let i = 0, qlen = queued.length; i < qlen; i++) {
+            const material = queued[i]!;
+            const idx = palette.size as PaletteIndex;
+            palette.set(idx, material);
+            reverse.set(material.hash, idx);
         }
 
-        // 2. Identify which indices are actually used in the voxel buffer
-        const usedIndicesInVoxelBuffer = new Set<number>();
-        for (let i = 0; i < this.materials.length; i++) {
-            usedIndicesInVoxelBuffer.add(this.materials[i]!);
+        const paletteSize = palette.size;
+
+        // Mark which palette indices are actually used in the voxel buffer
+        const used = new Uint8Array(paletteSize);
+        for (let i = 0; i < materialCount; i++) {
+            const idx = materials[i]!;
+            if (idx < paletteSize) used[idx] = 1;
         }
 
-        // 3. Create a NEW palette and an Index Map
+        // Build oldIndex -> newIndex remap
+        const remap = new Int32Array(paletteSize);
+        remap.fill(-1);
+
         const newPalette: Map<PaletteIndex, BlockData> = new Map();
-        const newPaletteReverseMap: Map<number, PaletteIndex> = new Map();
-        const indexMapping: Map<number, number> = new Map();
+        const newReverse: Map<number, PaletteIndex> = new Map();
 
-        let nextAvailableIndex = 0;
+        let next = 0;
+        for (let oldIdx = 0; oldIdx < paletteSize; oldIdx++) {
+            if (used[oldIdx] === 0) continue;
 
-        // We only migrate materials that are actually present in the chunk
-        this.palette.forEach((blockData, oldIdx) => {
-            if (usedIndicesInVoxelBuffer.has(oldIdx)) {
-                const newIdx = nextAvailableIndex as PaletteIndex;
-                newPalette.set(newIdx, blockData);
-                newPaletteReverseMap.set(blockData.hash, newIdx);
-                indexMapping.set(oldIdx, nextAvailableIndex);
-                nextAvailableIndex++;
-            }
-        });
+            const blockData = palette.get(oldIdx as PaletteIndex);
+            if (blockData === undefined) continue;
 
-        // 4. Update the voxel buffer ONLY ONCE
-        for (let i = 0; i < this.materials.length; i++) {
-            const currentIdx = this.materials[i];
-            // If for some reason it's not in the map, fallback to 0 (Air/Default)
-            this.materials[i] = indexMapping.has(currentIdx!) ? indexMapping.get(currentIdx!)! : 0;
+            const newIdx = next as PaletteIndex;
+            remap[oldIdx] = next;
+            newPalette.set(newIdx, blockData);
+            newReverse.set(blockData.hash, newIdx);
+            next++;
         }
 
-        // 5. Replace the old maps with the cleaned ones
-        this.palette = newPalette;
-        this.paletteReverseMap = newPaletteReverseMap;
+        // Rewrite voxel buffer in one linear pass
+        for (let i = 0; i < materialCount; i++) {
+            const nextIdx = remap[materials[i]!];
+            const thisVariable = (nextIdx! >= 0 ? nextIdx : 0);
+            materials[i] = thisVariable!;
+        }
 
-        this.queuedMaterials = [];
+        this.palette = newPalette;
+        this.paletteReverseMap = newReverse;
+
+        queued.length = 0;
         this.queuedMaterialsSet.clear();
-        this.queuedMaterialsHashes = [];
+        this.queuedMaterialsHashes.length = 0;
     }
 
     setBlockAtIndex(index: number, density: number, material: BlockData, flushChanges: boolean) {

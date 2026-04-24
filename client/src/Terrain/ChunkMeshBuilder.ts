@@ -5,6 +5,7 @@ import type { Vector3 } from "../../../common/Core/Vector3";
 import type { ChunkData } from "../../../common/ChunkData";
 import { RAPIER } from "../RapierInstance";
 import type { ColliderDesc } from "@dimforge/rapier3d-compat";
+import { MaterialHandler } from "../MaterialHandler";
 
 type ChunkMeshBuilderReturnType = {
     mesh?: Mesh;
@@ -60,7 +61,12 @@ export class ChunkMeshBuilder {
 
         // Mesh
 
-        const mesh = new Mesh(geometry, new MeshStandardMaterial({color: 0xffffff, vertexColors: true, wireframe: false}));
+        const terrainMaterial = new MeshStandardMaterial({color: 0xffffff, vertexColors: true, wireframe: false});
+        MaterialHandler.setupMaterial(terrainMaterial);
+
+        const mesh = new Mesh(geometry, terrainMaterial);
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
         mesh.position.set(
             position.x * (CHUNK_SIZE),
             position.y * (CHUNK_SIZE),

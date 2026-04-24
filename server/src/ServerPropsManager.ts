@@ -71,7 +71,7 @@ export class ServerPropsManager {
 
             this.propsChunksTracker.set(propId, propPosition);
 
-            console.log("created prop id: ", propId, " insert in: ", propList.size, " list at: ", propPosition.toKey(), " originally at: ", propInstance.position);
+            // console.log("created prop id: ", propId, " insert in: ", propList.size, " list at: ", propPosition.toKey(), " originally at: ", propInstance.position);
         }
 
 
@@ -79,7 +79,7 @@ export class ServerPropsManager {
 
     ensureChunkExists(position: Vector3) : boolean {
 
-        console.log("ensure: ", position.toKey());
+        // console.log("ensure: ", position.toKey());
         
         if (!this.chunksPropTracker.has(position.toKey())) {
             this.chunksPropTracker.set(position.toKey(), new Set());
@@ -118,7 +118,7 @@ export class ServerPropsManager {
             throw new Error("position is not known");
         }
 
-        console.log("request at: ", position.toKey());
+        // console.log("request at: ", position.toKey());
 
         for (const propId of this.chunksPropTracker.get(position.toKey())!) {
             const realProp = this.worldProps.get(propId);
@@ -134,7 +134,7 @@ export class ServerPropsManager {
         packet.chunkPosition = position;
         packet.props = props;
 
-        console.log("pre-serialized to: ", props.length, " props")
+        // console.log("pre-serialized to: ", props.length, " props")
 
         ServerEventBus.invokeEvent(EventType.SEND_PACKET_TO_PLAYER, {
             "packet": packet,

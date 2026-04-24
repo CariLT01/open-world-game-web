@@ -15,13 +15,15 @@ import { ClientEventBus } from "./ClientEventBus";
 import { EventType } from "../../common/EventTypes";
 import { Raycaster } from "./Raycaster";
 import { PropsManager } from "./Models/PropsManager";
+import { InstancedModelsManager } from "./Models/InstancedModelsManager";
 
 export const RENDER_DISTANCE = 5;
-const OCCLUSION_CULLING_ENABLED = false;
+const OCCLUSION_CULLING_ENABLED = true;
 
 export class WorldChunks {
     private chunkMeshBuilder: ChunkMeshBuilder;
     private terrainBuilder: TerrainBuilder;
+    private instancedManager: InstancedModelsManager;
     private propsManager: PropsManager;
     // private terrainGenerator: TerrainGenerator;
     private pendingServer: Set<string> = new Set();
@@ -44,7 +46,9 @@ export class WorldChunks {
     constructor(scene: Scene, phyicsWorld: World) {
         this.terrainBuilder = new TerrainBuilder();
         this.chunkMeshBuilder = new ChunkMeshBuilder(this.terrainBuilder);
-        this.propsManager = new PropsManager();
+        this.instancedManager = new InstancedModelsManager();
+        
+        this.propsManager = new PropsManager(this.instancedManager);
         // this.terrainGenerator = new TerrainGenerator();
         this.scene = scene;
         this.physicsWorld = phyicsWorld;
@@ -125,7 +129,7 @@ export class WorldChunks {
             visibleChunks.add(currentKey);
 
             const chunk = this.chunks.get(currentKey);
-            if (!chunk || !shouldBeLoaded.has(currentKey)) continue;
+            if (!chunk) continue;
 
             const connection = chunk.visibility;
 
@@ -243,8 +247,7 @@ export class WorldChunks {
 
     isReadyToGenerate(chunkPosition: Vector3) {
         if (
-            //this.visibleChunks.has(chunkPosition.toKey()) &&
-            // TODO: fix occlusion culling not working!
+            this.visibleChunks.has(chunkPosition.toKey()) &&
             this.chunks.has(chunkPosition.add(new Vector3(1, 0, 0)).toKey()) &&
             this.chunks.has(chunkPosition.add(new Vector3(0, 1, 0)).toKey()) &&
             this.chunks.has(chunkPosition.add(new Vector3(0, 0, 1)).toKey()) &&
@@ -298,7 +301,10 @@ export class WorldChunks {
 
         if (unloadChunkData) {
 
-            const chunk = this.chunks.get(c)!;
+            const chunk = this.chunks.get(c);
+            if (!chunk) {
+                return;
+            }
 
             // Freeze data to save memory
             if (!chunk.chunkData.getIsFrozen()) {

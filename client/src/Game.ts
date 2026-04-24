@@ -22,6 +22,8 @@ import { GameSetup } from "./GameSetup";
 import { LocalInventory } from "./LocalInventory";
 import { WebGPURenderer } from "three/webgpu";
 import { HeldItem } from "./HeldItem";
+import CSM from "three-csm";
+import { MaterialHandler } from "./MaterialHandler";
 
 export class Game {
 
@@ -47,6 +49,7 @@ export class Game {
 
     private localInventory: LocalInventory = new LocalInventory();
     private handheldItem!: HeldItem;
+    private csm!: CSM;
 
     private pointerLocked: boolean = true;
 
@@ -81,9 +84,25 @@ export class Game {
 
         this.renderer = new WebGPURenderer({ antialias: true });
         await this.renderer.init();
+        this.renderer.shadowMap.enabled = true;
+        this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         this.renderer.setSize(window.innerWidth, window.innerHeight);
 
         document.body.appendChild(this.renderer.domElement);
+
+        this.csm = new CSM({
+            maxFar: 1000,
+            cascades: 3,
+            mode: 'practical',
+            shadowMapSize: 2048,
+            lightDirection: new THREE.Vector3(-1, -1, -1).normalize(),
+            camera: this.camera,
+            parent: this.scene,
+            lightIntensity: 1,
+        });
+        this.csm.fade = false;
+
+        MaterialHandler.setCsm(this.csm);
 
 
 
@@ -151,7 +170,7 @@ export class Game {
             const joinPacket = new PlayerJoinPacket();
             joinPacket.name = this.playerUsername;
 
-            ClientEventBus.invokeEvent(EventType.SEND_PACKET, {packet: joinPacket});
+            ClientEventBus.invokeEvent(EventType.SEND_PACKET, { packet: joinPacket });
         })
 
         this.networkingHandler.connect();
@@ -215,6 +234,8 @@ export class Game {
         this.worldChunks.tick(chunkPos, this.controls, this.camera);
 
         this.updateSkyPosition();
+
+        this.csm.update();
 
     }
 

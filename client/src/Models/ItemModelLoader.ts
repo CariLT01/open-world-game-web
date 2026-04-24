@@ -2,6 +2,7 @@ import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import { ItemModels } from "../Data/models/Items";
 import { ItemModelTypes } from "../Data/models/ModelTypes";
 import { DoubleSide, Mesh, MeshStandardMaterial, SRGBColorSpace, TextureLoader } from "three";
+import { MaterialHandler } from "../MaterialHandler";
 
 class ItemModelLoaderClass {
 
@@ -34,9 +35,14 @@ class ItemModelLoaderClass {
 
             model.traverse((child) => {
                 if (child instanceof Mesh) {
-                    child.material = new MeshStandardMaterial({
+
+                    const itemMaterial = new MeshStandardMaterial({
                         map: texture
-                    })
+                    });
+
+                    MaterialHandler.setupMaterial(itemMaterial);
+
+                    child.material = itemMaterial;
                     
                 }
             });

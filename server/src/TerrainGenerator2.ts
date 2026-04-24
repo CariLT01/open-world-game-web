@@ -592,7 +592,7 @@ export class TerrainGenerator2 {
                         "scale": new Vector3(1, 1, 1)
                     });
 
-                    console.log("Add at: ", propPosition.x, propPosition.y, propPosition.z, " chunk: ", chunkPosition, " x: ", x, " z: ", z);
+                    // console.log("Add at: ", propPosition.x, propPosition.y, propPosition.z, " chunk: ", chunkPosition, " x: ", x, " z: ", z);
 
                     this.treesManager.occupyReal(worldX, worldZ);
                 }

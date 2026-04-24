@@ -7,7 +7,7 @@ export type TreeSpawnData = {
     scale?: Vector3;
 }
 
-const TREE_GRID_SIZE = 12;
+const TREE_GRID_SIZE = 20;
 
 export class TreesManager {
     private occupied: Set<string> = new Set();

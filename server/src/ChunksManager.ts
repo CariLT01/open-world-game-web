@@ -80,16 +80,16 @@ export class ChunksManager {
             const chunk = new Chunk();
 
             this.terrainGenerator.generateTerrainOf(chunk, propContainer, position);
-            
+
             const generatedProps = propContainer.readProps();
 
-            console.log("generated ", generatedProps.size, " props")
+            // console.log("generated ", generatedProps.size, " props")
 
             for (const prop of generatedProps) {
                 this.propsManager.createPropFromStateless(prop)
             }
 
-            console.log("generate at: ", position)
+            // console.log("generate at: ", position)
 
             if (this.propsManager.ensureChunkExists(position) && generatedProps.size > 0) {
                 throw new Error("chunk was empty, when something was generated")
@@ -119,13 +119,26 @@ export class ChunksManager {
         // console.log("Chunks remaining: ", this.queuedChunksToLoad.length);
         for (let i = 0; i < CHUNKS_PER_TICK; i++) {
 
-            if (this.queuedChunksToLoad.length === 0) return;
-            const first = this.queuedChunksToLoad[0]!;
-            this.queuedChunksToLoad.splice(0, 1);
 
-            // console.log("Loading chunk: ", first.position);
 
-            this._processChunk(first.position, first.requester);
+            while (true) {
+
+                if (this.queuedChunksToLoad.length === 0) return;
+
+                const first = this.queuedChunksToLoad[0]!;
+                this.queuedChunksToLoad.splice(0, 1);
+
+                // console.log("Loading chunk: ", first.position);
+
+                const playersLoadedChunk = this.playersLoadedChunks.get(first.requester);
+                if (!playersLoadedChunk) continue;
+                if (!playersLoadedChunk.has(first.position.toKey())) continue;
+
+                this._processChunk(first.position, first.requester);
+                break;
+            }
+
+
         }
 
 
@@ -195,10 +208,14 @@ export class ChunksManager {
                     continue;
                 }
 
-                this.queuedChunksToLoad.push({
-                    "position": nextChunk,
-                    "requester": playerName
-                });
+                if (this.queuedChunksToLoad.length < 64) {
+                    // only allow 64 queued chunks
+                    this.queuedChunksToLoad.push({
+                        "position": nextChunk,
+                        "requester": playerName
+                    });
+                }
+
 
                 // console.log("adding for queued chunk: ", playerName, " at: ", nextChunk);
 
@@ -235,7 +252,7 @@ export class ChunksManager {
             const shouldBeLoadedKey = shouldBeLoadedReal.toKey();
 
             shouldBeLoadedSet.add(shouldBeLoadedKey);
-            
+
         }
 
         for (const loaded of playerLoadedChunks) {

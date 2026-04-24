@@ -1,13 +1,15 @@
-import { Euler, Group, Mesh } from "three";
+import { Euler, FrontSide, Group, InstancedMesh, Material, Mesh } from "three";
 import { Vector3 } from "../../../common/Core/Vector3";
 import { PROP_MODELS, type PropModelKey } from "../Data/models/PropModels";
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import { ClientEventBus } from "../ClientEventBus";
 import { EventType } from "../../../common/EventTypes";
 import { toChunkCoord } from "../../../common/Core/CoordUtils";
+import { MaterialHandler } from "../MaterialHandler";
+import type { InstancedModelsManager } from "./InstancedModelsManager";
 
 export type WorldPropModel = {
-    mesh: Group | null;
+    mesh: Map<string, number>;
     position: Vector3;
     rotation: Vector3;
     scale: Vector3;
@@ -18,13 +20,19 @@ export type WorldPropModel = {
 export class PropsManager {
 
     private models: Map<number, WorldPropModel> = new Map();
-    private cachedMeshProvider: Map<string, Group> = new Map();
     private loader: GLTFLoader = new GLTFLoader();
 
     private propsChunksTracker: Map<number, Vector3> = new Map();
     private chunksPropsTracker: Map<string, Set<number>> = new Map();
 
-    constructor() {
+    private instancedMeshesTracker: Map<string, string[]> = new Map();
+
+    private instancedModelsManager: InstancedModelsManager;
+
+    constructor(instancedManager: InstancedModelsManager) {
+
+        this.instancedModelsManager = instancedManager;
+
         this._hookEvents();
     }
 
@@ -73,37 +81,70 @@ export class PropsManager {
         return scene.scene;
     }
 
-    private async _getModel(model: PropModelKey) {
+    private async _loadModel(model: PropModelKey) {
         const modelPath = PROP_MODELS[model];
-        if (this.cachedMeshProvider.has(modelPath)) {
-            console.log("Serving model from mem cache: ", model);
-            return this.cachedMeshProvider.get(modelPath)!.clone(true)
+        if (this.instancedMeshesTracker.has(model)) {
+            console.log("mesh already loaded");
         } else {
             console.log("Downloading model: ", model)
             const loadedMesh = await this._loadMesh(modelPath);
-            this.cachedMeshProvider.set(modelPath, loadedMesh);
-            return loadedMesh.clone(true);
+            this.instancedMeshesTracker.set(model, []);
+            let i = 0;
+            loadedMesh.traverse((obj) => {
+                if (obj instanceof Mesh) {
+                    const instanced = new InstancedMesh(
+                        obj.geometry,
+                        obj.material,
+                        8
+                    );
+
+                    (obj.material as Material).side = FrontSide;
+                    (obj.material as Material).needsUpdate = true;
+
+                    const baseMatrix = obj.matrix.clone();
+
+                    MaterialHandler.setupMaterial(obj.material);
+                    instanced.castShadow = true;
+                    instanced.receiveShadow = true;
+                    instanced.frustumCulled = false;
+
+                    this.instancedMeshesTracker.get(model)!.push(`${model}-${i}`);
+
+                    this.instancedModelsManager.createModel(`${model}-${i}`, instanced, baseMatrix);
+                    i++;
+
+                    ClientEventBus.invokeEvent(EventType.CLIENT_ADD_TO_SCENE, {
+                        object: instanced
+                    });
+
+                }
+            })
         }
     }
 
     private async _propInitAsync(model: PropModelKey, id: number) {
-        const propMesh = await this._getModel(model);
+        await this._loadModel(model);
         if (!this.models.has(id)) {
             console.warn("model deleted after loading complete");
             return;
         }
 
+
+
         const propInstance = this.models.get(id)!;
-        propInstance.mesh = propMesh;
+
+        // create meshes
+        for (const mesh of this.instancedMeshesTracker.get(model)!) {
+            propInstance.mesh.set(mesh, (this.instancedModelsManager.addModel(mesh, propInstance.position, propInstance.rotation, propInstance.scale)));
+        }
+
         propInstance.initialized = true;
 
         this._updateMesh(propInstance);
 
         console.log("prop initialization complete: ", model);
 
-        ClientEventBus.invokeEvent(EventType.CLIENT_ADD_TO_SCENE, {
-            object: propMesh
-        });
+
     }
 
     private _retrackProp(propId: number) {
@@ -184,9 +225,9 @@ export class PropsManager {
 
         // remove mesh
         if (propInstance.mesh) {
-            ClientEventBus.invokeEvent(EventType.CLIENT_REMOVE_FROM_SCENE, {
-                object: propInstance.mesh
-            })
+            for (const [model, id] of propInstance.mesh) {
+                this.instancedModelsManager.deleteModel(model, id);
+            }
         }
 
 
@@ -204,7 +245,7 @@ export class PropsManager {
         const newProp: WorldPropModel = {
             "id": id,
             "initialized": false,
-            "mesh": null,
+            "mesh": new Map(),
             "position": position,
             "rotation": rotation,
             "scale": scale
@@ -237,9 +278,12 @@ export class PropsManager {
 
         const eulerRotation = new Euler(prop.rotation.x, prop.rotation.y, prop.rotation.z);
 
-        prop.mesh.position.copy(prop.position.toThreeVec3());
-        prop.mesh.rotation.copy(eulerRotation);
-        prop.mesh.scale.copy(prop.scale.toThreeVec3());
+        const mat4 = this.instancedModelsManager._composeMatrix(prop.position, prop.rotation, prop.scale);
+
+        for (const [model, id] of prop.mesh) {
+            this.instancedModelsManager.updateModelPosWithMatrix(model, id, mat4);
+        }
+
 
         this._retrackProp(prop.id);
 
