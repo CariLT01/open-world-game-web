@@ -8,4 +8,5 @@ export enum PacketTypes {
     INVENTORY_SYNC = 6,
     HOTBAR_SELECT_UPDATE = 7,
     HOLDING_ITEM_UPDATE = 8,
+    UNLOAD_CHUNK = 9
 }

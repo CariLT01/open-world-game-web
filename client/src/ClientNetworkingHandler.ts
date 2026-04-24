@@ -1,4 +1,4 @@
-import { EventBusEvent } from "../../common/EventTypes";
+import { EventType } from "../../common/EventTypes";
 import type { IPacket } from "../../common/packets/IPacket";
 import { ClientEventBus } from "./ClientEventBus";
 import { ClientPacketProcessor } from "./Networking/ClientPacketProcessor";
@@ -35,13 +35,13 @@ export class ClientNetworkingHandler {
             }
             this.queuedPacketsSend.length = 0;
 
-            ClientEventBus.invokeEvent(EventBusEvent.CLIENT_SOCKET_CONNECTED, {});
+            ClientEventBus.invokeEvent(EventType.CLIENT_SOCKET_CONNECTED, {});
             
         });
 
         this.socket.addEventListener("error", (e) => {
 
-            ClientEventBus.invokeEvent(EventBusEvent.FATAL_CRASH_STATE, {});
+            ClientEventBus.invokeEvent(EventType.FATAL_CRASH_STATE, {});
 
             throw new Error("Failed to connect to server");
         })
@@ -56,13 +56,13 @@ export class ClientNetworkingHandler {
         }
 
         this.socket.onclose = (e) => {
-            ClientEventBus.invokeEvent(EventBusEvent.FATAL_CRASH_STATE, {});
+            ClientEventBus.invokeEvent(EventType.FATAL_CRASH_STATE, {});
             throw new Error("WebSocket closed");
         }
     }
 
     private _registerEvents() {
-        ClientEventBus.on(EventBusEvent.SEND_PACKET, (data) => {
+        ClientEventBus.on(EventType.SEND_PACKET, (data) => {
             if (!this.connected) {
                 throw new Error("Could not send while not connected");
             }

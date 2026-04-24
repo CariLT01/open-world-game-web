@@ -1,5 +1,5 @@
 
-export enum EventBusEvent {
+export enum EventType {
     // Common
     SEND_PACKET,
     SEND_PACKET_TO_PLAYER,
@@ -20,6 +20,7 @@ export enum EventBusEvent {
     CLIENT_HANDHELD_ITEM_UPDATE,
     CLIENT_MULTIPLAYER_PLAYER_HANDHELD_UPDATE,
     CLIENT_ATTACK,
+    CLIENT_UNLOAD_CHUNK,
     
     // Server
     SERVER_PLAYER_JOINED,
@@ -29,7 +30,8 @@ export enum EventBusEvent {
     SERVER_LOAD_CHUNK,
     SERVER_INVENTORY_UPDATE,
     SERVER_PLAYER_HOTBAR_SELECT_UPDATE,
-    SERVER_USE_ATTACK
+    SERVER_USE_ATTACK,
+    SERVER_GET_PLAYERS
     
     
 }

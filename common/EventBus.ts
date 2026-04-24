@@ -1,11 +1,11 @@
 import type { EventTypePayloads } from "./EventTypePayloads";
-import type { EventBusEvent } from "./EventTypes";
+import type { EventType } from "./EventTypes";
 
 type EventCallback = (...args: any[]) => void;
 
 export class EventBus {
 
-    private events: Map<EventBusEvent, EventCallback[]> = new Map();
+    private events: Map<EventType, EventCallback[]> = new Map();
 
     private detailedLogging: boolean = false;
 

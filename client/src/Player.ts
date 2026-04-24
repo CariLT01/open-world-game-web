@@ -2,7 +2,7 @@ import { type RigidBody, type World } from "@dimforge/rapier3d-compat";
 import { RAPIER } from "./RapierInstance";
 import { type Camera } from "three";
 import { ClientEventBus } from "./ClientEventBus";
-import { EventBusEvent } from "../../common/EventTypes";
+import { EventType } from "../../common/EventTypes";
 import { PlayerMovePacket } from "../../common/packets/PlayerMovePacket";
 import { Vector3 } from "../../common/Core/Vector3";
 
@@ -120,7 +120,7 @@ export class Player {
             this.playerBody.translation().z,
         );
 
-        ClientEventBus.invokeEvent(EventBusEvent.SEND_PACKET, {
+        ClientEventBus.invokeEvent(EventType.SEND_PACKET, {
             packet: playerMovePacket,
         });
     }

@@ -1,4 +1,4 @@
-import { EventBusEvent } from "../../../common/EventTypes";
+import { EventType } from "../../../common/EventTypes";
 import { ClientEventBus } from "../ClientEventBus";
 import { InventoryStore } from "../Stores/InventoryStore";
 import { InventoryRow } from "./InventoryRow";
@@ -50,7 +50,7 @@ export function Hotbar() {
 
         // Regardless of client-side swap/pickup, always inform the server
         // The server will then validate and send back a sync packet.
-        ClientEventBus.invokeEvent(EventBusEvent.CLIENT_INVENTORY_SLOT_CLICKED, {slot: slotIndex});
+        ClientEventBus.invokeEvent(EventType.CLIENT_INVENTORY_SLOT_CLICKED, {slot: slotIndex});
     }
 
     const rows = _generateInventoryRow(container, ROW_4_START, ROW_4_END);

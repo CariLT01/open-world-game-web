@@ -1,4 +1,4 @@
-import { EventBusEvent } from "../../common/EventTypes";
+import { EventType } from "../../common/EventTypes";
 import { ItemStack } from "../../common/ItemStack";
 import { InventorySyncPacket } from "../../common/packets/InventorySyncPacket";
 import { PlayerInventoryContainer } from "../../common/PlayerInventoryContainer";
@@ -117,7 +117,7 @@ export class PlayerInventory {
         syncPacket.container = this.container;
         syncPacket.holding = this.holding ?? ItemStack.empty();
 
-        ServerEventBus.invokeEvent(EventBusEvent.SEND_PACKET_TO_PLAYER, { username: username, packet: syncPacket })
+        ServerEventBus.invokeEvent(EventType.SEND_PACKET_TO_PLAYER, { username: username, packet: syncPacket })
 
     }
 

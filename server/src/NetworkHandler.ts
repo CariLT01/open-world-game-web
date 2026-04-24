@@ -2,7 +2,7 @@ import WebSocket, { WebSocketServer } from "ws";
 import { PacketProcessor } from "./packets/PacketProcessing";
 import { ServerEventBus } from "./ServerEventBus";
 import { EventBus } from "../../common/EventBus";
-import { EventBusEvent } from "../../common/EventTypes";
+import { EventType } from "../../common/EventTypes";
 import type { IPacket } from "../../common/packets/IPacket";
 
 type PacketEntry = {
@@ -26,7 +26,7 @@ export class NetworkHandler {
     }
 
     private _registerEvent() {
-        ServerEventBus.on(EventBusEvent.SEND_PACKET, (data) => {
+        ServerEventBus.on(EventType.SEND_PACKET, (data) => {
             const packetBuffer = data.packet.serialize();
             const finalBuffer = new Uint8Array(1 + packetBuffer.byteLength);
             finalBuffer[0] = data.packet.packetType;
@@ -37,7 +37,7 @@ export class NetworkHandler {
             }
         });
 
-        ServerEventBus.on(EventBusEvent.SEND_PACKET_TO_CONNECTION, (data) => {
+        ServerEventBus.on(EventType.SEND_PACKET_TO_CONNECTION, (data) => {
 
             const packetBuffer = data.packet.serialize();
             const finalBuffer = new Uint8Array(1 + packetBuffer.byteLength);
@@ -70,7 +70,7 @@ export class NetworkHandler {
                     this.sockets.delete(uuid);
                 }
 
-                ServerEventBus.invokeEvent(EventBusEvent.SERVER_PLAYER_LEFT_WS, {ws: ws});
+                ServerEventBus.invokeEvent(EventType.SERVER_PLAYER_LEFT_WS, {ws: ws});
             })
 
             ws.on("message", (data) => {

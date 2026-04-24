@@ -548,6 +548,103 @@ export namespace game {
         public static getTypeUrl(typeUrlPrefix?: string): string;
     }
 
+    /** Properties of an UnloadChunk. */
+    interface IUnloadChunk {
+
+        /** UnloadChunk chunkPosition */
+        chunkPosition?: (game.IVec3i|null);
+    }
+
+    /** Represents an UnloadChunk. */
+    class UnloadChunk implements IUnloadChunk {
+
+        /**
+         * Constructs a new UnloadChunk.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: game.IUnloadChunk);
+
+        /** UnloadChunk chunkPosition. */
+        public chunkPosition?: (game.IVec3i|null);
+
+        /**
+         * Creates a new UnloadChunk instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns UnloadChunk instance
+         */
+        public static create(properties?: game.IUnloadChunk): game.UnloadChunk;
+
+        /**
+         * Encodes the specified UnloadChunk message. Does not implicitly {@link game.UnloadChunk.verify|verify} messages.
+         * @param message UnloadChunk message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: game.IUnloadChunk, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified UnloadChunk message, length delimited. Does not implicitly {@link game.UnloadChunk.verify|verify} messages.
+         * @param message UnloadChunk message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: game.IUnloadChunk, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes an UnloadChunk message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns UnloadChunk
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): game.UnloadChunk;
+
+        /**
+         * Decodes an UnloadChunk message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns UnloadChunk
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): game.UnloadChunk;
+
+        /**
+         * Verifies an UnloadChunk message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates an UnloadChunk message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns UnloadChunk
+         */
+        public static fromObject(object: { [k: string]: any }): game.UnloadChunk;
+
+        /**
+         * Creates a plain object from an UnloadChunk message. Also converts values to other types if specified.
+         * @param message UnloadChunk
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: game.UnloadChunk, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this UnloadChunk to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+
+        /**
+         * Gets the default type url for UnloadChunk
+         * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns The default type url
+         */
+        public static getTypeUrl(typeUrlPrefix?: string): string;
+    }
+
     /** Properties of a LoadChunkRequest. */
     interface ILoadChunkRequest {
 
@@ -1445,6 +1542,97 @@ export namespace game {
 
         /**
          * Gets the default type url for HoldingItemUpdate
+         * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns The default type url
+         */
+        public static getTypeUrl(typeUrlPrefix?: string): string;
+    }
+
+    /** Properties of an ItemUseAttack. */
+    interface IItemUseAttack {
+    }
+
+    /** Represents an ItemUseAttack. */
+    class ItemUseAttack implements IItemUseAttack {
+
+        /**
+         * Constructs a new ItemUseAttack.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: game.IItemUseAttack);
+
+        /**
+         * Creates a new ItemUseAttack instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns ItemUseAttack instance
+         */
+        public static create(properties?: game.IItemUseAttack): game.ItemUseAttack;
+
+        /**
+         * Encodes the specified ItemUseAttack message. Does not implicitly {@link game.ItemUseAttack.verify|verify} messages.
+         * @param message ItemUseAttack message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: game.IItemUseAttack, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified ItemUseAttack message, length delimited. Does not implicitly {@link game.ItemUseAttack.verify|verify} messages.
+         * @param message ItemUseAttack message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: game.IItemUseAttack, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes an ItemUseAttack message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns ItemUseAttack
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): game.ItemUseAttack;
+
+        /**
+         * Decodes an ItemUseAttack message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns ItemUseAttack
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): game.ItemUseAttack;
+
+        /**
+         * Verifies an ItemUseAttack message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates an ItemUseAttack message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns ItemUseAttack
+         */
+        public static fromObject(object: { [k: string]: any }): game.ItemUseAttack;
+
+        /**
+         * Creates a plain object from an ItemUseAttack message. Also converts values to other types if specified.
+         * @param message ItemUseAttack
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: game.ItemUseAttack, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this ItemUseAttack to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+
+        /**
+         * Gets the default type url for ItemUseAttack
          * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
          * @returns The default type url
          */

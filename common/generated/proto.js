@@ -1396,6 +1396,216 @@ $root.game = (function() {
         return ChunkData;
     })();
 
+    game.UnloadChunk = (function() {
+
+        /**
+         * Properties of an UnloadChunk.
+         * @memberof game
+         * @interface IUnloadChunk
+         * @property {game.IVec3i|null} [chunkPosition] UnloadChunk chunkPosition
+         */
+
+        /**
+         * Constructs a new UnloadChunk.
+         * @memberof game
+         * @classdesc Represents an UnloadChunk.
+         * @implements IUnloadChunk
+         * @constructor
+         * @param {game.IUnloadChunk=} [properties] Properties to set
+         */
+        function UnloadChunk(properties) {
+            if (properties)
+                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * UnloadChunk chunkPosition.
+         * @member {game.IVec3i|null|undefined} chunkPosition
+         * @memberof game.UnloadChunk
+         * @instance
+         */
+        UnloadChunk.prototype.chunkPosition = null;
+
+        /**
+         * Creates a new UnloadChunk instance using the specified properties.
+         * @function create
+         * @memberof game.UnloadChunk
+         * @static
+         * @param {game.IUnloadChunk=} [properties] Properties to set
+         * @returns {game.UnloadChunk} UnloadChunk instance
+         */
+        UnloadChunk.create = function create(properties) {
+            return new UnloadChunk(properties);
+        };
+
+        /**
+         * Encodes the specified UnloadChunk message. Does not implicitly {@link game.UnloadChunk.verify|verify} messages.
+         * @function encode
+         * @memberof game.UnloadChunk
+         * @static
+         * @param {game.IUnloadChunk} message UnloadChunk message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        UnloadChunk.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.chunkPosition != null && Object.hasOwnProperty.call(message, "chunkPosition"))
+                $root.game.Vec3i.encode(message.chunkPosition, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+            return writer;
+        };
+
+        /**
+         * Encodes the specified UnloadChunk message, length delimited. Does not implicitly {@link game.UnloadChunk.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof game.UnloadChunk
+         * @static
+         * @param {game.IUnloadChunk} message UnloadChunk message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        UnloadChunk.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes an UnloadChunk message from the specified reader or buffer.
+         * @function decode
+         * @memberof game.UnloadChunk
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {game.UnloadChunk} UnloadChunk
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        UnloadChunk.decode = function decode(reader, length, error) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.game.UnloadChunk();
+            while (reader.pos < end) {
+                var tag = reader.uint32();
+                if (tag === error)
+                    break;
+                switch (tag >>> 3) {
+                case 1: {
+                        message.chunkPosition = $root.game.Vec3i.decode(reader, reader.uint32());
+                        break;
+                    }
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes an UnloadChunk message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof game.UnloadChunk
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {game.UnloadChunk} UnloadChunk
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        UnloadChunk.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies an UnloadChunk message.
+         * @function verify
+         * @memberof game.UnloadChunk
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        UnloadChunk.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.chunkPosition != null && message.hasOwnProperty("chunkPosition")) {
+                var error = $root.game.Vec3i.verify(message.chunkPosition);
+                if (error)
+                    return "chunkPosition." + error;
+            }
+            return null;
+        };
+
+        /**
+         * Creates an UnloadChunk message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof game.UnloadChunk
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {game.UnloadChunk} UnloadChunk
+         */
+        UnloadChunk.fromObject = function fromObject(object) {
+            if (object instanceof $root.game.UnloadChunk)
+                return object;
+            var message = new $root.game.UnloadChunk();
+            if (object.chunkPosition != null) {
+                if (typeof object.chunkPosition !== "object")
+                    throw TypeError(".game.UnloadChunk.chunkPosition: object expected");
+                message.chunkPosition = $root.game.Vec3i.fromObject(object.chunkPosition);
+            }
+            return message;
+        };
+
+        /**
+         * Creates a plain object from an UnloadChunk message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof game.UnloadChunk
+         * @static
+         * @param {game.UnloadChunk} message UnloadChunk
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        UnloadChunk.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            var object = {};
+            if (options.defaults)
+                object.chunkPosition = null;
+            if (message.chunkPosition != null && message.hasOwnProperty("chunkPosition"))
+                object.chunkPosition = $root.game.Vec3i.toObject(message.chunkPosition, options);
+            return object;
+        };
+
+        /**
+         * Converts this UnloadChunk to JSON.
+         * @function toJSON
+         * @memberof game.UnloadChunk
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        UnloadChunk.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for UnloadChunk
+         * @function getTypeUrl
+         * @memberof game.UnloadChunk
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        UnloadChunk.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/game.UnloadChunk";
+        };
+
+        return UnloadChunk;
+    })();
+
     game.LoadChunkRequest = (function() {
 
         /**
@@ -3437,6 +3647,183 @@ $root.game = (function() {
         };
 
         return HoldingItemUpdate;
+    })();
+
+    game.ItemUseAttack = (function() {
+
+        /**
+         * Properties of an ItemUseAttack.
+         * @memberof game
+         * @interface IItemUseAttack
+         */
+
+        /**
+         * Constructs a new ItemUseAttack.
+         * @memberof game
+         * @classdesc Represents an ItemUseAttack.
+         * @implements IItemUseAttack
+         * @constructor
+         * @param {game.IItemUseAttack=} [properties] Properties to set
+         */
+        function ItemUseAttack(properties) {
+            if (properties)
+                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * Creates a new ItemUseAttack instance using the specified properties.
+         * @function create
+         * @memberof game.ItemUseAttack
+         * @static
+         * @param {game.IItemUseAttack=} [properties] Properties to set
+         * @returns {game.ItemUseAttack} ItemUseAttack instance
+         */
+        ItemUseAttack.create = function create(properties) {
+            return new ItemUseAttack(properties);
+        };
+
+        /**
+         * Encodes the specified ItemUseAttack message. Does not implicitly {@link game.ItemUseAttack.verify|verify} messages.
+         * @function encode
+         * @memberof game.ItemUseAttack
+         * @static
+         * @param {game.IItemUseAttack} message ItemUseAttack message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ItemUseAttack.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            return writer;
+        };
+
+        /**
+         * Encodes the specified ItemUseAttack message, length delimited. Does not implicitly {@link game.ItemUseAttack.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof game.ItemUseAttack
+         * @static
+         * @param {game.IItemUseAttack} message ItemUseAttack message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ItemUseAttack.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes an ItemUseAttack message from the specified reader or buffer.
+         * @function decode
+         * @memberof game.ItemUseAttack
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {game.ItemUseAttack} ItemUseAttack
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ItemUseAttack.decode = function decode(reader, length, error) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.game.ItemUseAttack();
+            while (reader.pos < end) {
+                var tag = reader.uint32();
+                if (tag === error)
+                    break;
+                switch (tag >>> 3) {
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes an ItemUseAttack message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof game.ItemUseAttack
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {game.ItemUseAttack} ItemUseAttack
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ItemUseAttack.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies an ItemUseAttack message.
+         * @function verify
+         * @memberof game.ItemUseAttack
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        ItemUseAttack.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            return null;
+        };
+
+        /**
+         * Creates an ItemUseAttack message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof game.ItemUseAttack
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {game.ItemUseAttack} ItemUseAttack
+         */
+        ItemUseAttack.fromObject = function fromObject(object) {
+            if (object instanceof $root.game.ItemUseAttack)
+                return object;
+            return new $root.game.ItemUseAttack();
+        };
+
+        /**
+         * Creates a plain object from an ItemUseAttack message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof game.ItemUseAttack
+         * @static
+         * @param {game.ItemUseAttack} message ItemUseAttack
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        ItemUseAttack.toObject = function toObject() {
+            return {};
+        };
+
+        /**
+         * Converts this ItemUseAttack to JSON.
+         * @function toJSON
+         * @memberof game.ItemUseAttack
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        ItemUseAttack.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for ItemUseAttack
+         * @function getTypeUrl
+         * @memberof game.ItemUseAttack
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        ItemUseAttack.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/game.ItemUseAttack";
+        };
+
+        return ItemUseAttack;
     })();
 
     return game;

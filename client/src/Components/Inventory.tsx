@@ -1,4 +1,4 @@
-import { EventBusEvent } from "../../../common/EventTypes";
+import { EventType } from "../../../common/EventTypes";
 import { ItemStack } from "../../../common/ItemStack";
 import { PlayerInventoryContainer } from "../../../common/PlayerInventoryContainer";
 import { ClientEventBus } from "../ClientEventBus";
@@ -53,7 +53,7 @@ export function Inventory() {
 
         // Regardless of client-side swap/pickup, always inform the server
         // The server will then validate and send back a sync packet.
-        ClientEventBus.invokeEvent(EventBusEvent.CLIENT_INVENTORY_SLOT_CLICKED, {slot: slotIndex});
+        ClientEventBus.invokeEvent(EventType.CLIENT_INVENTORY_SLOT_CLICKED, {slot: slotIndex});
     }
 
     return isVisible ? <div className="w-fit h-fit p-4 fixed top-[50%] left-[50%] translate-x-[-50%] bg-black/15 rounded-md border border-white/15 pointer-events-auto">

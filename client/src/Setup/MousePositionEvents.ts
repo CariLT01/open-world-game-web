@@ -1,4 +1,4 @@
-import { EventBusEvent } from "../../../common/EventTypes";
+import { EventType } from "../../../common/EventTypes";
 import { ClientEventBus } from "../ClientEventBus";
 import { MousePositionStore } from "../Stores/MousePositionStore";
 import type { ISetupProcess } from "./SetupProcessInterface";
@@ -11,7 +11,7 @@ export class MousePositionEvents implements ISetupProcess {
 
         document.addEventListener("mousedown", (e) => {
             if (e.button === 0) {
-                ClientEventBus.invokeEvent(EventBusEvent.CLIENT_ATTACK, {});
+                ClientEventBus.invokeEvent(EventType.CLIENT_ATTACK, {});
             }
         })
     }

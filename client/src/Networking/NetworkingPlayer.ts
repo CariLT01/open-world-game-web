@@ -1,7 +1,7 @@
 import { BoxGeometry, Euler, Group, Mesh, MeshBasicMaterial, Scene } from "three";
 import { Vector3 } from "../../../common/Core/Vector3";
 import { ClientEventBus } from "../ClientEventBus";
-import { EventBusEvent } from "../../../common/EventTypes";
+import { EventType } from "../../../common/EventTypes";
 import { ItemModelLoader } from "../Models/ItemModelLoader";
 import { ItemModels } from "../Data/models/Items";
 import { ItemModelTypes } from "../Data/models/ModelTypes";
@@ -26,7 +26,7 @@ export class NetworkingPlayer {
 
         this.threeMesh = new Mesh(geometry, material);
 
-        ClientEventBus.invokeEvent(EventBusEvent.CLIENT_ADD_TO_SCENE, {object: this.threeMesh});
+        ClientEventBus.invokeEvent(EventType.CLIENT_ADD_TO_SCENE, {object: this.threeMesh});
     }
 
     updatePosition(newPosition: Vector3) {
@@ -36,7 +36,7 @@ export class NetworkingPlayer {
     }
 
     dispose() {
-        ClientEventBus.invokeEvent(EventBusEvent.CLIENT_REMOVE_FROM_SCENE, {object: this.threeMesh});
+        ClientEventBus.invokeEvent(EventType.CLIENT_REMOVE_FROM_SCENE, {object: this.threeMesh});
         this.threeMesh.geometry.dispose();
     }
 

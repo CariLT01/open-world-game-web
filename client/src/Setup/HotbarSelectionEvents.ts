@@ -1,4 +1,4 @@
-import { EventBusEvent } from "../../../common/EventTypes";
+import { EventType } from "../../../common/EventTypes";
 import { ClientEventBus } from "../ClientEventBus";
 import { InventoryStore } from "../Stores/InventoryStore";
 import type { ISetupProcess } from "./SetupProcessInterface";
@@ -11,7 +11,7 @@ export class HotbarSelectionEvents implements ISetupProcess {
                 if (Number.isNaN(i)) return;
                 if (i >= 1 && i <= 9) {
                     InventoryStore.setState({hotbarSelectedIndex: i - 1});
-                    ClientEventBus.invokeEvent(EventBusEvent.CLIENT_HOTBAR_SELECTION_CHANGED, {index: i - 1});
+                    ClientEventBus.invokeEvent(EventType.CLIENT_HOTBAR_SELECTION_CHANGED, {index: i - 1});
                 } else {
                     console.warn("invalid hotbar index: ", i);
                 }

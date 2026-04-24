@@ -12,7 +12,7 @@ import { Face } from "../../common/Config";
 import { ChunkLoadRequestPacket } from "../../common/packets/ChunkLoadRequestPacket";
 import { server } from "typescript";
 import { ClientEventBus } from "./ClientEventBus";
-import { EventBusEvent } from "../../common/EventTypes";
+import { EventType } from "../../common/EventTypes";
 import { Raycaster } from "./Raycaster";
 
 export const RENDER_DISTANCE = 5;
@@ -223,34 +223,32 @@ export class WorldChunks {
     }
 
     private _registerEvents() {
-        ClientEventBus.on(EventBusEvent.CLIENT_CHUNK_RECEIVED, (data) => {
-            if (!this.pendingServer.has(data.position.toKey())) {
-                if (!this.chunks.has(data.position.toKey())) {
-                    // not already known, and not requested
-                    console.warn("Received chunk that was never requested: " + data.position.toKey() + " l: " + this.pendingServer.size);
-                    return;
-                } else {
-                    // already known, but not requested. This means that the chunk needs update
+        ClientEventBus.on(EventType.CLIENT_CHUNK_RECEIVED, (data) => {
 
-                    const existingChunk = this.chunks.get(data.position.toKey())!;
-                    existingChunk.chunkData = data.data;
-                    existingChunk.computeVisibilityMask();
+            if (!this.chunks.has(data.position.toKey())) {
+                // chunk doesn't exist, create a new one
 
-                    this.pendingChunks.add(data.position.toKey()); // add to pending, pending for rebuild
-                }
+                const chunk = new Chunk();
+                chunk.chunkData = data.data;
 
+                chunk.computeVisibilityMask(); // TODO: Move off-thread, doing this main-thread for testing
+
+                this.chunks.set(data.position.toKey(), chunk);
+
+                this.pendingChunks.add(data.position.toKey());
+                // console.log("Recv successfull for: ", data.position.toKey());
+                return;
+            } else {
+                // already known, update it
+
+                const existingChunk = this.chunks.get(data.position.toKey())!;
+                existingChunk.chunkData = data.data;
+                existingChunk.computeVisibilityMask();
+
+                this.pendingChunks.add(data.position.toKey()); // add to pending, pending for rebuild
             }
 
-            const chunk = new Chunk();
-            chunk.chunkData = data.data;
 
-            chunk.computeVisibilityMask(); // TODO: Move off-thread, doing this main-thread for testing
-
-            this.chunks.set(data.position.toKey(), chunk);
-
-            this.pendingServer.delete(data.position.toKey());
-            this.pendingChunks.add(data.position.toKey());
-            // console.log("Recv successfull for: ", data.position.toKey());
         })
     }
 
@@ -460,7 +458,7 @@ export class WorldChunks {
 
         this.pendingServer.add(pos.toKey());
 
-        ClientEventBus.invokeEvent(EventBusEvent.SEND_PACKET, { packet: serverRequestPacket });
+        ClientEventBus.invokeEvent(EventType.SEND_PACKET, { packet: serverRequestPacket });
 
         // console.log("Queued: ", pos.toKey(), " set has: ", this.pendingServer.size);
     }

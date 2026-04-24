@@ -1,5 +1,5 @@
 import { BoxGeometry, Euler, Mesh, MeshStandardMaterial, NearestFilter, Object3D, TextureLoader, type Camera } from "three";
-import { EventBusEvent } from "../../common/EventTypes";
+import { EventType } from "../../common/EventTypes";
 import { ClientEventBus } from "./ClientEventBus";
 import type { ItemStack } from "../../common/ItemStack";
 import { ItemData } from "./Data/ItemsData";
@@ -70,7 +70,7 @@ export class HeldItem {
         this.loader = new TextureLoader();
         this.camera = camera;
 
-        ClientEventBus.on(EventBusEvent.CLIENT_HANDHELD_ITEM_UPDATE, (data) => {
+        ClientEventBus.on(EventType.CLIENT_HANDHELD_ITEM_UPDATE, (data) => {
             this._updateHeldItem(data.stack);
         });
 
@@ -81,7 +81,7 @@ export class HeldItem {
 
         if (this.mesh) {
             this.camera.remove(this.mesh);
-            ClientEventBus.invokeEvent(EventBusEvent.CLIENT_REMOVE_FROM_SCENE, { object: this.mesh });
+            ClientEventBus.invokeEvent(EventType.CLIENT_REMOVE_FROM_SCENE, { object: this.mesh });
             this.mesh = null;
         }
 
@@ -144,7 +144,7 @@ export class HeldItem {
     }
 
     private _registerEvents() {
-        ClientEventBus.on(EventBusEvent.CLIENT_ATTACK, (data) => {
+        ClientEventBus.on(EventType.CLIENT_ATTACK, (data) => {
             this.attackAnimationActive = true;
         })
     }

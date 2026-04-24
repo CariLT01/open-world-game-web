@@ -1,6 +1,6 @@
 import type WebSocket from "ws";
 import { Vector3 } from "../../../common/Core/Vector3";
-import { EventBusEvent } from "../../../common/EventTypes";
+import { EventType } from "../../../common/EventTypes";
 import type { IPacket } from "../../../common/packets/IPacket";
 import { PacketTypes } from "../../../common/packets/PacketTypes";
 import { PlayerJoinPacket } from "../../../common/packets/PlayerJoinPacket";
@@ -37,7 +37,7 @@ export class PacketProcessor {
                 }
 
                 this.connectionsToPlayersMap.set(ws, packetData.name);
-                ServerEventBus.invokeEvent(EventBusEvent.SERVER_PLAYER_JOINED, {username: packetData.name, ws: ws});
+                ServerEventBus.invokeEvent(EventType.SERVER_PLAYER_JOINED, {username: packetData.name, ws: ws});
 
                 
 
@@ -60,7 +60,7 @@ export class PacketProcessor {
                     throw new Error("No name");
                 }
 
-                ServerEventBus.invokeEvent(EventBusEvent.SERVER_PLAYER_MOVED, {username: packetData.name, position: playerPosition});
+                ServerEventBus.invokeEvent(EventType.SERVER_PLAYER_MOVED, {username: packetData.name, position: playerPosition});
                 break;
             case PacketTypes.CHUNK_LOAD_REQUEST_PACKET:
                 packetData = new ChunkLoadRequestPacket();
@@ -70,7 +70,7 @@ export class PacketProcessor {
                     throw new Error("Failed to deserialize");
                 }
 
-                ServerEventBus.invokeEvent(EventBusEvent.SERVER_LOAD_CHUNK, {
+                ServerEventBus.invokeEvent(EventType.SERVER_LOAD_CHUNK, {
                     position: packetData.position,
                     connection: ws
                 });
@@ -86,7 +86,7 @@ export class PacketProcessor {
                 const username = this.connectionsToPlayersMap.get(ws);
                 if (!username) throw new Error("No username");
 
-                ServerEventBus.invokeEvent(EventBusEvent.SERVER_INVENTORY_UPDATE, {
+                ServerEventBus.invokeEvent(EventType.SERVER_INVENTORY_UPDATE, {
                     slot: packetData.slot,
                     username: username
                 });
@@ -102,7 +102,7 @@ export class PacketProcessor {
                 const username2 = this.connectionsToPlayersMap.get(ws);
                 if (!username2) throw new Error("No username");
 
-                ServerEventBus.invokeEvent(EventBusEvent.SERVER_PLAYER_HOTBAR_SELECT_UPDATE, {
+                ServerEventBus.invokeEvent(EventType.SERVER_PLAYER_HOTBAR_SELECT_UPDATE, {
                     username: username2,
                     slot: packetData.slot
                 });

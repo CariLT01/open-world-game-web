@@ -1,6 +1,6 @@
 import { Vector3 } from "../../../common/Core/Vector3";
 import { EventBus } from "../../../common/EventBus";
-import { EventBusEvent } from "../../../common/EventTypes";
+import { EventType } from "../../../common/EventTypes";
 import { ChunkDataPacket } from "../../../common/packets/ChunkDataPacket";
 import { HoldingItemUpdatePacket } from "../../../common/packets/HoldingItemUpdatePacket";
 import { InventorySyncPacket } from "../../../common/packets/InventorySyncPacket";
@@ -8,6 +8,7 @@ import { PacketTypes } from "../../../common/packets/PacketTypes";
 import { PlayerJoinPacket } from "../../../common/packets/PlayerJoinPacket";
 import { PlayerLeavePacket } from "../../../common/packets/PlayerLeavePacket";
 import { PlayerMovePacket } from "../../../common/packets/PlayerMovePacket";
+import { UnloadChunkPacket } from "../../../common/packets/UnloadChunkPacket";
 import { ClientEventBus } from "../ClientEventBus";
 
 export class ClientPacketProcessor {
@@ -29,7 +30,7 @@ export class ClientPacketProcessor {
                 decodedPacket.deserialize(packetBuffer);
 
                 ClientEventBus.invokeEvent(
-                    EventBusEvent.CLIENT_PLAYER_JOINED,
+                    EventType.CLIENT_PLAYER_JOINED,
                     {name: decodedPacket.name ?? "UNKNOWN"}
                 );
                 break;
@@ -41,7 +42,7 @@ export class ClientPacketProcessor {
                     throw new Error("Packet has no positoin");
                 }
 
-                ClientEventBus.invokeEvent(EventBusEvent.CLIENT_PLAYER_MOVED, {
+                ClientEventBus.invokeEvent(EventType.CLIENT_PLAYER_MOVED, {
                     name: decodedPacket.name ?? "",
                     position: new Vector3(
                         decodedPacket.position.x ?? 0,
@@ -65,7 +66,7 @@ export class ClientPacketProcessor {
 
                 // console.log("Got chunk data packet at: ", decodedPacket.position.toKey());
 
-                ClientEventBus.invokeEvent(EventBusEvent.CLIENT_CHUNK_RECEIVED, {
+                ClientEventBus.invokeEvent(EventType.CLIENT_CHUNK_RECEIVED, {
                     position: decodedPacket.position,
                     data: decodedPacket.chunkData,
                 })
@@ -81,7 +82,7 @@ export class ClientPacketProcessor {
                     throw new Error("No username in packet");
                 }
 
-                ClientEventBus.invokeEvent(EventBusEvent.SERVER_PLAYER_LEFT, {
+                ClientEventBus.invokeEvent(EventType.SERVER_PLAYER_LEFT, {
                     username: decodedPacket.username
                 });
 
@@ -94,7 +95,7 @@ export class ClientPacketProcessor {
                     throw new Error("Failed to decode container");
                 }
 
-                ClientEventBus.invokeEvent(EventBusEvent.CLIENT_INVENTORY_SYNC, {
+                ClientEventBus.invokeEvent(EventType.CLIENT_INVENTORY_SYNC, {
                     container: decodedPacket.container
                 });
                 break;
@@ -109,11 +110,24 @@ export class ClientPacketProcessor {
                     throw new Error("no player name");
                 }
 
-                ClientEventBus.invokeEvent(EventBusEvent.CLIENT_MULTIPLAYER_PLAYER_HANDHELD_UPDATE, {
+                ClientEventBus.invokeEvent(EventType.CLIENT_MULTIPLAYER_PLAYER_HANDHELD_UPDATE, {
                     itemName: decodedPacket.itemName,
                     username: decodedPacket.playerName
                 });
                 break;
+            case PacketTypes.UNLOAD_CHUNK:
+                decodedPacket = new UnloadChunkPacket();
+                decodedPacket.deserialize(packetBuffer);
+
+                if (decodedPacket.chunkPosition == undefined) {
+                    throw new Error("no pos");
+                }
+
+                ClientEventBus.invokeEvent(EventType.CLIENT_UNLOAD_CHUNK, {
+                    position: decodedPacket.chunkPosition
+                });
+                break;
+
             default:
                 console.warn("Unknown packet type: ", packetType);
                 break;

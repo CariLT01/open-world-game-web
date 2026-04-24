@@ -1,4 +1,4 @@
-import { EventBusEvent } from "../../../common/EventTypes";
+import { EventType } from "../../../common/EventTypes";
 import { ClientEventBus } from "../ClientEventBus";
 import { InventoryStore } from "../Stores/InventoryStore";
 import type { ISetupProcess } from "./SetupProcessInterface";
@@ -11,7 +11,7 @@ export class InventoryVisibilityEvent implements ISetupProcess {
                 const isInventoryVisible = InventoryStore.getState().isVisible;
                 InventoryStore.getState().setIsVisible(!isInventoryVisible);
 
-                ClientEventBus.invokeEvent(EventBusEvent.CLIENT_TOGGLE_POINTER_LOCK, {lockPointer: isInventoryVisible});
+                ClientEventBus.invokeEvent(EventType.CLIENT_TOGGLE_POINTER_LOCK, {lockPointer: isInventoryVisible});
             }
         })
     }

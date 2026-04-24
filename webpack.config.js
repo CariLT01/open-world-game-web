@@ -7,7 +7,7 @@ const nodeExternals = require("webpack-node-externals");
 const commonRules = [
     {
         test: /\.tsx?$/,
-        use: "ts-loader",
+        use: "swc-loader",
         exclude: /node_modules/,
     },
 ];

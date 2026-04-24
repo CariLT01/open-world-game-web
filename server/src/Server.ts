@@ -27,7 +27,9 @@ export class Server {
     async tick() {
         this.networkingHandler.tick();
         this.playersManager.tick();
-        this.chunksManager.tick();
+        this.chunksManager.tick(this.playersManager);
+
+        TODO: UNLOAD
     }
 
     async run() {

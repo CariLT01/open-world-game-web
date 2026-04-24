@@ -32,6 +32,10 @@ message ChunkData {
     Vec3i chunkPosition = 4;
 }
 
+message UnloadChunk {
+    Vec3i chunkPosition = 1;
+}
+
 message LoadChunkRequest {
     Vec3i chunkPosition = 1;
 }

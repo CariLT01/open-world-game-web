@@ -14,7 +14,7 @@ import { debugGlobal } from "./DebugGlobal";
 import { NetworkHandler } from "../../server/src/NetworkHandler";
 import { ClientNetworkingHandler } from "./ClientNetworkingHandler";
 import { ClientEventBus } from "./ClientEventBus";
-import { EventBusEvent } from "../../common/EventTypes";
+import { EventType } from "../../common/EventTypes";
 import { PlayerJoinPacket } from "../../common/packets/PlayerJoinPacket";
 import { EventBus } from "../../common/EventBus";
 import { PlayersManager } from "./Networking/PlayersManager";
@@ -56,7 +56,7 @@ export class Game {
         this.renderLoop = this.renderLoop.bind(this);
 
 
-        ClientEventBus.on(EventBusEvent.FATAL_CRASH_STATE, (data) => {
+        ClientEventBus.on(EventType.FATAL_CRASH_STATE, (data) => {
             this.crashed = true;
         })
     }
@@ -128,11 +128,11 @@ export class Game {
 
 
     private async _setupEvents() {
-        ClientEventBus.on(EventBusEvent.CLIENT_ADD_TO_SCENE, (data) => {
+        ClientEventBus.on(EventType.CLIENT_ADD_TO_SCENE, (data) => {
             this.scene.add(data.object);
         })
 
-        ClientEventBus.on(EventBusEvent.CLIENT_REMOVE_FROM_SCENE, (data) => {
+        ClientEventBus.on(EventType.CLIENT_REMOVE_FROM_SCENE, (data) => {
             this.scene.remove(data.object);
         })
     }
@@ -145,13 +145,13 @@ export class Game {
 
     async initialize() {
 
-        ClientEventBus.on(EventBusEvent.CLIENT_SOCKET_CONNECTED, () => {
+        ClientEventBus.on(EventType.CLIENT_SOCKET_CONNECTED, () => {
             console.log("Client socket connected, sending username");
 
             const joinPacket = new PlayerJoinPacket();
             joinPacket.name = this.playerUsername;
 
-            ClientEventBus.invokeEvent(EventBusEvent.SEND_PACKET, {packet: joinPacket});
+            ClientEventBus.invokeEvent(EventType.SEND_PACKET, {packet: joinPacket});
         })
 
         this.networkingHandler.connect();
@@ -172,7 +172,7 @@ export class Game {
             }
         })
 
-        ClientEventBus.on(EventBusEvent.CLIENT_TOGGLE_POINTER_LOCK, (data) => {
+        ClientEventBus.on(EventType.CLIENT_TOGGLE_POINTER_LOCK, (data) => {
             this.pointerLocked = data.lockPointer;
             if (data.lockPointer) {
                 this.renderer.domElement.requestPointerLock();

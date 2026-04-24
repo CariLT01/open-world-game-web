@@ -1,6 +1,6 @@
 import type WebSocket from "ws";
 import type { Vector3 } from "../../common/Core/Vector3";
-import { EventBusEvent } from "../../common/EventTypes";
+import { EventType } from "../../common/EventTypes";
 import { PlayerMovePacket } from "../../common/packets/PlayerMovePacket";
 import { ServerEventBus } from "./ServerEventBus";
 import { ServerPlayer } from "./ServerPlayer";
@@ -20,12 +20,18 @@ export class PlayersManager {
     }
 
     private _addPlayer(username: string) {
+        console.log("new guy joined the game");
         this.players.set(username, new ServerPlayer(username));
+    }
+
+    getPlayers() {
+        // console.log("being called")
+        return this.players;
     }
 
     private _handlePlayerEvents() {
         ServerEventBus.on(
-            EventBusEvent.SERVER_PLAYER_JOINED,
+            EventType.SERVER_PLAYER_JOINED,
             (data) => {
                 const playerName = data.username;
                 const ws = data.ws;
@@ -43,7 +49,7 @@ export class PlayersManager {
                 const joinPacket = new PlayerJoinPacket();
                 joinPacket.name = playerName;
 
-                ServerEventBus.invokeEvent(EventBusEvent.SEND_PACKET, {packet: joinPacket});
+                ServerEventBus.invokeEvent(EventType.SEND_PACKET, {packet: joinPacket});
 
                 // Send existing players
 
@@ -52,7 +58,7 @@ export class PlayersManager {
 
                         joinPacket.name = name;
 
-                        ServerEventBus.invokeEvent(EventBusEvent.SEND_PACKET_TO_CONNECTION, {packet: joinPacket, connection: ws});
+                        ServerEventBus.invokeEvent(EventType.SEND_PACKET_TO_CONNECTION, {packet: joinPacket, connection: ws});
                     }
                 }
 
@@ -66,7 +72,7 @@ export class PlayersManager {
                             hotbarUpdatePacket.itemName = player.getInventory().getHotbarSelectedName()
                             hotbarUpdatePacket.playerName = name;
 
-                            ServerEventBus.invokeEvent(EventBusEvent.SEND_PACKET_TO_CONNECTION, {packet: hotbarUpdatePacket, connection: ws});
+                            ServerEventBus.invokeEvent(EventType.SEND_PACKET_TO_CONNECTION, {packet: hotbarUpdatePacket, connection: ws});
                         }
                     }
                 }
@@ -80,7 +86,7 @@ export class PlayersManager {
         );
 
         ServerEventBus.on(
-            EventBusEvent.SERVER_PLAYER_MOVED,
+            EventType.SERVER_PLAYER_MOVED,
             (data) => {
                 if (!this.players.has(data.username)) {
                     throw new Error("Player does not exist in the server!");
@@ -93,14 +99,14 @@ export class PlayersManager {
         );
 
         ServerEventBus.on(
-            EventBusEvent.SERVER_PLAYER_LEFT_WS,
+            EventType.SERVER_PLAYER_LEFT_WS,
             (data) => {
                 // Check which username
                 for (const [username, ws] of this.playerConnections) {
                     if (ws == data.ws) {
 
                         ServerEventBus.invokeEvent(
-                            EventBusEvent.SERVER_PLAYER_LEFT,
+                            EventType.SERVER_PLAYER_LEFT,
                             {
                                 username: username
                             }
@@ -115,7 +121,7 @@ export class PlayersManager {
         )
 
         ServerEventBus.on(
-            EventBusEvent.SEND_PACKET_TO_PLAYER,
+            EventType.SEND_PACKET_TO_PLAYER,
             (data) => {
                 if (!this.playerConnections.has(data.username)) {
                     throw new Error("Player does not exist in the server!");
@@ -124,7 +130,7 @@ export class PlayersManager {
                 const ws = this.playerConnections.get(data.username)!;
 
                 ServerEventBus.invokeEvent(
-                    EventBusEvent.SEND_PACKET_TO_CONNECTION,
+                    EventType.SEND_PACKET_TO_CONNECTION,
                     {
                         packet: data.packet,
                         connection: ws
@@ -134,7 +140,7 @@ export class PlayersManager {
         );
 
         ServerEventBus.on(
-            EventBusEvent.SERVER_PLAYER_LEFT,
+            EventType.SERVER_PLAYER_LEFT,
             (data) => {
                 console.log("Player left: ", data.username);
 
@@ -149,7 +155,7 @@ export class PlayersManager {
                 playerLeavePacket.username = data.username;
 
                 ServerEventBus.invokeEvent(
-                    EventBusEvent.SEND_PACKET,
+                    EventType.SEND_PACKET,
                     {
                         packet: playerLeavePacket
                     }
@@ -158,7 +164,7 @@ export class PlayersManager {
         )
 
         ServerEventBus.on(
-            EventBusEvent.SERVER_INVENTORY_UPDATE, (data) => {
+            EventType.SERVER_INVENTORY_UPDATE, (data) => {
                 const user = this.players.get(data.username);
                 
                 if (!user) throw new Error("User not found");
@@ -168,7 +174,7 @@ export class PlayersManager {
         )
 
         ServerEventBus.on(
-            EventBusEvent.SERVER_PLAYER_HOTBAR_SELECT_UPDATE, (data) => {
+            EventType.SERVER_PLAYER_HOTBAR_SELECT_UPDATE, (data) => {
                 const user = this.players.get(data.username);
 
                 if (!user) throw new Error("Player not found");
@@ -208,7 +214,7 @@ export class PlayersManager {
         itemChangePacket.playerName = player.getName();
 
         ServerEventBus.invokeEvent(
-            EventBusEvent.SEND_PACKET, {packet: itemChangePacket}
+            EventType.SEND_PACKET, {packet: itemChangePacket}
         );
     }       
 
@@ -219,7 +225,7 @@ export class PlayersManager {
             playerMovementPacket.position = data.getPosition();
 
             ServerEventBus.invokeEvent(
-                EventBusEvent.SEND_PACKET,
+                EventType.SEND_PACKET,
                 {packet: playerMovementPacket},
             );
         }
